@@ -1,0 +1,19 @@
+{
+  "name": "pos2026",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Sistem POS Modular Berbasis Monolith - monorepo (SvelteKit + NestJS + Drizzle)",
+  "packageManager": "pnpm@10.28.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "pnpm -r run lint",
+    "test": "pnpm -r run test",
+    "build": "pnpm -r run build"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}

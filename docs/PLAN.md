@@ -28,8 +28,8 @@ Item tanpa ID = indikasi scope creep → jangan dikerjakan.
 | Field | Nilai |
 |---|---|
 | Fase aktif | **Fase 1 — MVP POS Inti** (lihat PRD §12) |
-| Status implementasi | Greenfield — belum ada kode, spesifikasi lengkap |
-| Branch kerja | _(isi nama branch saat mulai)_ |
+| Status implementasi | Scaffolding frontend selesai (SvelteKit monorepo); quality gate aktif & hijau. Backend (NestJS+Drizzle) belum dimulai. |
+| Branch kerja | `docs/anti-drift-and-drizzle` (PR #2) |
 | Pemegang tugas terakhir | _(isi)_ |
 | Update terakhir | _(isi tanggal)_ |
 
@@ -66,8 +66,8 @@ dukungan thermal printer ESC/POS & scanner HID.
 | F1-INFRA-02 | Core: EventBus (in-process), BullMQ, Config, Logger | Backend.md §5/§6 | ⬜ |
 | F1-INFRA-03 | Common: ValidationPipe, HttpExceptionFilter, LoggingInterceptor, RateLimit | Backend.md §4.4, SRS §8 | ⬜ |
 | F1-INFRA-04 | Multi-tenancy: `TenantInterceptor` (`business_id`/`location_id`) | Backend.md §4.3, BR-10 | ⬜ |
-| F1-INFRA-05 | Setup SvelteKit (web app online, SSR/SPA) | PRD §7.4, Frontend.md | ⬜ |
-| F1-INFRA-06 | Definisikan skrip gate di package.json (`typecheck`,`lint`,`test`,`build`) + konfig Vitest/ESLint agar `quality-gate.yml` aktif | AGENTS.md §6.2 | ⬜ |
+| F1-INFRA-05 | Setup SvelteKit (web app online, SSR/SPA) | PRD §7.4, Frontend.md | ✅ |
+| F1-INFRA-06 | Definisikan skrip gate di package.json (`typecheck`,`lint`,`test`,`build`) + konfig Vitest/ESLint agar `quality-gate.yml` aktif | AGENTS.md §6.2 | ✅ |
 
 ### Auth & RBAC
 | ID | Item | Ref | Status |
@@ -144,7 +144,8 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
-| _(kosong)_ | | | | |
+| F1-INFRA-05 | 2026-06-17 | PRD §7.4 | package.json, pnpm-workspace.yaml, apps/web/* | Monorepo pnpm; SvelteKit 2 + Svelte 5 + Tailwind 3 (token Luminous Industrial) + adapter-node |
+| F1-INFRA-06 | 2026-06-17 | AGENTS §6.2 | apps/web/{vite,eslint}.config, package.json | Skrip gate (typecheck/lint/test/build) aktif; quality-gate.yml kini "menggigit" |
 
 ---
 
@@ -175,6 +176,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | 2026-06-17 | Frontend.md, AGENTS.md | Buat `Frontend.md` v0.1 (API-first, route map, komponen, traceability layar→FR, konvensi `reference/frontend/`); AGENTS §3 ditambah aturan baca frontend API-first | Menjawab Q1; menyiapkan kerja frontend dari file referensi HTML/PNG | User |
 | 2026-06-17 | reference/frontend/Reference/README.md, Frontend.md, PLAN.md | Tambah README katalog 11 layar referensi "Luminous Industrial" (pemetaan layar→route→FR); finalisasi styling = Tailwind (Q4), referensi tersedia (Q6) | User menyediakan file referensi UI di branch main | User |
 | 2026-06-17 | reference/frontend/Reference/{secure_login,transaction_tabs_multi_customer,barcode_scanner_camera,shift_opening}/code.html | Lengkapi 4 layar Fase 1 yang tanpa mockup, bertema "Luminous Industrial" identik dengan referensi lain | Permintaan user; menutup gap cakupan UI Fase 1 | User |
+| 2026-06-17 | package.json, pnpm-workspace.yaml, apps/web/* | Scaffold monorepo pnpm + SvelteKit (Svelte 5) + Tailwind 3 (token Luminous Industrial) + ESLint 9 + Vitest + adapter-node; quality gate hijau (typecheck/lint/test/build) | Permintaan user "scaffold sveltekit" (F1-INFRA-05/06) | User |
 
 ---
 

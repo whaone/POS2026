@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# SvelteKit / Vite
+.svelte-kit/
+apps/*/.svelte-kit/
+build/
+apps/*/build/
+.vite/
+
+# Env & logs
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Test/coverage
+coverage/
+apps/*/coverage/
