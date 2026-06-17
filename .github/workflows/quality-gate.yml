@@ -1,0 +1,126 @@
+name: Quality Gate
+
+# Gerbang mutu anti-halusinasi (lihat AGENTS.md §6.2).
+# Urutan WAJIB hijau: typecheck -> lint -> test -> build.
+# Halusinasi (endpoint/kolom/tipe/logika karangan) akan gagal di sini.
+#
+# Catatan: selama repo masih dokumentasi (belum ada package.json), job akan
+# "skip dengan rapi" agar PR dokumen tidak terblokir. Begitu aplikasi
+# discaffold (lihat docs/PLAN.md F1-INFRA-01), gate menjadi ketat otomatis.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+# Batalkan run lama bila ada push baru pada ref yang sama.
+concurrency:
+  group: quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: typecheck -> lint -> test -> build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pos
+          POSTGRES_PASSWORD: pos
+          POSTGRES_DB: pos_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pos"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://pos:pos@localhost:5432/pos_test
+      REDIS_URL: redis://localhost:6379
+      CI: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Deteksi apakah aplikasi sudah ada (ada package.json di root).
+      - name: Detect application
+        id: detect
+        run: |
+          if [ -f package.json ]; then
+            echo "has_app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_app=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Belum ada package.json - gate di-skip. Aktif otomatis setelah scaffolding (PLAN: F1-INFRA-01)."
+          fi
+
+      # Deteksi package manager dari lockfile.
+      - name: Detect package manager
+        id: pm
+        if: steps.detect.outputs.has_app == 'true'
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            echo "manager=pnpm" >> "$GITHUB_OUTPUT"
+          elif [ -f yarn.lock ]; then
+            echo "manager=yarn" >> "$GITHUB_OUTPUT"
+          else
+            echo "manager=npm" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Enable Corepack (pnpm/yarn)
+        if: steps.detect.outputs.has_app == 'true'
+        run: corepack enable
+
+      - name: Setup Node.js
+        if: steps.detect.outputs.has_app == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ steps.pm.outputs.manager }}
+
+      - name: Install dependencies
+        if: steps.detect.outputs.has_app == 'true'
+        run: |
+          case "${{ steps.pm.outputs.manager }}" in
+            pnpm) pnpm install --frozen-lockfile ;;
+            yarn) yarn install --frozen-lockfile ;;
+            npm)  npm ci ;;
+          esac
+
+      # --- GERBANG (urutan wajib hijau) ---
+      # Skrip berikut WAJIB didefinisikan di package.json:
+      #   "typecheck": "tsc --noEmit"
+      #   "lint":      "eslint ."
+      #   "test":      "vitest run"  (atau "jest --ci")
+      #   "build":     "<build produksi>"
+      # Jangan memakai --if-present: skrip yang hilang HARUS membuat gate merah.
+
+      - name: 1) Typecheck
+        if: steps.detect.outputs.has_app == 'true'
+        run: ${{ steps.pm.outputs.manager }} run typecheck
+
+      - name: 2) Lint
+        if: steps.detect.outputs.has_app == 'true'
+        run: ${{ steps.pm.outputs.manager }} run lint
+
+      - name: 3) Test (REQ-driven, single-run)
+        if: steps.detect.outputs.has_app == 'true'
+        run: ${{ steps.pm.outputs.manager }} run test
+
+      - name: 4) Build
+        if: steps.detect.outputs.has_app == 'true'
+        run: ${{ steps.pm.outputs.manager }} run build

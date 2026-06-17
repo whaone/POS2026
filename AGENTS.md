@@ -98,15 +98,17 @@ Struktur folder backend usulan ada di Backend.md §11 — **ikuti**, jangan buat
 
 ## 4. Alur Kerja Agent (Wajib)
 
-Setiap kali mengerjakan tugas, ikuti loop ini:
+Setiap kali mengerjakan tugas, ikuti loop **REQ-driven TDD** ini:
 
-1. **Orient** — Baca `docs/PLAN.md` (status terkini) + bagian spec terkait (cari ID `FR-*`).
+1. **Orient** — Baca `docs/PLAN.md` (status terkini) + bagian spec terkait (cari ID `FR-*`/`AC-*`).
 2. **Plan** — Tambahkan/operasikan item di `docs/PLAN.md` dengan ID kebutuhan & acceptance criteria.
 3. **Confirm scope** — Pastikan item ada di fase aktif. Jika tidak → konfirmasi dulu.
-4. **Implement** — Tulis kode sesuai layered pattern + boundary + aturan ACID/idempotency.
-5. **Verify** — Cek terhadap Acceptance Criteria (SRS §10) & error handling (SRS §8). Jalankan test/lint/build.
-6. **Record** — Tandai item selesai di PLAN, catat keputusan & file yang diubah. Tautkan ID.
-7. **Surface** — Laporkan ke user: apa yang berubah, ID yang dipenuhi, cara review (branch/PR).
+4. **Test-first (RED)** — Untuk item kritikal, tulis test **dari requirement** (turunkan dari `AC-*`/`FR-*`/`BR-*`) lebih dulu. Test harus **gagal** sebelum kode ditulis (membuktikan test benar-benar menguji sesuatu). Lihat §6.
+5. **Implement (GREEN)** — Tulis kode minimal sesuai layered pattern + boundary + aturan ACID/idempotency hingga test hijau.
+6. **Quality Gate** — Jalankan gerbang: **typecheck → lint → test → build**. SEMUA wajib hijau. Halusinasi (endpoint/kolom/tipe/logika karangan) akan gagal di sini. Lihat §6.2.
+7. **Review** — Untuk perubahan logika kritikal, jalankan agent **`pos-code-reviewer`** (`.kiro/agents/pos-code-reviewer.md`) untuk menangkap asumsi palsu yang lolos compiler.
+8. **Record** — Tandai item selesai di PLAN (status gate + test), catat keputusan & file berubah. Tautkan ID.
+9. **Surface** — Laporkan ke user: apa yang berubah, ID yang dipenuhi, hasil gate, cara review (branch/PR).
 
 > **Aturan emas:** jangan menyatakan "selesai" sebelum diverifikasi terhadap acceptance criteria.
 > Command exit 0 ≠ benar. Verifikasi tiap kriteria; jika tidak bisa diverifikasi, **katakan terus terang**.
@@ -127,12 +129,37 @@ Setiap kali mengerjakan tugas, ikuti loop ini:
 
 ---
 
-## 6. Testing & Verifikasi
+## 6. TDD & Quality Gate (REQ-driven) — Lapisan Anti-Halusinasi
 
-- **Jangan menambah test** kecuali diminta user **atau** test diperlukan untuk memverifikasi acceptance criteria pekerjaan tsb.
-- Prioritas pengujian (bila relevan): operasi ACID (checkout/voucher/transfer), idempotency, batas 10 tab, stok non-negatif, RBAC.
-- Mode test: gunakan **single-run** (`--run`), bukan watch mode (lingkungan sandbox).
-- Verifikasi terhadap **Acceptance Criteria SRS §10** dan **Business Rules §5**.
+Filosofi: **ubah "tolong jangan halu" menjadi "halu = build merah".** Dokumen (AGENTS/PLAN) adalah guardrail *lunak*; bagian ini adalah guardrail *keras* yang membuat halusinasi **gagal secara objektif**.
+
+### 6.1 TDD Berbasis Requirement
+- Untuk **item kritikal**, tulis test **sebelum** implementasi, diturunkan langsung dari ID requirement (`AC-*` SRS §10, `FR-*`, `BR-*`, kode error `E-*` SRS §8).
+- **Setiap test wajib menautkan ID requirement** di nama/deskripsinya, mis. `describe('AC-02 / FR-PRC-05: voucher single-use', ...)`. Test tanpa ID = indikasi scope creep.
+- Siklus **RED → GREEN → REFACTOR**: pastikan test gagal dulu (RED) agar terbukti menguji perilaku nyata, baru buat hijau (GREEN).
+- **Wajib TDD (jalur kritikal):** checkout & idempotency (`FR-SAL-09`), redeem voucher atomik (`FR-PRC-08`, `AC-02`), batas 10 tab (`FR-SAL-19`, `E-TAB-409`), stok non-negatif (`FR-INV-06`, `BR-05`), stock transfer ACID (`FR-STK-04`, `AC-06`), rekonsiliasi shift (`FR-CSH-03`), RBAC (`FR-AUT-02`, `AC-11`), tolak bayar < tagihan (`FR-SAL-08`, `E-PAY-422`).
+- **Cukup test ringan (non-kritikal):** CRUD master sederhana, UI murni → smoke test + typecheck saja.
+- Mode test: **single-run** (`--run`/`--ci`), bukan watch (lingkungan sandbox).
+
+### 6.2 Quality Gate (urutan WAJIB hijau)
+Sebelum item PLAN ditandai ✅, gerbang berikut harus **semua hijau** (lihat `.github/workflows/quality-gate.yml`):
+
+| Urutan | Gate | Menangkap halusinasi berupa |
+|---|---|---|
+| 1 | **typecheck** (`tsc --noEmit`) | endpoint/kolom/tipe/field karangan, signature salah |
+| 2 | **lint** (eslint) | impor lintas-modul terlarang, anti-pattern, dead code |
+| 3 | **test** (unit + integrasi REQ-driven) | logika bisnis/aturan karangan, AC tidak terpenuhi |
+| 4 | **build** (kompilasi produksi) | kode yang tidak benar-benar dapat di-build |
+
+Prinsip: **jika satu gate merah, pekerjaan belum selesai — titik.** Jangan menonaktifkan/men-skip test atau menambah `// @ts-ignore` untuk "menghijaukan" gate.
+
+### 6.3 Code Review oleh Agent
+- Setelah gate hijau, untuk perubahan logika kritikal jalankan agent **`pos-code-reviewer`** (didefinisikan di `.kiro/agents/pos-code-reviewer.md`).
+- Reviewer memeriksa hal yang **lolos compiler tapi salah semantik**: boundary modul ditembus, transaksi/idempotency hilang, float untuk uang, AC tidak benar-benar terpenuhi, asumsi yang tidak ada di spec.
+- Temuan reviewer ditangani sebelum PR di-merge.
+
+### 6.4 Verifikasi Akhir
+- Verifikasi eksplisit terhadap **Acceptance Criteria SRS §10** dan **Business Rules §5** — bukan sekadar "test hijau", tapi "AC yang relevan benar-benar tercakup oleh test".
 
 ---
 
@@ -150,12 +177,14 @@ Setiap kali mengerjakan tugas, ikuti loop ini:
 Sebuah unit kerja dianggap **selesai** bila SEMUA terpenuhi:
 
 - [ ] Tertaut ke ≥1 ID kebutuhan (`FR/NFR/BR/UC`).
+- [ ] **(Jalur kritikal)** Test REQ-driven ditulis lebih dulu (RED→GREEN) & menautkan ID requirement.
 - [ ] Sesuai boundary modul & layered pattern (tidak ada akses lintas-tabel).
 - [ ] Operasi keuangan/stok dibungkus DB transaction (bila relevan); checkout idempotent.
 - [ ] Validasi input + error handling sesuai SRS §8.
-- [ ] Memenuhi Acceptance Criteria SRS §10 terkait.
-- [ ] Lint/typecheck/build/test (yang relevan) hijau.
-- [ ] `docs/PLAN.md` diperbarui (status, keputusan, file berubah, traceability).
+- [ ] Memenuhi Acceptance Criteria SRS §10 terkait (tercakup oleh test, bukan sekadar diasumsikan).
+- [ ] **Quality Gate hijau semua:** typecheck → lint → test → build (tanpa skip/`@ts-ignore`).
+- [ ] **(Logika kritikal)** Sudah dilewatkan `pos-code-reviewer` & temuan ditangani.
+- [ ] `docs/PLAN.md` diperbarui (status, kolom Test/AC & gate, keputusan, file berubah, traceability).
 - [ ] Tidak ada scope creep / fitur tak diminta.
 
 ---
@@ -170,6 +199,7 @@ Sebuah unit kerja dianggap **selesai** bila SEMUA terpenuhi:
 - ❌ Float untuk nilai uang.
 - ❌ Menyatakan "selesai" tanpa verifikasi terhadap acceptance criteria.
 - ❌ Mengarang nilai/aturan yang tidak ada di spec.
+- ❌ Menonaktifkan/men-skip test, menambah `// @ts-ignore`, atau melemahkan quality gate demi "menghijaukan" build.
 
 ---
 

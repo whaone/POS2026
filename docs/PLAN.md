@@ -67,6 +67,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | F1-INFRA-03 | Common: ValidationPipe, HttpExceptionFilter, LoggingInterceptor, RateLimit | Backend.md §4.4, SRS §8 | ⬜ |
 | F1-INFRA-04 | Multi-tenancy: `TenantInterceptor` (`business_id`/`location_id`) | Backend.md §4.3, BR-10 | ⬜ |
 | F1-INFRA-05 | Setup SvelteKit (web app online, SSR/SPA) | PRD §7.4, Frontend.md | ⬜ |
+| F1-INFRA-06 | Definisikan skrip gate di package.json (`typecheck`,`lint`,`test`,`build`) + konfig Vitest/ESLint agar `quality-gate.yml` aktif | AGENTS.md §6.2 | ⬜ |
 
 ### Auth & RBAC
 | ID | Item | Ref | Status |
@@ -167,6 +168,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | Tanggal | File | Perubahan | Alasan | Disetujui |
 |---|---|---|---|---|
 | 2026-06-17 | Backend.md | ORM difinalkan ke **Drizzle ORM** (header, CoreModule, repository, struktur folder `db/`, checklist) | Keputusan user; sebelumnya "Prisma atau TypeORM" masih opsi | User |
+| 2026-06-17 | AGENTS.md, PLAN.md, .github/, .kiro/ | Tambah harness anti-halusinasi: bagian TDD & Quality Gate (AGENTS §6), kolom Test/AC & Gate (PLAN), workflow `quality-gate.yml`, agent `pos-code-reviewer.md` | Permintaan user untuk mencegah halusinasi via guardrail keras | User |
 
 ---
 
@@ -181,33 +183,49 @@ dukungan thermal printer ESC/POS & scanner HID.
 | ADR-03 | Idempotency via `sale.idempotency_key` UNIQUE | Anti transaksi dobel saat retry jaringan | (fixed di Backend §10) |
 | ADR-04 | Voucher single-use via `voucher_redemption.voucher_id` UNIQUE + lock | Anti pemakaian ganda / race condition | (fixed di SRS §7) |
 | ADR-05 | **Drizzle ORM** sebagai ORM resmi (bukan Prisma/TypeORM) | TypeScript-first, type-safe, SQL-like ringan; migrasi via drizzle-kit | 2026-06-17 |
+| ADR-06 | **REQ-driven TDD + Quality Gate (typecheck→lint→test→build) + code-reviewer agent** sebagai guardrail keras anti-halusinasi | Dokumen (AGENTS/PLAN) hanya guardrail lunak; gate eksekutabel membuat halusinasi gagal objektif | 2026-06-17 |
 
 ---
 
 ## Traceability Matrix (Ringkas)
 
-> Peta kebutuhan → status implementasi. Perbarui kolom Status & PR saat ada progres.
-> Daftar lengkap FR/NFR/BR ada di `SRS.md` §3, §5, §9.
+> Peta kebutuhan → status implementasi. Perbarui kolom Status, Test/AC, Gate & PR saat ada progres.
+> Daftar lengkap FR/NFR/BR ada di `SRS.md` §3, §5, §9. Acceptance Criteria di `SRS.md` §10.
+>
+> **Kolom Test/AC:** ID test REQ-driven yang mengunci perilaku (lihat AGENTS.md §6.1).
+> **Kolom Gate:** status quality gate (typecheck→lint→test→build); ⬜ belum · 🟡 sebagian · ✅ hijau semua.
 
-| ID Kebutuhan | Deskripsi singkat | Modul | Item PLAN | Status | PR/Commit |
-|---|---|---|---|---|---|
-| FR-SAL-03 | Split payment | Sales | F1-SAL-03 | ⬜ | |
-| FR-SAL-09 | Checkout idempotent | Sales | F1-SAL-04 | ⬜ | |
-| FR-SAL-18..23 | Tab transaksi (maks 10) | Sales | F1-TAB-01..04 | ⬜ | |
-| FR-PRC-05/08 | Voucher single-use atomik | Pricing | (Fase 2) | ⬜ | |
-| FR-INV-06 | Stok non-negatif | Stock | F1-INV-02 | ⬜ | |
-| FR-CSH-03 | Rekonsiliasi shift | CashRegister | F1-CSH-03 | ⬜ | |
-| FR-AUT-01/02 | Auth + RBAC | Auth | F1-AUTH-01/02 | ⬜ | |
-| NFR-REL-01 | Idempotent, anti double-charge | Sales/Core | F1-SAL-04 | ⬜ | |
-| NFR-DATA-01 | Operasi keuangan/stok ACID | lintas | F1-SAL-03, F1-INV-* | ⬜ | |
-| NFR-SEC-04 | RBAC + isolasi tenant | Auth/Core | F1-AUTH-02, F1-INFRA-04 | ⬜ | |
+| ID Kebutuhan | Deskripsi singkat | Modul | Item PLAN | Test/AC | Status | Gate | PR/Commit |
+|---|---|---|---|---|---|---|---|
+| FR-SAL-03 | Split payment | Sales | F1-SAL-03 | AC-01 | ⬜ | ⬜ | |
+| FR-SAL-08 | Tolak bayar < tagihan | Sales | F1-SAL-06 | E-PAY-422 | ⬜ | ⬜ | |
+| FR-SAL-09 | Checkout idempotent | Sales | F1-SAL-04 | AC-05, E-DUP-409 | ⬜ | ⬜ | |
+| FR-SAL-18..23 | Tab transaksi (maks 10) | Sales | F1-TAB-01..04 | AC-03b, E-TAB-409 | ⬜ | ⬜ | |
+| FR-PRC-05/08 | Voucher single-use atomik | Pricing | (Fase 2) | AC-02, E-VOUCHER-409 | ⬜ | ⬜ | |
+| FR-INV-06 | Stok non-negatif | Stock | F1-INV-02 | BR-05, E-STOCK-409 | ⬜ | ⬜ | |
+| FR-STK-04 | Stock transfer ACID | Stock | (Fase 2) | AC-06 | ⬜ | ⬜ | |
+| FR-CSH-03 | Rekonsiliasi shift | CashRegister | F1-CSH-03 | AC-04 | ⬜ | ⬜ | |
+| FR-AUT-01/02 | Auth + RBAC | Auth | F1-AUTH-01/02 | AC-11, E-PERM-403 | ⬜ | ⬜ | |
+| NFR-REL-01 | Idempotent, anti double-charge | Sales/Core | F1-SAL-04 | AC-05 | ⬜ | ⬜ | |
+| NFR-DATA-01 | Operasi keuangan/stok ACID | lintas | F1-SAL-03, F1-INV-* | AC-01, AC-06 | ⬜ | ⬜ | |
+| NFR-SEC-04 | RBAC + isolasi tenant | Auth/Core | F1-AUTH-02, F1-INFRA-04 | AC-11 | ⬜ | ⬜ | |
 
-> Tambahkan baris saat kebutuhan baru mulai dikerjakan. Setiap baris **wajib** punya ID kebutuhan resmi dari SRS.
+> Tambahkan baris saat kebutuhan baru mulai dikerjakan. Setiap baris **wajib** punya ID kebutuhan resmi dari SRS, dan item kritikal **wajib** punya entri di kolom Test/AC sebelum Gate bisa ✅.
 
 ---
 
 ## Catatan Verifikasi (Definition of Done)
 
-Sebelum menandai item ✅, pastikan (lihat `AGENTS.md` §8):
-- Tertaut ID kebutuhan · boundary modul terjaga · ACID/idempotency (bila relevan) ·
-  error handling SRS §8 · Acceptance Criteria SRS §10 · lint/build/test hijau · PLAN diperbarui · tanpa scope creep.
+Sebelum menandai item ✅, pastikan (lihat `AGENTS.md` §6 & §8):
+- Tertaut ID kebutuhan · **(kritikal) test REQ-driven RED→GREEN** · boundary modul terjaga ·
+  ACID/idempotency (bila relevan) · error handling SRS §8 · Acceptance Criteria SRS §10 tercakup test ·
+  **Quality Gate hijau (typecheck→lint→test→build)** · **(logika kritikal) lolos `pos-code-reviewer`** ·
+  PLAN diperbarui (kolom Test/AC & Gate) · tanpa scope creep.
+
+---
+
+## Gerbang Mutu & Review (Referensi)
+
+- **Quality Gate CI:** `.github/workflows/quality-gate.yml` — menjalankan typecheck → lint → test → build pada setiap push/PR. Wajib hijau sebelum merge.
+- **Code Reviewer Agent:** `.kiro/agents/pos-code-reviewer.md` — reviewer khusus aturan POS (boundary modul, ACID, idempotency, single-use voucher, uang non-float, kepatuhan AC). Jalankan untuk perubahan logika kritikal.
+- **Filosofi:** dokumen = guardrail lunak; gate + test + reviewer = guardrail keras yang membuat halusinasi gagal secara objektif.
