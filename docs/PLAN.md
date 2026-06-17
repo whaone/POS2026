@@ -159,7 +159,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | Q3 | Strategi cetak struk Fase 1: WebUSB/WebBluetooth langsung atau bridge lokal? | UC-10, FR-CFG-04 | ⬜ Menunggu |
 | Q4 | ~~Library styling frontend?~~ **TERJAWAB: Tailwind CSS** + design system "Luminous Industrial" (token di `reference/frontend/Reference/.../DESIGN.md`) | Frontend.md §2 | ✅ Selesai |
 | Q5 | Strategi shared types FE↔BE (generate dari OpenAPI vs paket manual)? | Frontend.md §2, §11 | ⬜ Menunggu |
-| Q6 | ~~File referensi UI belum disediakan~~ **TERJAWAB: 11 layar tersedia** di `reference/frontend/Reference/` (lihat README katalognya). Gap: tab transaksi, scanner, buka shift belum ada mockup khusus. | reference/frontend/Reference/ | ✅ Selesai |
+| Q6 | ~~File referensi UI belum disediakan~~ **TERJAWAB: 15 layar tersedia** di `reference/frontend/Reference/` (11 batch awal + 4 dilengkapi menyusul: tab transaksi, scanner, buka shift, login). Lihat README katalognya. | reference/frontend/Reference/ | ✅ Selesai |
 
 ---
 
@@ -174,6 +174,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | 2026-06-17 | AGENTS.md, PLAN.md, .github/, .kiro/ | Tambah harness anti-halusinasi: bagian TDD & Quality Gate (AGENTS §6), kolom Test/AC & Gate (PLAN), workflow `quality-gate.yml`, agent `pos-code-reviewer.md` | Permintaan user untuk mencegah halusinasi via guardrail keras | User |
 | 2026-06-17 | Frontend.md, AGENTS.md | Buat `Frontend.md` v0.1 (API-first, route map, komponen, traceability layar→FR, konvensi `reference/frontend/`); AGENTS §3 ditambah aturan baca frontend API-first | Menjawab Q1; menyiapkan kerja frontend dari file referensi HTML/PNG | User |
 | 2026-06-17 | reference/frontend/Reference/README.md, Frontend.md, PLAN.md | Tambah README katalog 11 layar referensi "Luminous Industrial" (pemetaan layar→route→FR); finalisasi styling = Tailwind (Q4), referensi tersedia (Q6) | User menyediakan file referensi UI di branch main | User |
+| 2026-06-17 | reference/frontend/Reference/{secure_login,transaction_tabs_multi_customer,barcode_scanner_camera,shift_opening}/code.html | Lengkapi 4 layar Fase 1 yang tanpa mockup, bertema "Luminous Industrial" identik dengan referensi lain | Permintaan user; menutup gap cakupan UI Fase 1 | User |
 
 ---
 

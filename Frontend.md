@@ -78,7 +78,7 @@ src/
 
 ## 3. Folder Referensi Desain (HTML + PNG)
 
-File referensi desain dari pemilik produk disimpan di **`reference/frontend/Reference/`** (read-only, panduan visual). **Sudah tersedia** 11 layar prototipe (Tailwind HTML + screenshot) + spesifikasi design system "Luminous Industrial". **Katalog lengkap + pemetaan layar→route→FR ada di `reference/frontend/Reference/README.md`.**
+File referensi desain dari pemilik produk disimpan di **`reference/frontend/Reference/`** (read-only, panduan visual). **Tersedia 15 layar prototipe** (Tailwind HTML; 11 dari batch desain awal + screenshot, 4 dilengkapi menyusul untuk Fase 1) + spesifikasi design system "Luminous Industrial". **Katalog lengkap + pemetaan layar→route→FR ada di `reference/frontend/Reference/README.md`.**
 
 **Konvensi penamaan** (memudahkan pemetaan ke route & FR):
 ```

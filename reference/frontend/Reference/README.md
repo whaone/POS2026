@@ -41,7 +41,10 @@ Spesifikasi lengkap ada di **`luminous_industrial_1/DESIGN.md`** (dan `luminous_
 
 | Folder | Isi | Layar | Route usulan | Kebutuhan (SRS) | Fase |
 |---|---|---|---|---|---|
-| `secure_login/` | screen.png | Login aman | `/login` | `FR-AUT-01`, `E-AUTH-401` | 1 |
+| `secure_login/` | code.html + png | Login aman | `/login` | `FR-AUT-01`, `E-AUTH-401` | 1 |
+| `transaction_tabs_multi_customer/` | code.html | Tab transaksi multi-pelanggan (maks 10, hold/resume/park) | `/pos/tabs` (tab bar) | `FR-SAL-18..23`, `BR-15/16`, `UC-08`, `AC-03b`, `E-TAB-409` | 1 |
+| `barcode_scanner_camera/` | code.html | Scan barcode kamera (1D/2D) + fallback manual | komponen `Scanner` | `FR-SCN-01..05`, `UC-01` | 1 |
+| `shift_opening/` | code.html | Buka shift + saldo awal modal | `/pos/register` (open) | `FR-CSH-01`, `UC-03` | 1 |
 | `pos_terminal_sales_screen/` | code.html + png | Terminal POS / sales | `/pos/checkout` (+ tab bar) | `FR-SAL-01..09`, `FR-SAL-12..18`, `UC-01`, `AC-01` | 1 |
 | `payment_split_bill/` | code.html + png | Modal pembayaran & split bill | komponen `PaymentModal` | `FR-SAL-03`, `FR-SAL-08`, `FR-PRC-06`, `E-PAY-422`, `AC-01` | 1 |
 | `shift_closing_reconciliation/` | code.html + png | Tutup shift & rekonsiliasi kas | `/pos/register` (close) | `FR-CSH-03`, `BR-07`, `UC-03`, `AC-04` | 1 |
@@ -59,12 +62,14 @@ Spesifikasi lengkap ada di **`luminous_industrial_1/DESIGN.md`** (dan `luminous_
 
 ## Catatan Cakupan (Gaps)
 
-Beberapa kebutuhan Fase 1 **belum** punya file referensi terpisah — saat implementasi, turunkan dari requirement & integrasikan ke layar terkait (jangan menunggu mockup):
+Layar Fase 1 yang **awalnya** tanpa mockup kini sudah dilengkapi dengan halaman bertema sama (lihat tabel di atas):
 
-- **Tab transaksi multi-pelanggan** (`FR-SAL-18..23`, `BR-15/16`, `UC-08`): kemungkinan menjadi *tab bar* di dalam `pos_terminal_sales_screen`. Tidak ada mockup khusus → ikuti `Frontend.md` §4–§5.
-- **Scanner barcode kamera** (`FR-SCN-01..05`): tidak ada mockup → komponen `Scanner` per `Frontend.md` §5.
-- **Buka shift** (`FR-CSH-01`): hanya ada layar *tutup* shift; layar buka shift diturunkan dari `FR-CSH-01`.
-- **`secure_login/`** hanya punya `screen.png` (tanpa `code.html`) → markup dibuat dari screenshot + `FR-AUT-01`.
+- ✅ **Tab transaksi multi-pelanggan** → `transaction_tabs_multi_customer/` (`FR-SAL-18..23`).
+- ✅ **Scanner barcode kamera** → `barcode_scanner_camera/` (`FR-SCN-01..05`).
+- ✅ **Buka shift** → `shift_opening/` (`FR-CSH-01`); melengkapi `shift_closing_reconciliation/`.
+- ✅ **`secure_login/`** kini punya `code.html` (sebelumnya hanya `screen.png`).
+
+> **Provenans:** keempat halaman di atas **dibuat menyusul oleh tim** untuk melengkapi cakupan Fase 1, mengikuti design system "Luminous Industrial" (token, glassmorphism, Inter, Material Symbols) — bukan dari batch desain awal. Belum ada `screen.png` untuk halaman-halaman ini. Tetap berlaku aturan: perilaku final mengacu `FR-*`/`AC-*`, bukan markup.
 
 Catat keputusan/selisih apa pun terhadap referensi di `docs/PLAN.md`.
 
