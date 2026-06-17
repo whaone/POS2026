@@ -337,7 +337,7 @@ GET    /reports/salesperson
 
 ## 9. Skema Database (ERD per Modul)
 
-> Notasi ringkas. Semua tabel transaksional memiliki `business_id` (multi-business) dan umumnya `location_id`. Audit: `created_at`, `updated_at`, `created_by`.
+> Notasi ringkas. **DDL PostgreSQL lengkap (tipe kolom, constraint, index, enum, relasi) ada di `database_schema.md`.** Semua tabel transaksional memiliki `business_id` (multi-business) dan umumnya `location_id`. Audit: `created_at`, `updated_at`, `created_by`.
 
 ### 9.1 Business & Settings
 ```
