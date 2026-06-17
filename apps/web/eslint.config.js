@@ -24,6 +24,6 @@ export default ts.config(
 		}
 	},
 	{
-		ignores: ['.svelte-kit/', 'build/', 'node_modules/', 'vite.config.ts.timestamp-*']
+		ignores: ['.svelte-kit/', 'build/', 'node_modules/', 'test-results/', 'playwright-report/', 'vite.config.ts.timestamp-*']
 	}
 );

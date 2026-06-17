@@ -10,10 +10,13 @@
     "prepare": "svelte-kit sync",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test --grep-invert @visual",
+    "test:e2e:visual": "playwright test --grep @visual"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
+    "@playwright/test": "^1.48.2",
     "@sveltejs/adapter-node": "^5.2.9",
     "@sveltejs/kit": "^2.8.1",
     "@sveltejs/vite-plugin-svelte": "^4.0.2",

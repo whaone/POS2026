@@ -68,6 +68,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | F1-INFRA-04 | Multi-tenancy: `TenantInterceptor` (`business_id`/`location_id`) | Backend.md §4.3, BR-10 | ⬜ |
 | F1-INFRA-05 | Setup SvelteKit (web app online, SSR/SPA) | PRD §7.4, Frontend.md | ✅ |
 | F1-INFRA-06 | Definisikan skrip gate di package.json (`typecheck`,`lint`,`test`,`build`) + konfig Vitest/ESLint agar `quality-gate.yml` aktif | AGENTS.md §6.2 | ✅ |
+| F1-INFRA-07 | Playwright E2E (fungsional, masuk gate) + visual regression opt-in; CI install chromium | AGENTS.md §6.2 | ✅ |
 
 ### Auth & RBAC
 | ID | Item | Ref | Status |
@@ -177,6 +178,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | 2026-06-17 | reference/frontend/Reference/README.md, Frontend.md, PLAN.md | Tambah README katalog 11 layar referensi "Luminous Industrial" (pemetaan layar→route→FR); finalisasi styling = Tailwind (Q4), referensi tersedia (Q6) | User menyediakan file referensi UI di branch main | User |
 | 2026-06-17 | reference/frontend/Reference/{secure_login,transaction_tabs_multi_customer,barcode_scanner_camera,shift_opening}/code.html | Lengkapi 4 layar Fase 1 yang tanpa mockup, bertema "Luminous Industrial" identik dengan referensi lain | Permintaan user; menutup gap cakupan UI Fase 1 | User |
 | 2026-06-17 | package.json, pnpm-workspace.yaml, apps/web/* | Scaffold monorepo pnpm + SvelteKit (Svelte 5) + Tailwind 3 (token Luminous Industrial) + ESLint 9 + Vitest + adapter-node; quality gate hijau (typecheck/lint/test/build) | Permintaan user "scaffold sveltekit" (F1-INFRA-05/06) | User |
+| 2026-06-17 | apps/web/{playwright.config.ts,e2e/*}, package.json, .github/quality-gate.yml, AGENTS.md | Tambah Playwright: E2E fungsional (masuk gate, step 5) + visual regression opt-in (`@visual`); CI install chromium `--with-deps` | Permintaan user setup Playwright + test:e2e | User |
 
 ---
 

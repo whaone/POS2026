@@ -24,3 +24,12 @@ Thumbs.db
 # Test/coverage
 coverage/
 apps/*/coverage/
+
+# Playwright (keep committed baselines in e2e/__screenshots__)
+test-results/
+apps/*/test-results/
+playwright-report/
+apps/*/playwright-report/
+blob-report/
+.playwright/
+apps/*/.playwright/

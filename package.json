@@ -11,6 +11,7 @@
     "typecheck": "pnpm -r run typecheck",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
+    "test:e2e": "pnpm -r run test:e2e",
     "build": "pnpm -r run build"
   },
   "pnpm": {
