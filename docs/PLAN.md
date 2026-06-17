@@ -69,6 +69,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | F1-INFRA-05 | Setup SvelteKit (web app online, SSR/SPA) | PRD §7.4, Frontend.md | ✅ |
 | F1-INFRA-06 | Definisikan skrip gate di package.json (`typecheck`,`lint`,`test`,`build`) + konfig Vitest/ESLint agar `quality-gate.yml` aktif | AGENTS.md §6.2 | ✅ |
 | F1-INFRA-07 | Playwright E2E (fungsional, masuk gate) + visual regression opt-in; CI install chromium | AGENTS.md §6.2 | ✅ |
+| F1-INFRA-08 | Workflow CI generate+commit baseline visual (`update-visual-baseline.yml`) + e2e README | AGENTS.md §6.2 | ✅ |
 
 ### Auth & RBAC
 | ID | Item | Ref | Status |
@@ -147,6 +148,8 @@ dukungan thermal printer ESC/POS & scanner HID.
 |---|---|---|---|---|
 | F1-INFRA-05 | 2026-06-17 | PRD §7.4 | package.json, pnpm-workspace.yaml, apps/web/* | Monorepo pnpm; SvelteKit 2 + Svelte 5 + Tailwind 3 (token Luminous Industrial) + adapter-node |
 | F1-INFRA-06 | 2026-06-17 | AGENTS §6.2 | apps/web/{vite,eslint}.config, package.json | Skrip gate (typecheck/lint/test/build) aktif; quality-gate.yml kini "menggigit" |
+| F1-INFRA-07 | 2026-06-17 | AGENTS §6.2 | apps/web/{playwright.config,e2e/*}, .github/quality-gate.yml | E2E fungsional masuk gate; **diverifikasi hijau di CI** (run #10 commit 44a3945, push). Visual opt-in. |
+| F1-INFRA-08 | 2026-06-17 | AGENTS §6.2 | .github/update-visual-baseline.yml, apps/web/e2e/README.md | Baseline visual digenerate+commit via CI agar konsisten dgn gate; trigger CI dirapikan (no dobel) |
 
 ---
 
@@ -179,6 +182,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | 2026-06-17 | reference/frontend/Reference/{secure_login,transaction_tabs_multi_customer,barcode_scanner_camera,shift_opening}/code.html | Lengkapi 4 layar Fase 1 yang tanpa mockup, bertema "Luminous Industrial" identik dengan referensi lain | Permintaan user; menutup gap cakupan UI Fase 1 | User |
 | 2026-06-17 | package.json, pnpm-workspace.yaml, apps/web/* | Scaffold monorepo pnpm + SvelteKit (Svelte 5) + Tailwind 3 (token Luminous Industrial) + ESLint 9 + Vitest + adapter-node; quality gate hijau (typecheck/lint/test/build) | Permintaan user "scaffold sveltekit" (F1-INFRA-05/06) | User |
 | 2026-06-17 | apps/web/{playwright.config.ts,e2e/*}, package.json, .github/quality-gate.yml, AGENTS.md | Tambah Playwright: E2E fungsional (masuk gate, step 5) + visual regression opt-in (`@visual`); CI install chromium `--with-deps` | Permintaan user setup Playwright + test:e2e | User |
+| 2026-06-17 | .github/{quality-gate,update-visual-baseline}.yml, apps/web/e2e/README.md, AGENTS.md, PLAN.md | Tuntaskan F1-INFRA-07: workflow CI generate+commit baseline visual; trigger gate dirapikan (push:main + pull_request:main) agar tidak run dobel; catat bukti CI hijau | Permintaan user "selesaikan F1-INFRA-07" | User |
 
 ---
 
