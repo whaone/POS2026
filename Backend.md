@@ -3,7 +3,7 @@
 
 > **Versi:** 1.1 (Online Web App)
 > **Stack Backend:** NestJS + TypeScript + PostgreSQL + Redis (modular monolith)
-> **ORM:** Prisma atau TypeORM (skema per modul, satu database)
+> **ORM:** Drizzle ORM (TypeScript-first, type-safe; skema per modul, satu database PostgreSQL)
 > **Dokumen terkait:** `prd-pos-monolith.md`, `srs-pos-monolith.md`, `sequence-diagrams.md`, `frontend-spec-pos-monolith.md`
 > **Tujuan:** Merinci modul-modul Backend, arsitektur, endpoint API, event domain, skema database, jobs, auth, dan integrasi.
 
@@ -37,7 +37,7 @@
 ```
 NestJS App (main.ts)
  ├── ApiModule (global): Auth, Guards, Interceptors, Filters, RateLimit
- ├── CoreModule: EventBus, JobQueue, Prisma/TypeORM, Config, Logger
+ ├── CoreModule: EventBus, JobQueue, Drizzle ORM, Config, Logger
  └── Domain Modules (Bagian 2)
 ```
 
@@ -82,7 +82,7 @@ sales/
 │   ├── events/                  # TransactionCompleted, SalesReturned
 │   └── value-objects/           # Money, TaxLine
 ├── repositories/
-│   └── sales.repository.ts      # akses DB (Prisma/TypeORM)
+│   └── sales.repository.ts      # akses DB (Drizzle ORM)
 └── dto/                         # request/response DTO + validation (class-validator)
 ```
 
@@ -482,7 +482,7 @@ cash_movement(id, shift_id, type[in|out|sale|refund|expense], amount, ref, creat
 src/
 ├── main.ts
 ├── app.module.ts
-├── core/                        # EventBus, JobQueue, Prisma, Config, Logger
+├── core/                        # EventBus, JobQueue, Drizzle (db client), Config, Logger
 ├── common/                      # Guards, Interceptors, Filters, Decorators (@Permissions)
 ├── modules/
 │   ├── auth/
@@ -500,7 +500,10 @@ src/
 │   ├── cash-register/
 │   └── reports/
 ├── events/                      # definisi event lintas modul (kontrak)
-└── prisma/ (atau entities/)     # schema DB
+└── db/                          # Drizzle: schema per modul (*.schema.ts), migrations, db client
+    ├── schema/                  # definisi tabel Drizzle (pgTable) per modul
+    ├── migrations/              # output drizzle-kit (SQL migrations)
+    └── index.ts                 # inisialisasi drizzle(client) + export `db`
 ```
 
 ---
@@ -508,7 +511,7 @@ src/
 ## 12. Checklist Pekerjaan Backend
 
 **Fondasi**
-- [ ] Setup NestJS + TypeScript + Prisma/TypeORM + PostgreSQL + Redis
+- [ ] Setup NestJS + TypeScript + Drizzle ORM (+ drizzle-kit migrations) + PostgreSQL + Redis
 - [ ] Core: EventEmitter/EventBus, BullMQ, Config, Logger
 - [ ] Common: ValidationPipe, ExceptionFilter, LoggingInterceptor, RateLimit
 - [ ] AuthModule (JWT, refresh) + JwtAuthGuard
