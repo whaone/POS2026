@@ -1,12 +1,12 @@
 # Sequence Diagrams — FULL
 # Sistem POS Modular Berbasis Monolith
  
-> **Versi:** 2.0 (Full, Consolidated)
-> Mengacu pada: `srs-pos-monolith.md` (v2.0), `prd-pos-monolith.md` (v2.0), `backend-spec-pos-monolith.md`
+> **Versi:** 2.1 (Full, Consolidated — Online Web App)
+> Mengacu pada: `srs-pos-monolith.md` (v2.1), `prd-pos-monolith.md` (v2.1), `backend-spec-pos-monolith.md`
 > Notasi: Mermaid `sequenceDiagram` (dapat dirender langsung di GitHub/editor Markdown)
 >
 > Komponen yang terlibat (modul dalam monolith):
-> - **POS PWA** : front-end kasir (offline-first) | **Admin Dashboard** : back-office
+> - **POS Web** : front-end kasir (SvelteKit, online) | **Admin Dashboard** : back-office
 > - **API Layer** : pengganti API Gateway (auth, routing, RBAC)
 > - **Auth** : autentikasi & otorisasi | **Business** : multi-business & settings
 > - **Sales** : Checkout | **Pricing** : Promotion & Voucher | **Inventory** : stok & katalog
@@ -14,7 +14,7 @@
 > - **Contact** : supplier/customer | **HRM** : staf/expense/komisi | **Accounting** : payment account
 > - **CashControl** : shift/kas | **Reporting** : laporan
 > - **EventBus** : Domain Events in-process | **JobQueue** : Redis background queue
-> - **WS** : WebSocket Gateway | **DB** : PostgreSQL | **IDB** : IndexedDB
+> - **WS** : WebSocket Gateway | **DB** : PostgreSQL
  
 ---
  
@@ -28,6 +28,7 @@
 3. Checkout Split Payment + Voucher
 4. Validasi & Redemption Voucher (anti pemakaian ganda)
 5. Put On Hold (Parkir Tagihan)
+5A. Tab Transaksi Multi-Pelanggan (Hold tetap di Tab, maks 10)
 6. Cash Control: Buka & Tutup Shift
 7. Penjualan Kredit/Partial + Payment Reminder
 8. Sales Return
@@ -57,17 +58,16 @@
 24. Pre-Order / Click & Collect (Stock Hold)
 25. Booking dengan Deposit (DP) & Pelunasan
  
-**G. Scan & Offline**
+**G. Scan**
 26. Scan Barcode via Smartphone (Opsi A)
-27. Sinkronisasi Transaksi Offline
  
 **H. Keuangan & Laporan**
-28. Pencatatan Pengeluaran (Expense)
-29. Posting ke Payment Account & Cash Flow
-30. Generate Laporan (Background Job)
+27. Pencatatan Pengeluaran (Expense)
+28. Posting ke Payment Account & Cash Flow
+29. Generate Laporan (Background Job)
  
 **I. Administrasi Pengguna**
-31. Manajemen User, Role & Permission (User Matrix)
+30. Manajemen User, Role & Permission (User Matrix)
  
 ---
  
@@ -79,33 +79,33 @@
 sequenceDiagram
     autonumber
     actor User
-    participant PWA as POS PWA / Admin
+    participant POS as POS Web App / Admin
     participant API as API Layer
     participant AUT as Auth
     participant DB as PostgreSQL
  
-    User->>PWA: Input email & password
-    PWA->>API: POST /auth/login
+    User->>POS: Input email & password
+    POS->>API: POST /auth/login
     API->>AUT: validateCredentials(email, password)
     AUT->>DB: SELECT user + roles + permissions
     alt Kredensial valid
         AUT->>AUT: buat access + refresh token (JWT)
-        AUT-->>PWA: 200 {accessToken, refreshToken, permissions}
-        PWA->>PWA: simpan token + render menu sesuai permission
+        AUT-->>POS: 200 {accessToken, refreshToken, permissions}
+        POS->>POS: simpan token + render menu sesuai permission
     else Tidak valid
-        AUT-->>PWA: 401 Unauthorized
+        AUT-->>POS: 401 Unauthorized
     end
  
-    Note over PWA,API: Request berikutnya
-    PWA->>API: GET /resource (Authorization: Bearer)
+    Note over POS,API: Request berikutnya
+    POS->>API: GET /resource (Authorization: Bearer)
     API->>AUT: verifyToken + PermissionsGuard
     alt Token & izin OK
-        API-->>PWA: 200 data
+        API-->>POS: 200 data
     else Token expired
-        PWA->>API: POST /auth/refresh
-        API-->>PWA: token baru
+        POS->>API: POST /auth/refresh
+        API-->>POS: token baru
     else Tanpa izin
-        API-->>PWA: 403 Forbidden
+        API-->>POS: 403 Forbidden
     end
 ```
  
@@ -117,20 +117,20 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor User
-    participant PWA as POS PWA / Admin
+    participant POS as POS Web App / Admin
     participant API as API Layer
     participant BIZ as Business
     participant DB as PostgreSQL
  
-    User->>PWA: Pilih business & lokasi aktif
-    PWA->>API: POST /context {businessId, locationId}
+    User->>POS: Pilih business & lokasi aktif
+    POS->>API: POST /context {businessId, locationId}
     API->>BIZ: setContext(businessId, locationId)
     BIZ->>DB: validasi user berhak atas business/lokasi
     alt Berhak
-        BIZ-->>PWA: konteks aktif (disisipkan ke token/headers)
-        Note over PWA,API: TenantInterceptor menyaring query by business_id
+        BIZ-->>POS: konteks aktif (disisipkan ke token/headers)
+        Note over POS,API: TenantInterceptor menyaring query by business_id
     else Tidak berhak
-        BIZ-->>PWA: 403 akses lokasi ditolak
+        BIZ-->>POS: 403 akses lokasi ditolak
     end
 ```
  
@@ -144,7 +144,7 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant API as API Layer
     participant SAL as Sales
     participant PRC as Pricing
@@ -153,27 +153,27 @@ sequenceDiagram
     participant BUS as EventBus
     participant DB as PostgreSQL
  
-    Kasir->>PWA: Scan/tambah item ke keranjang
-    PWA->>API: POST /cart/items
+    Kasir->>POS: Scan/tambah item ke keranjang
+    POS->>API: POST /cart/items
     API->>SAL: addItem(cart, product)
     SAL->>PRC: getFinalPrice(item, customer)
     PRC->>DB: ambil pricelist & promo
     PRC-->>SAL: harga final + diskon
-    SAL-->>PWA: keranjang terupdate (subtotal, pajak, total)
+    SAL-->>POS: keranjang terupdate (subtotal, pajak, total)
  
-    Kasir->>PWA: Masukkan voucher (scan/ketik)
-    PWA->>API: POST /checkout/apply-voucher
+    Kasir->>POS: Masukkan voucher (scan/ketik)
+    POS->>API: POST /checkout/apply-voucher
     API->>PRC: validateVoucher(code, cart, branch)
     PRC->>DB: cek status=active, expiry, min_purchase
     alt Voucher valid
         PRC-->>SAL: potongan voucher (komponen pembayaran)
-        SAL-->>PWA: total setelah voucher
+        SAL-->>POS: total setelah voucher
     else Voucher invalid/expired/terpakai
-        PRC-->>PWA: tolak (alasan)
+        PRC-->>POS: tolak (alasan)
     end
  
-    Kasir->>PWA: Bayar (Voucher + QRIS + Tunai)
-    PWA->>API: POST /checkout/pay (split payment)
+    Kasir->>POS: Bayar (Voucher + QRIS + Tunai)
+    POS->>API: POST /checkout/pay (split payment)
     API->>SAL: processPayment(payments[])
     SAL->>DB: BEGIN TRANSACTION
     SAL->>PRC: redeemVoucher(code) [atomik]
@@ -185,8 +185,8 @@ sequenceDiagram
     BUS-->>INV: potong stok
     BUS-->>CUS: tambah loyalty points
     BUS-->>SAL: cetak struk
-    SAL-->>PWA: transaksi sukses + struk
-    PWA-->>Kasir: Tampilkan struk & kembalian
+    SAL-->>POS: transaksi sukses + struk
+    POS-->>Kasir: Tampilkan struk & kembalian
 ```
  
 ---
@@ -196,23 +196,23 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant API as API Layer
     participant PRC as Pricing
     participant DB as PostgreSQL
  
-    PWA->>API: POST /voucher/validate {code}
+    POS->>API: POST /voucher/validate {code}
     API->>PRC: validateVoucher(code)
     PRC->>DB: SELECT voucher WHERE code=?
     alt Tidak ditemukan / status != active / expired
-        PRC-->>PWA: 400 Voucher tidak berlaku
+        PRC-->>POS: 400 Voucher tidak berlaku
     else Valid
         PRC->>PRC: cek min_purchase, branch_scope, is_stackable
-        PRC-->>PWA: 200 voucher OK (nilai potongan)
+        PRC-->>POS: 200 voucher OK (nilai potongan)
     end
  
-    Note over PWA,DB: Saat pembayaran final
-    PWA->>API: POST /voucher/redeem {code, transactionId}
+    Note over POS,DB: Saat pembayaran final
+    POS->>API: POST /voucher/redeem {code, transactionId}
     API->>PRC: redeemVoucher(code, txId)
     PRC->>DB: BEGIN
     PRC->>DB: SELECT ... FOR UPDATE (lock baris voucher)
@@ -235,27 +235,86 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant API as API Layer
     participant SAL as Sales
     participant DB as PostgreSQL
  
-    Kasir->>PWA: Klik "Hold" untuk Pelanggan A
-    PWA->>API: POST /cart/hold {cartA}
+    Kasir->>POS: Klik "Hold" untuk Pelanggan A
+    POS->>API: POST /cart/hold {cartA}
     API->>SAL: holdCart(cartA)
     SAL->>DB: simpan cart status=on_hold
-    SAL-->>PWA: cartA tertahan (ticket #A)
+    SAL-->>POS: cartA tertahan (ticket #A)
  
-    Kasir->>PWA: Buat transaksi baru Pelanggan B
-    PWA->>PWA: keranjang baru (cartB)
-    Note over Kasir,PWA: Layani & selesaikan Pelanggan B
+    Kasir->>POS: Buat transaksi baru Pelanggan B
+    POS->>POS: keranjang baru (cartB)
+    Note over Kasir,POS: Layani & selesaikan Pelanggan B
  
-    Kasir->>PWA: Resume ticket #A
-    PWA->>API: GET /cart/hold/A
+    Kasir->>POS: Resume ticket #A
+    POS->>API: GET /cart/hold/A
     API->>SAL: resumeCart(A)
     SAL->>DB: ambil cartA (status=active)
-    SAL-->>PWA: cartA dipulihkan
-    Kasir->>PWA: Lanjutkan pembayaran A
+    SAL-->>POS: cartA dipulihkan
+    Kasir->>POS: Lanjutkan pembayaran A
+```
+ 
+---
+ 
+## 5A. Tab Transaksi Multi-Pelanggan (Hold Tetap di Tab)
+ 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Kasir
+    participant POS as POS Web App
+    participant API as API Layer
+    participant SAL as Sales
+    participant DB as PostgreSQL
+ 
+    Note over Kasir,POS: Maks 10 tab aktif per sesi kasir (shift)
+ 
+    Kasir->>POS: Buka tab baru (Pelanggan A)
+    POS->>API: POST /sales/tabs
+    API->>SAL: openTab(shiftId, customerA)
+    alt Jumlah tab < 10
+        SAL->>DB: INSERT transaction_tab (status=active, tab_index)
+        SAL-->>POS: Tab A dibuat
+    else Sudah 10 tab
+        SAL-->>POS: 409 E-TAB-409 (selesaikan/tutup/parkir tab dulu)
+    end
+ 
+    Kasir->>POS: Tambah item ke Tab A
+    POS->>API: PATCH /sales/tabs/{A}
+    API->>SAL: updateTab(A, cart)
+    SAL->>DB: UPDATE transaction_tab.cart_json
+ 
+    Note over Kasir,POS: Pelanggan A minta menunggu
+    Kasir->>POS: Hold Tab A
+    POS->>API: POST /sales/tabs/{A}/hold
+    API->>SAL: holdTab(A)
+    SAL->>DB: UPDATE transaction_tab status=on_hold (state dipersist)
+    SAL-->>POS: Tab A tetap ada (status On Hold)
+ 
+    Kasir->>POS: Pindah ke Tab B & layani Pelanggan B
+    POS->>API: POST /checkout/pay {idempotencyKey, tabId=B}
+    API->>SAL: checkout(B) — transaksi ACID
+    SAL->>DB: simpan sale + tutup Tab B
+    SAL-->>POS: Tab B ditutup (struk tercetak)
+ 
+    Kasir->>POS: Kembali ke Tab A & Resume
+    POS->>API: POST /sales/tabs/{A}/resume
+    API->>SAL: resumeTab(A)
+    SAL->>DB: UPDATE transaction_tab status=active
+    SAL-->>POS: Tab A dipulihkan utuh
+    Kasir->>POS: Lanjutkan pembayaran A
+ 
+    opt Kosongkan slot tab / simpan jangka panjang
+        Kasir->>POS: Park Tab A (turunkan ke parkir tagihan)
+        POS->>API: POST /sales/tabs/{A}/park
+        API->>SAL: parkTab(A)
+        SAL->>DB: INSERT held_cart (source_tab_id=A) + hapus tab
+        SAL-->>POS: Tab A -> parkir tagihan (slot tab kosong)
+    end
 ```
  
 ---
@@ -266,29 +325,29 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant API as API Layer
     participant CSH as CashControl
     participant DB as PostgreSQL
  
-    Kasir->>PWA: Buka shift + saldo awal (Rp200.000)
-    PWA->>API: POST /shift/open {openingBalance}
+    Kasir->>POS: Buka shift + saldo awal (Rp200.000)
+    POS->>API: POST /shift/open {openingBalance}
     API->>CSH: openShift(kasir, 200000)
     CSH->>DB: simpan shift (status=open)
-    CSH-->>PWA: shift dibuka
+    CSH-->>POS: shift dibuka
  
     Note over Kasir,DB: Selama shift: semua kas tunai dicatat
  
-    Kasir->>PWA: Tutup shift + input kas fisik
-    PWA->>API: POST /shift/close {countedCash}
+    Kasir->>POS: Tutup shift + input kas fisik
+    POS->>API: POST /shift/close {countedCash}
     API->>CSH: closeShift(shiftId, countedCash)
     CSH->>DB: hitung kas sistem (saldo awal + penjualan tunai - refund)
     CSH->>CSH: selisih = countedCash - kasSistem
     alt selisih == 0
-        CSH-->>PWA: shift seimbang
+        CSH-->>POS: shift seimbang
     else selisih != 0
         CSH->>DB: catat selisih (flag audit/fraud)
-        CSH-->>PWA: PERINGATAN selisih kas
+        CSH-->>POS: PERINGATAN selisih kas
     end
 ```
  
@@ -300,7 +359,7 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant API as API Layer
     participant SAL as Sales
     participant CON as Contact
@@ -308,24 +367,24 @@ sequenceDiagram
     participant DB as PostgreSQL
     actor Pelanggan
  
-    Kasir->>PWA: Checkout, pilih bayar sebagian (Partial)
-    PWA->>API: POST /checkout/pay {paid < total, term}
+    Kasir->>POS: Checkout, pilih bayar sebagian (Partial)
+    POS->>API: POST /checkout/pay {paid < total, term}
     API->>SAL: processPayment(partial)
     SAL->>DB: simpan transaksi (status=partially_paid)
     SAL->>CON: catat piutang + pay terms (jatuh tempo)
     CON->>DB: simpan saldo piutang pelanggan
-    SAL-->>PWA: struk (tertera sisa & jatuh tempo)
+    SAL-->>POS: struk (tertera sisa & jatuh tempo)
  
     Note over JOB,DB: Penjadwalan reminder (background)
     JOB->>DB: cek piutang mendekati/lewat jatuh tempo
     JOB-->>Pelanggan: kirim payment alert (notifikasi/email)
  
     Note over Pelanggan,DB: Pelunasan kemudian
-    Pelanggan->>PWA: Bayar sisa tagihan
-    PWA->>API: POST /contacts/{id}/payments
+    Pelanggan->>POS: Bayar sisa tagihan
+    POS->>API: POST /contacts/{id}/payments
     API->>CON: recordPayment(amount)
     CON->>DB: update piutang (lunas/berkurang)
-    CON-->>PWA: kuitansi pembayaran
+    CON-->>POS: kuitansi pembayaran
 ```
  
 ---
@@ -336,7 +395,7 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant API as API Layer
     participant SAL as Sales
     participant INV as Inventory
@@ -344,8 +403,8 @@ sequenceDiagram
     participant BUS as EventBus
     participant DB as PostgreSQL
  
-    Kasir->>PWA: Pilih transaksi & item yang diretur
-    PWA->>API: POST /sales/{id}/return
+    Kasir->>POS: Pilih transaksi & item yang diretur
+    POS->>API: POST /sales/{id}/return
     API->>SAL: createSalesReturn(items, reason)
     SAL->>DB: BEGIN
     SAL->>INV: kembalikan stok item retur
@@ -355,7 +414,7 @@ sequenceDiagram
     SAL->>DB: simpan sales_return + relasi transaksi asal
     SAL->>DB: COMMIT
     SAL->>BUS: publish SalesReturned (update laporan)
-    SAL-->>PWA: retur sukses + bukti retur
+    SAL-->>POS: retur sukses + bukti retur
 ```
  
 ---
@@ -366,21 +425,21 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant API as API Layer
     participant SAL as Sales
     participant HRM as HR & Staff
     participant BUS as EventBus
     participant DB as PostgreSQL
  
-    Kasir->>PWA: Pilih commission agent pada transaksi
-    PWA->>API: POST /checkout/pay {commissionAgentId}
+    Kasir->>POS: Pilih commission agent pada transaksi
+    POS->>API: POST /checkout/pay {commissionAgentId}
     API->>SAL: processPayment(... , agentId)
     SAL->>DB: simpan transaksi + agentId
     SAL->>BUS: publish TransactionCompleted {agentId, total}
     BUS-->>HRM: hitung komisi agent
     HRM->>DB: akumulasi komisi (utk laporan/payout)
-    SAL-->>PWA: transaksi sukses
+    SAL-->>POS: transaksi sukses
     Note over HRM,DB: Commission Agent Report (FR-RPT-10) membaca akumulasi ini
 ```
  
@@ -392,21 +451,21 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     participant SAL as Sales
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant CFG as Business/Settings
     participant PRN as Thermal Printer (ESC/POS)
  
-    SAL-->>PWA: transaksi sukses (data struk)
-    PWA->>CFG: ambil invoice template + device config
-    CFG-->>PWA: layout + target printer
-    PWA->>PWA: render struk -> perintah ESC/POS
-    PWA->>PRN: kirim via WebUSB/WebBluetooth/bridge
+    SAL-->>POS: transaksi sukses (data struk)
+    POS->>CFG: ambil invoice template + device config
+    CFG-->>POS: layout + target printer
+    POS->>POS: render struk -> perintah ESC/POS
+    POS->>PRN: kirim via WebUSB/WebBluetooth/bridge
     alt Pembayaran tunai
-        PWA->>PRN: perintah kick-out (buka cash drawer)
+        POS->>PRN: perintah kick-out (buka cash drawer)
     end
-    PRN-->>PWA: status cetak
+    PRN-->>POS: status cetak
     alt Printer tidak terjangkau
-        PWA-->>PWA: peringatan + opsi cetak ulang
+        POS-->>POS: peringatan + opsi cetak ulang
     end
 ```
  
@@ -424,7 +483,7 @@ sequenceDiagram
     participant CUS as Customer
     participant DB as PostgreSQL
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
  
     Note over SAL,DB: Perolehan poin (setelah transaksi)
     SAL->>BUS: TransactionCompleted {customerId, total}
@@ -433,14 +492,14 @@ sequenceDiagram
     CUS->>DB: update saldo poin pelanggan
  
     Note over Kasir,DB: Penukaran poin di transaksi berikut
-    Kasir->>PWA: Tukar poin jadi potongan
-    PWA->>CUS: redeemPoints(customerId, jumlah)
+    Kasir->>POS: Tukar poin jadi potongan
+    POS->>CUS: redeemPoints(customerId, jumlah)
     CUS->>DB: cek saldo poin >= jumlah
     alt Cukup
         CUS->>DB: kurangi poin
-        CUS-->>PWA: nilai potongan diterapkan
+        CUS-->>POS: nilai potongan diterapkan
     else Tidak cukup
-        CUS-->>PWA: tolak penukaran
+        CUS-->>POS: tolak penukaran
     end
 ```
  
@@ -558,21 +617,21 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant WS as WebSocket Gateway
     participant INV as Inventory
     participant DB as PostgreSQL
  
-    Kasir->>PWA: Cek stok produk X di cabang lain
-    PWA->>WS: subscribe stock:productX
+    Kasir->>POS: Cek stok produk X di cabang lain
+    POS->>WS: subscribe stock:productX
     WS->>INV: getStockAllBranches(X)
     INV->>DB: SELECT stok WHERE product=X GROUP BY branch
     INV-->>WS: stok per cabang/gudang
-    WS-->>PWA: push data stok real-time
+    WS-->>POS: push data stok real-time
  
     Note over INV,WS: Saat ada transaksi di cabang manapun
     INV->>WS: emit stockChanged(X, branch)
-    WS-->>PWA: update stok otomatis (live)
+    WS-->>POS: update stok otomatis (live)
 ```
  
 ---
@@ -759,13 +818,13 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Pelanggan
-    participant CH as Kanal (PWA/Eksternal)
+    participant CH as Kanal (Web/Eksternal)
     participant API as API Layer
     participant BOK as Booking
     participant WS as WebSocket Gateway
     participant DB as PostgreSQL
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
  
     Pelanggan->>CH: Pilih meja/staf + slot waktu
     CH->>API: POST /bookings {resource, startTime, endTime}
@@ -774,16 +833,16 @@ sequenceDiagram
     alt Slot tersedia
         BOK->>DB: simpan booking (status=confirmed)
         BOK->>WS: emit booking:queue (update)
-        WS-->>PWA: antrean booking ter-update (live)
+        WS-->>POS: antrean booking ter-update (live)
         BOK-->>CH: booking terkonfirmasi
     else Bentrok
         BOK-->>CH: slot tidak tersedia
     end
  
-    Kasir->>PWA: Buka UI Kalender Booking
-    PWA->>API: GET /bookings/calendar
+    Kasir->>POS: Buka UI Kalender Booking
+    POS->>API: GET /bookings/calendar
     API->>BOK: getCalendar(range)
-    BOK-->>PWA: daftar reservasi (tampilan kalender)
+    BOK-->>POS: daftar reservasi (tampilan kalender)
 ```
  
 ---
@@ -800,7 +859,7 @@ sequenceDiagram
     participant BUS as EventBus
     participant DB as PostgreSQL
     actor Kasir
-    participant PWA as POS PWA
+    participant POS as POS Web App
  
     EXT->>API: POST /preorder {items, pickupTime}
     API->>BOK: createPreOrder(payload)
@@ -811,13 +870,13 @@ sequenceDiagram
     BOK->>BUS: publish PreOrderCreated
     BOK-->>EXT: konfirmasi + kode pickup (QR)
  
-    Note over Kasir,PWA: Saat pelanggan datang ambil
-    Kasir->>PWA: Scan QR pickup
-    PWA->>API: POST /preorder/collect {code}
+    Note over Kasir,POS: Saat pelanggan datang ambil
+    Kasir->>POS: Scan QR pickup
+    POS->>API: POST /preorder/collect {code}
     API->>BOK: collect(code)
     BOK->>INV: convertHoldToSale(items)
     INV->>DB: kurangi held (stok keluar)
-    BOK-->>PWA: pesanan siap diproses checkout
+    BOK-->>POS: pesanan siap diproses checkout
 ```
  
 ---
@@ -828,105 +887,65 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Pelanggan
-    participant PWA as POS PWA
+    participant POS as POS Web App
     participant API as API Layer
     participant BOK as Booking
     participant CSH as CashControl
     participant SAL as Sales
     participant DB as PostgreSQL
  
-    Pelanggan->>PWA: Buat reservasi + bayar DP
-    PWA->>API: POST /booking {slot, dpAmount}
+    Pelanggan->>POS: Buat reservasi + bayar DP
+    POS->>API: POST /booking {slot, dpAmount}
     API->>BOK: createBooking(slot, dp)
     BOK->>CSH: catatDP(dpAmount)
     CSH->>DB: simpan kas masuk (DP)
     BOK->>DB: simpan booking (status=confirmed, dp=dpAmount)
-    BOK-->>PWA: booking terkonfirmasi
+    BOK-->>POS: booking terkonfirmasi
  
     Note over Pelanggan,DB: Saat hari-H / pelunasan
-    Pelanggan->>PWA: Checkout pesanan booking
-    PWA->>API: POST /checkout/from-booking {bookingId}
+    Pelanggan->>POS: Checkout pesanan booking
+    POS->>API: POST /checkout/from-booking {bookingId}
     API->>SAL: buildCart(bookingId)
     SAL->>BOK: getDeposit(bookingId)
     BOK-->>SAL: dpAmount
     SAL->>SAL: total tagihan - DP = sisa bayar
-    SAL-->>PWA: tampilkan sisa tagihan
-    Pelanggan->>PWA: Bayar sisa
-    PWA->>API: POST /checkout/pay
+    SAL-->>POS: tampilkan sisa tagihan
+    Pelanggan->>POS: Bayar sisa
+    POS->>API: POST /checkout/pay
     API->>SAL: processPayment()
     SAL->>DB: simpan transaksi (DP + pelunasan)
-    SAL-->>PWA: lunas + struk
+    SAL-->>POS: lunas + struk
 ```
  
 ---
  
-# G. Scan & Offline
+# G. Scan
  
-## 26. Scan Barcode via Smartphone (Opsi A - Kamera In-App PWA)
+## 26. Scan Barcode via Smartphone (Opsi A - Kamera In-App Browser)
  
 ```mermaid
 sequenceDiagram
     autonumber
     actor Kasir
     participant CAM as Kamera HP
-    participant PWA as POS PWA
+    participant WEB as POS Web App
     participant DET as BarcodeDetector / ZXing
     participant API as API Layer
     participant INV as Inventory
  
-    Kasir->>PWA: Buka mode scan
-    PWA->>CAM: getUserMedia (minta izin kamera)
+    Kasir->>WEB: Buka mode scan
+    WEB->>CAM: getUserMedia (minta izin kamera)
     alt Izin diberikan
-        CAM-->>PWA: stream video
-        PWA->>DET: decode frame
-        DET-->>PWA: kode barcode terdeteksi
-        PWA->>PWA: beep + highlight (umpan balik)
-        PWA->>API: GET /product/by-barcode/{code}
+        CAM-->>WEB: stream video
+        WEB->>DET: decode frame
+        DET-->>WEB: kode barcode terdeteksi
+        WEB->>WEB: beep + highlight (umpan balik)
+        WEB->>API: GET /product/by-barcode/{code}
         API->>INV: lookup(code)
-        INV-->>PWA: data produk
-        PWA-->>Kasir: produk masuk keranjang
+        INV-->>WEB: data produk
+        WEB-->>Kasir: produk masuk keranjang
     else Izin ditolak / kamera tidak ada
-        PWA-->>Kasir: fallback input manual kode
-    end
-```
- 
----
- 
-## 27. Sinkronisasi Transaksi Offline (Offline-First)
- 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Kasir
-    participant PWA as POS PWA
-    participant IDB as IndexedDB
-    participant SW as Service Worker
-    participant API as API Layer
-    participant SAL as Sales
-    participant PRC as Pricing
-    participant DB as PostgreSQL
- 
-    Note over Kasir,IDB: Kondisi OFFLINE
-    Kasir->>PWA: Lakukan transaksi (termasuk voucher)
-    PWA->>IDB: simpan transaksi (status=pending)
-    PWA->>IDB: tandai voucher = pending_validation
-    PWA-->>Kasir: struk sementara
- 
-    Note over SW,DB: Koneksi pulih -> ONLINE
-    SW->>IDB: ambil transaksi pending
-    SW->>API: POST /sync/transactions {batch, idempotencyKey}
-    API->>SAL: syncTransactions(batch)
-    SAL->>DB: cek idempotencyKey (hindari dobel)
-    SAL->>PRC: verifikasi voucher (final)
-    alt Voucher masih valid
-        PRC->>DB: redeem voucher
-        SAL->>DB: simpan transaksi (committed)
-        SAL-->>SW: sukses
-        SW->>IDB: tandai transaksi synced
-    else Voucher sudah terpakai di tempat lain (konflik)
-        PRC-->>SAL: konflik voucher
-        SAL-->>SW: 409 konflik
-        SW->>IDB: tandai transaksi conflict (review manual)
+        WEB-->>Kasir: fallback input manual kode
     end
 ```
  
@@ -934,7 +953,7 @@ sequenceDiagram
  
 # H. Keuangan & Laporan
  
-## 28. Pencatatan Pengeluaran (Expense Management)
+## 27. Pencatatan Pengeluaran (Expense Management)
  
 ```mermaid
 sequenceDiagram
@@ -961,7 +980,7 @@ sequenceDiagram
  
 ---
  
-## 29. Posting Pembayaran ke Payment Account & Cash Flow
+## 28. Posting Pembayaran ke Payment Account & Cash Flow
  
 ```mermaid
 sequenceDiagram
@@ -991,7 +1010,7 @@ sequenceDiagram
  
 ---
  
-## 30. Generate Laporan (Background Job)
+## 29. Generate Laporan (Background Job)
  
 ```mermaid
 sequenceDiagram
@@ -1023,7 +1042,7 @@ sequenceDiagram
  
 # I. Administrasi Pengguna
  
-## 31. Manajemen User, Role & Permission (User Matrix)
+## 30. Manajemen User, Role & Permission (User Matrix)
  
 ```mermaid
 sequenceDiagram
