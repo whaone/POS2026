@@ -1,11 +1,13 @@
 # Backend Specification
 # Sistem POS Modular Berbasis Monolith
 
-> **Versi:** 1.1 (Online Web App)
+> **Versi:** 1.2 (Online Web App + Tab Transaksi)
 > **Stack Backend:** NestJS + TypeScript + PostgreSQL + Redis (modular monolith)
 > **ORM:** Prisma atau TypeORM (skema per modul, satu database)
-> **Dokumen terkait:** `prd-pos-monolith.md`, `srs-pos-monolith.md`, `sequence-diagrams.md`, `frontend-spec-pos-monolith.md`
+> **Dokumen terkait:** `PRD.md`, `SRS.md`, `Sequence_Diagram.md`, `Frontend.md`
 > **Tujuan:** Merinci modul-modul Backend, arsitektur, endpoint API, event domain, skema database, jobs, auth, dan integrasi.
+
+> **Catatan:** Backend melayani **web app online** (SvelteKit) — bukan PWA/offline-first; tidak ada endpoint sinkronisasi offline. Mendukung **tab transaksi multi-pelanggan** (maks 10 per sesi kasir; transaksi yang di-hold tetap menempati tab-nya).
 
 ---
 
@@ -165,6 +167,11 @@ Memakai **BullMQ** (Redis). Untuk tugas non-blocking & terjadwal.
 ## 8. Endpoint API per Modul
 
 > Konvensi: REST, prefiks `/api/v1`, autentikasi JWT, scope multi-tenant otomatis. `?filter`, `?page`, `?limit` untuk listing.
+>
+> **Header standar:**
+> - `Authorization: Bearer <accessToken>` (wajib kecuali route publik).
+> - Konteks tenant (`business_id`/`location_id`) diambil dari token; dapat dioverride via header bila diizinkan.
+> - **`Idempotency-Key: <uuid>`** wajib untuk operasi tulis kritikal (terutama `POST /checkout/pay`). Request dengan key sama yang diulang (retry jaringan) mengembalikan hasil transaksi yang sudah ada, bukan membuat duplikat. Lihat Bagian 10.
 
 ### 8.1 Auth
 ```
@@ -263,6 +270,12 @@ POST   /sales/tabs/{id}/resume                      # aktifkan kembali tab On Ho
 POST   /sales/tabs/{id}/park                        # turunkan tab -> parkir tagihan (held_cart)
 DELETE /sales/tabs/{id}                             # tutup tab (butuh konfirmasi bila masih ada item)
 ```
+
+> **Aturan tab:**
+> - Tab di-scope per **sesi kasir (shift)** + lokasi; `GET /sales/tabs` hanya mengembalikan tab milik shift kasir aktif.
+> - **Maksimal 10 tab** aktif/on_hold per shift; `POST /sales/tabs` mengembalikan **409 `E-TAB-409`** bila sudah 10.
+> - `POST /sales/tabs/{id}/hold` mem-persist `cart_json` ke DB sehingga tab pulih setelah refresh/ganti perangkat.
+> - `POST /checkout/pay` boleh menyertakan `tabId`; setelah sukses, tab terkait otomatis ditutup.
 
 ### 8.9 Purchase
 ```
@@ -468,7 +481,7 @@ cash_movement(id, shift_id, type[in|out|sale|refund|expense], amount, ref, creat
 
 ## 10. Idempotency & Keandalan Transaksi
 
-- Setiap permintaan transaksi (mis. `POST /checkout/pay`) menyertakan **`idempotencyKey`** unik per transaksi pada header/body.
+- Setiap permintaan transaksi (mis. `POST /checkout/pay`) menyertakan **`Idempotency-Key`** (header) unik per transaksi (lihat konvensi header Bagian 8).
 - Server menyimpan `sale.idempotency_key` (UNIQUE). Bila request dikirim ulang (retry akibat timeout/kegagalan jaringan), server **mengembalikan hasil transaksi yang sudah ada** alih-alih membuat duplikat.
 - Operasi kritikal (checkout, redeem voucher, stock transfer, purchase receive) dibungkus **DB transaction**; bila gagal -> rollback penuh.
 - Voucher divalidasi & di-redeem **online secara atomik** (lock baris + UNIQUE `voucher_redemption.voucher_id`) sehingga tidak ada pemakaian ganda walau ada request bersamaan (race condition).
