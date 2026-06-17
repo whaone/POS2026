@@ -90,7 +90,11 @@ Modul NestJS (Backend.md §2). Setiap modul punya boundary jelas:
 `PurchaseModule` · `ContactModule` · `BookingModule` · `AccountingModule` ·
 `CashRegisterModule` · `ReportModule`.
 
-Frontend (SvelteKit) mengikuti `Frontend.md` (jika kosong/menyusul → **tandai TODO**, jangan mengarang UI di luar PRD §10 & SRS §6.1).
+Frontend (SvelteKit) mengikuti `Frontend.md`. **Aturan frontend (anti-halu):**
+- **API-first, bukan DB-first.** Frontend bicara ke API (`Backend.md §8`) + shared types, **bukan** ke database. Schema DB (`Backend.md §9`) hanya konteks pendukung.
+- **Urutan baca:** SRS §3 (FR) + §10 (AC) → `Backend.md §8` (API) → `Frontend.md` (route/komponen) → `reference/frontend/*.html|png` (visual) → (pendukung) `Backend.md §9`.
+- **File referensi HTML/PNG** ada di `reference/frontend/` = panduan **visual/markup saja**, bukan sumber kebenaran perilaku. Bila bertentangan dengan `FR-*`/`AC-*` → requirement menang; catat selisih di PLAN.
+- Jangan mengarang layar di luar PRD §10 & SRS §6.1 tanpa ID requirement.
 
 Struktur folder backend usulan ada di Backend.md §11 — **ikuti**, jangan buat struktur tandingan.
 

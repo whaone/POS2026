@@ -154,9 +154,12 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | # | Pertanyaan | Konteks/Ref | Status |
 |---|---|---|---|
-| Q1 | `Frontend.md` masih kosong — apakah spesifikasi UI menyusul, atau ikuti PRD §10 & SRS §6.1 sebagai acuan sementara? | Frontend.md | ⬜ Menunggu |
+| Q1 | ~~`Frontend.md` masih kosong~~ **TERJAWAB: Frontend.md v0.1 dibuat** (API-first, route map, traceability). Detail per layar menyusul referensi `reference/frontend/*` dari user. | Frontend.md | ✅ Selesai |
 | Q2 | ~~ORM final: Prisma atau TypeORM?~~ **TERJAWAB: Drizzle ORM** (lihat ADR-05 & Spec Change Log) | Backend.md header | ✅ Selesai |
 | Q3 | Strategi cetak struk Fase 1: WebUSB/WebBluetooth langsung atau bridge lokal? | UC-10, FR-CFG-04 | ⬜ Menunggu |
+| Q4 | Library styling frontend (Tailwind / UnoCSS / lainnya)? | Frontend.md §2 | ⬜ Menunggu |
+| Q5 | Strategi shared types FE↔BE (generate dari OpenAPI vs paket manual)? | Frontend.md §2, §11 | ⬜ Menunggu |
+| Q6 | File referensi UI (`reference/frontend/*.html|png`) belum disediakan user — layar apa saja & pemetaan ke FR? | Frontend.md §3 | ⬜ Menunggu |
 
 ---
 
@@ -169,6 +172,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 |---|---|---|---|---|
 | 2026-06-17 | Backend.md | ORM difinalkan ke **Drizzle ORM** (header, CoreModule, repository, struktur folder `db/`, checklist) | Keputusan user; sebelumnya "Prisma atau TypeORM" masih opsi | User |
 | 2026-06-17 | AGENTS.md, PLAN.md, .github/, .kiro/ | Tambah harness anti-halusinasi: bagian TDD & Quality Gate (AGENTS §6), kolom Test/AC & Gate (PLAN), workflow `quality-gate.yml`, agent `pos-code-reviewer.md` | Permintaan user untuk mencegah halusinasi via guardrail keras | User |
+| 2026-06-17 | Frontend.md, AGENTS.md | Buat `Frontend.md` v0.1 (API-first, route map, komponen, traceability layar→FR, konvensi `reference/frontend/`); AGENTS §3 ditambah aturan baca frontend API-first | Menjawab Q1; menyiapkan kerja frontend dari file referensi HTML/PNG | User |
 
 ---
 
