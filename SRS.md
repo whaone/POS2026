@@ -2,10 +2,10 @@
 # Software Requirements Specification (SRS) — FULL
 # Sistem POS Modular Berbasis Monolith
  
-> **Versi:** 2.0 (Full)
-> **Mengacu pada:** `prd-pos-monolith.md` (v2.0), `frontend-spec-pos-monolith.md`, `backend-spec-pos-monolith.md`, `sequence-diagrams.md`
+> **Versi:** 2.1 (Full — Online Web App)
+> **Mengacu pada:** `prd-pos-monolith.md` (v2.1), `frontend-spec-pos-monolith.md`, `backend-spec-pos-monolith.md`, `sequence-diagrams.md`
 > **Standar acuan:** IEEE 830
-> **Stack:** SvelteKit (PWA) + NestJS (TypeScript) + PostgreSQL + Redis
+> **Stack:** SvelteKit + NestJS (TypeScript) + PostgreSQL + Redis
  
 ---
  
@@ -31,8 +31,8 @@
 Dokumen ini mendefinisikan kebutuhan perangkat lunak (fungsional & non-fungsional) untuk **Sistem POS Modular Berbasis Monolith** secara lengkap. Ditujukan untuk pengembang, arsitek, QA, manajer proyek, dan pemangku kepentingan bisnis sebagai acuan implementasi, pengujian, dan validasi.
  
 ### 1.2 Ruang Lingkup Produk
-Sistem **Point of Sale (POS)** berbasis web (PWA) dengan arsitektur **Modular Monolith**. Mencakup:
-- Operasi kasir offline-first (transaksi, parkir tagihan, split payment, cash control).
+Sistem **Point of Sale (POS)** berbasis **web app (SvelteKit, online)** dengan arsitektur **Modular Monolith**. Mencakup:
+- Operasi kasir online (transaksi, tab transaksi multi-pelanggan, parkir tagihan, split payment, cash control).
 - Inventory multi-cabang & real-time stock + manajemen produk lanjutan (single/variable, unit, brand, group tax, SKU, IMEI/Serial/Lot, expiry, label, import CSV).
 - CRM, loyalty points, dan promo engine.
 - Voucher fisik single-use.
@@ -52,11 +52,11 @@ Sistem **Point of Sale (POS)** berbasis web (PWA) dengan arsitektur **Modular Mo
 | Istilah | Penjelasan |
 |---|---|
 | POS | Point of Sale |
-| PWA | Progressive Web App |
 | SRS | Software Requirements Specification |
 | DP | Down Payment / uang muka |
 | Split Payment | Pembayaran dengan beberapa metode dalam satu transaksi |
 | Put On Hold | Parkir tagihan (menahan transaksi sementara) |
+| Tab Transaksi | Antarmuka tab (mirip tab browser) yang menampung beberapa transaksi/keranjang aktif paralel; transaksi yang di-hold tetap berada di tab-nya (maks 10 tab per sesi kasir) |
 | Voucher | Kupon fisik bernilai yang mengurangi nilai belanja |
 | Domain Event | Event internal in-process antar modul |
 | QRIS | Quick Response Code Indonesian Standard |
@@ -81,10 +81,11 @@ Bagian 2 deskripsi umum; Bagian 3 kebutuhan fungsional ber-ID; Bagian 4 use case
 ## 2. Deskripsi Umum
  
 ### 2.1 Perspektif Produk
-Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Front-end PWA berkomunikasi ke backend via REST/WebSocket melalui satu API Layer (pengganti API Gateway). Komunikasi antar-modul in-process melalui Domain Events; tugas berat lewat background job queue (Redis).
+Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Front-end **web app SvelteKit (online)** berkomunikasi ke backend via REST/WebSocket melalui satu API Layer (pengganti API Gateway). Komunikasi antar-modul in-process melalui Domain Events; tugas berat lewat background job queue (Redis).
  
 ### 2.2 Fungsi Utama Produk
 - Transaksi penjualan & checkout (split payment, voucher, pajak, sales return, kredit/partial).
+- Tab transaksi multi-pelanggan (mirip tab browser, maks 10 tab; transaksi yang di-hold tetap di tab-nya).
 - Parkir tagihan (multi-transaksi paralel).
 - Cash control per shift.
 - Manajemen produk & stok multi-gudang/cabang (single/variable, SKU, IMEI/Serial/Lot, expiry, label, CSV, adjustment, transfer).
@@ -103,7 +104,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 ### 2.3 Karakteristik Pengguna (User Classes)
 | Aktor | Deskripsi | Hak Akses Utama |
 |---|---|---|
-| Kasir | Operator transaksi di toko | Buka/tutup shift, transaksi, parkir tagihan, voucher, scan |
+| Kasir | Operator transaksi di toko | Buka/tutup shift, transaksi, tab transaksi multi-pelanggan, parkir tagihan, voucher, scan |
 | Supervisor / Manajer Toko | Pengawas cabang | Approval void/diskon, laporan cabang, kelola shift |
 | Admin / Owner | Pemilik multi-cabang | Kelola produk, harga, promo, voucher, multi-branch, laporan global, akuntansi |
 | Staf Gudang | Pengelola stok gudang/cabang | Stock adjustment, transfer antar lokasi, terima pembelian |
@@ -115,7 +116,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 ### 2.4 Lingkungan Operasi
 - Front-end: browser modern (Chrome/Edge/Safari) di tablet, PC, smartphone; mode kiosk.
 - Backend: Node.js (NestJS) di server Linux; PostgreSQL; Redis.
-- Jaringan: online & offline (PWA offline-first dengan IndexedDB).
+- Jaringan: memerlukan koneksi internet aktif (online) saat operasi.
  
 ### 2.5 Batasan Desain & Implementasi
 - Akses kamera/WebUSB (scan & print) wajib **HTTPS**.
@@ -126,7 +127,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 ### 2.6 Asumsi & Ketergantungan
 - Perangkat kasir memiliki kamera untuk scan smartphone (Opsi A).
 - Gateway pembayaran (QRIS/Kartu) tersedia via integrasi pihak ketiga.
-- Saat offline, validasi voucher final dilakukan ketika kembali online.
+- Validasi voucher dilakukan online secara real-time terhadap backend.
 - Tersedia Redis untuk cache & job queue.
  
 ---
@@ -146,7 +147,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-SAL-06 | Menerbitkan struk (cetak/digital) setelah transaksi sukses. | H |
 | FR-SAL-07 | Mem-publish event `TransactionCompleted` (potong stok, poin, posting akun, laporan). | H |
 | FR-SAL-08 | Menolak pembayaran bila total dibayar kurang dari tagihan (kecuali parkir/DP/kredit). | H |
-| FR-SAL-09 | Transaksi **idempotent** terhadap retry saat sinkronisasi offline. | H |
+| FR-SAL-09 | Transaksi **idempotent** terhadap retry jaringan (mencegah transaksi dobel). | H |
 | FR-SAL-10 | **Sales Return** dengan penyesuaian stok & kas otomatis. | H |
 | FR-SAL-11 | Penjualan **Credit/Paid/Partially Paid** dan pencatatan piutang. | H |
 | FR-SAL-12 | Metode bayar **Cash, Credit Card, Cheque, Bank Transfer** (selain QRIS & Voucher). | H |
@@ -155,6 +156,12 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-SAL-15 | Menetapkan **commission agent** per transaksi. | M |
 | FR-SAL-16 | Mendukung **Discounts & Shipping Charges** pada penjualan. | M |
 | FR-SAL-17 | Operasi **Edit, Delete, View, Print** transaksi (dengan kontrol akses). | M |
+| FR-SAL-18 | **Tab Transaksi**: kasir dapat membuka beberapa transaksi paralel dalam tab terpisah (mirip tab browser), masing-masing dengan keranjang & konteks pelanggan sendiri. | H |
+| FR-SAL-19 | Jumlah tab aktif dibatasi **maksimal 10** per sesi kasir; permintaan tab ke-11 ditolak (minta selesaikan/tutup/parkir tab dahulu). | H |
+| FR-SAL-20 | State tiap tab **terisolasi**: berpindah tab tidak mengubah isi tab lain (item, qty, pelanggan, diskon/voucher, salesperson, catatan). | H |
+| FR-SAL-21 | Transaksi yang **di-hold tetap berada di tab-nya** dengan status *On Hold*; kasir dapat melanjutkannya kapan saja tanpa kehilangan data. | H |
+| FR-SAL-22 | State tab yang di-hold **dipersist ke backend** agar tahan refresh/ganti perangkat dan dapat dipulihkan saat sesi kasir dibuka kembali. | H |
+| FR-SAL-23 | Tab dapat **diturunkan ke parkir tagihan** (held_cart) dan parkir tagihan dapat **diangkat kembali menjadi tab**; menutup tab berisi item meminta konfirmasi; checkout sukses menutup tab. | M |
  
 ### 3.2 Modul Cash Control (Shift)
 | ID | Kebutuhan | Prioritas |
@@ -228,22 +235,14 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-SCN-04 | Input manual fallback bila kamera tidak tersedia/ditolak. | H |
 | FR-SCN-05 | Umpan balik visual & audio saat scan berhasil. | M |
  
-### 3.9 Modul Offline & Sinkronisasi
-| ID | Kebutuhan | Prioritas |
-|---|---|---|
-| FR-OFF-01 | POS beroperasi offline (transaksi, parkir tagihan) via IndexedDB. | H |
-| FR-OFF-02 | Menyinkronkan transaksi offline saat koneksi pulih. | H |
-| FR-OFF-03 | Sinkronisasi idempotent & menangani konflik (voucher terpakai di tempat lain). | H |
-| FR-OFF-04 | Voucher offline ditandai "pending" & diverifikasi ulang saat sync. | H |
- 
-### 3.10 Modul Autentikasi & Otorisasi
+### 3.9 Modul Autentikasi & Otorisasi
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-AUT-01 | Autentikasi pengguna (JWT/OAuth2) via API Layer. | H |
 | FR-AUT-02 | RBAC (kasir/supervisor/admin) granular. | H |
 | FR-AUT-03 | Aksi sensitif (void, diskon manual) memerlukan approval supervisor. | M |
  
-### 3.11 Modul Manajemen Produk Lanjutan
+### 3.10 Modul Manajemen Produk Lanjutan
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-PRD-01 | Produk **single & variable** (varian). | H |
@@ -256,7 +255,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-PRD-08 | **Selling Price Group** (beberapa daftar harga jual). | M |
 | FR-PRD-09 | **Import produk via CSV**. | M |
  
-### 3.12 Modul Pembelian (Purchasing)
+### 3.11 Modul Pembelian (Purchasing)
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-PUR-01 | **Add, Edit, Delete, View, Print** pembelian. | H |
@@ -269,7 +268,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-PUR-08 | **Quick Add Product** dari layar pembelian. | M |
 | FR-PUR-09 | Penerimaan menambah stok via event/transaksi ACID. | H |
  
-### 3.13 Modul Kontak (Supplier & Customer)
+### 3.12 Modul Kontak (Supplier & Customer)
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-SUP-01 | Kontak sebagai **Supplier, Customer, atau keduanya**. | H |
@@ -277,7 +276,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-SUP-03 | Detail pembayaran (rekening, tempo, limit kredit). | M |
 | FR-SUP-04 | **Riwayat transaksi beli & jual** per kontak. | M |
  
-### 3.14 Modul Business Management & Settings
+### 3.13 Modul Business Management & Settings
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-BIZ-01 | **Multiple Business** dalam satu instalasi. | H |
@@ -286,7 +285,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-BIZ-04 | **Profit margin default** & **detail registrasi pajak** (Tax ID). | M |
 | FR-BIZ-05 | Pengaturan tersekat per bisnis (data isolation). | H |
  
-### 3.15 Modul Staf, Peran & Pengeluaran (HR)
+### 3.14 Modul Staf, Peran & Pengeluaran (HR)
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-HRM-01 | **User management lanjutan** + **Permissions & Roles** granular. | H |
@@ -297,7 +296,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-HRM-06 | **Expense Management** terhubung kas & laporan. | M |
 | FR-HRM-07 | **User Matrix** (matriks izin user x role/permission). | M |
  
-### 3.16 Modul Manajemen Stok Lanjutan (Adjustment & Transfer)
+### 3.15 Modul Manajemen Stok Lanjutan (Adjustment & Transfer)
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-STK-01 | **Stock Adjustment** (Increase/Decrease) + **alasan wajib**. | H |
@@ -307,7 +306,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-STK-05 | Transfer mendukung **shipping charges** opsional. | L |
 | FR-STK-06 | Semua adjustment & transfer tercatat untuk **audit**. | H |
  
-### 3.17 Modul Akuntansi & Payment Account
+### 3.16 Modul Akuntansi & Payment Account
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-ACC-01 | Mengelola daftar **Payment Account** (kas/bank/e-wallet). | H |
@@ -317,7 +316,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | FR-ACC-05 | **Cash Flow** per periode. | M |
 | FR-ACC-06 | **Payment Account Report** (mutasi & saldo). | M |
  
-### 3.18 Modul Pengaturan: Invoice, Barcode & Hardware
+### 3.17 Modul Pengaturan: Invoice, Barcode & Hardware
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
 | FR-CFG-01 | **Fully Customizable Invoice Layout** multi-template. | M |
@@ -345,14 +344,28 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 - **Alur Alternatif:**
   - 2a. Voucher invalid/expired/terpakai -> tampilkan alasan, lanjut tanpa voucher.
   - 3a. Total bayar < tagihan -> tolak (FR-SAL-08), kecuali kredit/DP.
-  - Offline -> simpan ke IndexedDB (FR-OFF-01), voucher `pending` (FR-OFF-04).
+  - 4a. Kegagalan jaringan -> tampilkan error & retry; `idempotency_key` mencegah transaksi dobel saat dikirim ulang.
 - **Pascakondisi:** Stok berkurang, poin bertambah, kas tercatat, voucher `redeemed`.
  
-### UC-02: Put On Hold & Resume
+### UC-02: Put On Hold & Resume (dalam Tab)
 - **Aktor:** Kasir
-- **Prakondisi:** Ada keranjang aktif.
-- **Alur:** Kasir Hold cart A -> sistem simpan `held_cart` -> layani B -> Resume A (FR-SAL-04).
-- **Pascakondisi:** Cart A pulih utuh.
+- **Prakondisi:** Ada keranjang aktif di sebuah tab.
+- **Alur:** Kasir menekan Hold pada Tab A -> tab berubah status *On Hold* & state-nya dipersist (FR-SAL-21/22) -> kasir pindah/buka Tab B untuk melayani pelanggan lain -> kembali ke Tab A & Resume (FR-SAL-04).
+- **Pascakondisi:** Cart A pulih utuh di tab yang sama.
+
+### UC-08: Tab Transaksi Multi-Pelanggan
+- **Aktor:** Kasir
+- **Prakondisi:** Shift terbuka; user punya izin `sale.create`.
+- **Alur Utama:**
+  1. Kasir membuka tab baru untuk Pelanggan A; sistem membuat `transaction_tab` (status `active`) bila total tab < 10 (FR-SAL-18/19).
+  2. Kasir menambah item ke Tab A; datang Pelanggan B -> kasir **Hold** Tab A (tetap di tab, *On Hold*) dan membuka Tab B (FR-SAL-20/21).
+  3. Kasir menyelesaikan checkout Tab B -> tab B otomatis ditutup (FR-SAL-23).
+  4. Kasir kembali ke Tab A dan melanjutkan hingga checkout.
+- **Alur Alternatif/Exception:**
+  - 1a. Sudah ada 10 tab -> tolak buka tab baru (E-TAB-409); kasir harus menyelesaikan/menutup/memarkir salah satu tab.
+  - 2a. Kasir menutup tab yang masih berisi item -> minta konfirmasi (Selesaikan / Parkir tagihan / Buang).
+  - 4a. Browser refresh / ganti perangkat -> tab *On Hold* dipulihkan dari backend (FR-SAL-22).
+- **Pascakondisi:** Setiap pelanggan terlayani pada tab-nya sendiri; tidak ada percampuran keranjang.
  
 ### UC-03: Tutup Shift & Rekonsiliasi Kas
 - **Aktor:** Kasir/Supervisor
@@ -375,12 +388,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 - **Aktor:** Sistem Eksternal, Kasir
 - **Alur:** Eksternal kirim pre-order via API -> stok di-hold (FR-BOK-03/04) -> pelanggan datang -> scan QR pickup -> konversi ke checkout (potong DP, FR-BOK-05).
  
-### UC-07: Sinkronisasi Transaksi Offline
-- **Aktor:** Sistem (Service Worker)
-- **Alur:** Koneksi pulih -> kirim batch + `idempotencyKey` -> server cek duplikat (FR-OFF-03) -> verifikasi voucher final.
-- **Exception:** Voucher sudah terpakai -> 409 konflik -> tandai review.
- 
-### UC-08: Generate & Redeem Voucher Batch
+### UC-07: Generate & Redeem Voucher Batch
 - **Aktor:** Admin (generate), Kasir (redeem)
 - **Alur:** Admin generate batch voucher (jenis/nilai/scope) -> cetak kode/QR -> kasir redeem saat checkout (single-use, atomik).
  
@@ -403,15 +411,17 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 | BR-12 | Price markdown otomatis aktif sesuai jadwal (jam/Happy Hour) atau kedekatan expiry. |
 | BR-13 | Penjualan kredit menambah piutang kontak; pembelian kredit menambah hutang. |
 | BR-14 | Setiap pembayaran tunai/transfer memperbarui saldo payment account terkait. |
+| BR-15 | Maksimal 10 tab transaksi aktif per sesi kasir (shift); membuka tab melebihi batas ditolak. |
+| BR-16 | Transaksi yang di-hold tetap menempati tab-nya (status *On Hold*) dan tidak hilang sampai diselesaikan, ditutup, atau diturunkan ke parkir tagihan. |
  
 ---
  
 ## 6. Kebutuhan Antarmuka Eksternal
  
 ### 6.1 Antarmuka Pengguna
-- POS PWA: layar transaksi, keranjang, pembayaran, parkir tagihan, kalender booking, cash register.
+- POS Web App (SvelteKit): layar transaksi, keranjang, pembayaran, parkir tagihan, kalender booking, cash register.
 - Admin Dashboard: manajemen bisnis/produk/harga/promo/voucher/kontak/akuntansi, laporan multi-cabang.
-- Responsif tablet/desktop/smartphone; mode kiosk & offline. (Detail menu: `frontend-spec-pos-monolith.md`.)
+- Responsif tablet/desktop/smartphone; mode kiosk. (Detail menu: `frontend-spec-pos-monolith.md`.)
  
 ### 6.2 Antarmuka Perangkat Keras
 - Kamera perangkat (scan barcode 1D/2D).
@@ -426,7 +436,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 - Integrasi payment gateway (QRIS/Kartu).
  
 ### 6.4 Antarmuka Komunikasi
-- HTTPS (wajib PWA, kamera, WebUSB).
+- HTTPS (wajib untuk akses kamera & WebUSB).
 - Domain Events in-process (antar modul).
 - Redis queue untuk background jobs.
  
@@ -435,7 +445,7 @@ Aplikasi tunggal (monolith) dengan modul domain internal yang dipisah rapi. Fron
 ## 7. Kebutuhan Data (Logical Model & Data Dictionary)
  
 ### 7.1 Entitas Utama (ringkasan)
-Business, Location, User, Role, Permission, Product, ProductVariation, Stock, StockSerial, StockAdjustment, StockTransfer, Discount, Markdown, Voucher, VoucherRedemption, Customer, LoyaltyAccount, Sale, SaleItem, SalePayment, SalesReturn, HeldCart, Purchase, PurchaseItem, PurchasePayment, PurchaseReturn, Contact, ContactLedger, Booking, PreOrder, Account, JournalEntry, JournalLine, Shift, CashMovement, Expense. (Skema kolom lengkap: `backend-spec-pos-monolith.md` Bagian 9.)
+Business, Location, User, Role, Permission, Product, ProductVariation, Stock, StockSerial, StockAdjustment, StockTransfer, Discount, Markdown, Voucher, VoucherRedemption, Customer, LoyaltyAccount, Sale, SaleItem, SalePayment, SalesReturn, TransactionTab, HeldCart, Purchase, PurchaseItem, PurchasePayment, PurchaseReturn, Contact, ContactLedger, Booking, PreOrder, Account, JournalEntry, JournalLine, Shift, CashMovement, Expense. (Skema kolom lengkap: `backend-spec-pos-monolith.md` Bagian 9.)
  
 ### 7.2 Data Dictionary (atribut kunci terpilih)
 | Entitas | Atribut kunci | Tipe | Catatan |
@@ -443,8 +453,11 @@ Business, Location, User, Role, Permission, Product, ProductVariation, Stock, St
 | Voucher | code | string unik | indexed; basis validasi |
 | Voucher | status | enum(active/redeemed/expired/void) | single-use |
 | VoucherRedemption | voucher_id | FK **UNIQUE** | menjamin single-use di DB |
-| Sale | idempotency_key | string **UNIQUE** | anti-dobel saat sync |
+| Sale | idempotency_key | string **UNIQUE** | anti-dobel saat retry jaringan |
 | Sale | status | enum(paid/partial/credit/held) | |
+| TransactionTab | tab_index | integer (1..10) | UNIQUE(shift_id, tab_index); maks 10 per shift |
+| TransactionTab | status | enum(active/on_hold) | hold tetap menempati tab |
+| TransactionTab | cart_json | json | snapshot keranjang & konteks tab |
 | Stock | qty, qty_held | integer | qty_held untuk pre-order |
 | StockTransfer | status | enum(in_transit/completed) | |
 | Account | balance | decimal | diupdate via journal |
@@ -465,11 +478,12 @@ Business, Location, User, Role, Permission, Product, ProductVariation, Stock, St
 | E-VAL-400 | Input DTO tidak valid | 400 + detail field (class-validator) |
 | E-AUTH-401 | Token hilang/expired | 401 + minta login ulang |
 | E-PERM-403 | Tidak punya permission | 403 + pesan akses ditolak |
-| E-VOUCHER-409 | Voucher sudah `redeemed` (race/sync) | 409 + tolak redemption; tandai konflik |
+| E-VOUCHER-409 | Voucher sudah `redeemed` (race condition) | 409 + tolak redemption; tandai konflik |
 | E-STOCK-409 | Stok tidak cukup / negatif | 409 + tolak operasi |
-| E-SYNC-409 | Duplikat idempotency_key | Skip (idempotent), kembalikan status existing |
+| E-TAB-409 | Melebihi batas 10 tab aktif | 409 + tolak buka tab baru; minta selesaikan/tutup/parkir tab |
+| E-DUP-409 | Duplikat idempotency_key (retry) | Skip (idempotent), kembalikan status existing |
 | E-PAY-422 | Total bayar < tagihan (non-kredit) | 422 + tolak pembayaran |
-| E-NET-OFFLINE | Tidak ada koneksi | Mode offline: simpan lokal, tandai pending |
+| E-NET-409 | Koneksi terputus saat transaksi | Tampilkan error & opsi retry; idempotency_key cegah dobel |
 | E-HW-PRINT | Printer tidak terjangkau | Peringatan + opsi cetak ulang/lewati |
 | E-SRV-500 | Kegagalan tak terduga | 500 + log; rollback transaksi |
  
@@ -480,23 +494,23 @@ Prinsip: validasi berlapis (frontend + backend); operasi keuangan/stok selalu da
 ## 9. Kebutuhan Non-Fungsional
 | ID | Kategori | Kebutuhan |
 |---|---|---|
-| NFR-PERF-01 | Performa | Respons UI checkout < 200 ms (operasi lokal). |
+| NFR-PERF-01 | Performa | Respons UI checkout < 200 ms (operasi online). |
 | NFR-PERF-02 | Performa | Validasi voucher online < 1 detik. |
 | NFR-PERF-03 | Performa | Listing/laporan dengan pagination & index; query < 2 detik untuk dataset wajar. |
-| NFR-AVAIL-01 | Ketersediaan | POS fungsi inti penuh saat offline. |
-| NFR-AVAIL-02 | Ketersediaan | Target uptime server ≥ 99,5%. |
+| NFR-AVAIL-01 | Ketersediaan | Memerlukan koneksi internet aktif; target uptime server ≥ 99,5%. |
+| NFR-AVAIL-02 | Ketersediaan | Failover/redundansi infrastruktur untuk meminimalkan downtime. |
 | NFR-SCAL-01 | Skalabilitas | Backend horizontal (replika stateless di balik LB). |
 | NFR-SCAL-02 | Skalabilitas | PostgreSQL read replica + Redis cache untuk beban baca. |
 | NFR-SEC-01 | Keamanan | JWT/OAuth2, enkripsi data sensitif, HTTPS wajib. |
 | NFR-SEC-02 | Keamanan | Redemption voucher atomik & anti pemakaian ganda. |
 | NFR-SEC-03 | Keamanan | Audit trail untuk cash control, void, diskon, voucher, adjustment. |
 | NFR-SEC-04 | Keamanan | RBAC granular & isolasi data per tenant. |
-| NFR-REL-01 | Keandalan | Transaksi idempotent; tanpa double-charge saat retry/sync. |
+| NFR-REL-01 | Keandalan | Transaksi idempotent; tanpa double-charge saat retry jaringan. |
 | NFR-DATA-01 | Konsistensi | Operasi keuangan & stok memakai transaksi ACID. |
 | NFR-USAB-01 | Usabilitas | UI kasir user-friendly; pelatihan kasir < 1 jam. |
 | NFR-COMPAT-01 | Kompatibilitas | Browser modern; BarcodeDetector + fallback; ESC/POS. |
 | NFR-MAINT-01 | Maintainability | Modular boundary; siap migrasi microservices (strangler). |
-| NFR-PORT-01 | Portabilitas | PWA dapat dibungkus native (Capacitor) bila perlu. |
+| NFR-PORT-01 | Portabilitas | Web app responsif lintas perangkat; dapat dibungkus native (Capacitor) bila perlu. |
 | NFR-LOC-01 | Lokalisasi | Mendukung mata uang, zona waktu, & format sesuai pengaturan bisnis. |
  
 ---
@@ -505,10 +519,11 @@ Prinsip: validasi berlapis (frontend + backend); operasi keuangan/stok selalu da
 | Ref | Kriteria Lulus |
 |---|---|
 | AC-01 (UC-01) | Checkout split payment + voucher menghasilkan total benar, voucher jadi `redeemed`, stok & poin ter-update, struk tercetak. |
-| AC-02 (FR-PRC-05) | Voucher yang sama tidak bisa dipakai kedua kali (uji race/sync -> 409). |
+| AC-02 (FR-PRC-05) | Voucher yang sama tidak bisa dipakai kedua kali (uji race condition -> 409). |
 | AC-03 (FR-SAL-04) | Cart yang di-hold dapat di-resume utuh setelah melayani transaksi lain. |
+| AC-03b (FR-SAL-18..22) | Kasir dapat membuka hingga 10 tab paralel; transaksi yang di-hold tetap di tabnya dan pulih setelah refresh; tab ke-11 ditolak (E-TAB-409). |
 | AC-04 (FR-CSH-03) | Tutup shift menampilkan selisih kas akurat (fisik vs sistem). |
-| AC-05 (FR-OFF-01/03) | Transaksi dibuat offline tersinkron tanpa duplikat (idempotent). |
+| AC-05 (FR-SAL-09) | Transaksi yang dikirim ulang akibat retry jaringan tidak menghasilkan duplikat (idempotent). |
 | AC-06 (FR-STK-04) | Stock transfer: jumlah total stok lintas lokasi tetap konsisten saat transit & setelah completed. |
 | AC-07 (FR-PUR-09) | Penerimaan pembelian menambah stok & mencatat hutang sesuai status pembayaran. |
 | AC-08 (FR-ACC-02) | Pembayaran tunai/transfer memperbarui saldo payment account & muncul di cash flow. |
@@ -523,9 +538,10 @@ Prinsip: validasi berlapis (frontend + backend); operasi keuangan/stok selalu da
 | Fitur PRD | Kebutuhan SRS Terkait |
 |---|---|
 | Multi-Session & Cash Control | FR-CSH-01..04 |
-| Put On Hold | FR-SAL-04 |
+| Put On Hold | FR-SAL-04, FR-SAL-21 |
+| Tab Transaksi Multi-Pelanggan | FR-SAL-18..23, BR-15..16 |
 | Split Payment | FR-SAL-03/12, FR-PRC-06 |
-| Operasional inti (scan, struk, sync) | FR-SAL-02/06, FR-SCN-*, FR-OFF-* |
+| Operasional inti (scan, struk, idempotency) | FR-SAL-02/06/09, FR-SCN-* |
 | Booking & Reservasi | FR-BOK-01..02 |
 | Pre-Order / Click & Collect | FR-BOK-03..04 |
 | Deposit / DP | FR-BOK-05 |
@@ -567,7 +583,7 @@ Prinsip: validasi berlapis (frontend + backend); operasi keuangan/stok selalu da
 ### 12.1 Glosarium Tambahan
 - **Strangler Pattern:** strategi migrasi bertahap monolith -> microservices tanpa rewrite total.
 - **Optimistic UI:** UI memperbarui tampilan lebih dulu sebelum konfirmasi server (untuk kecepatan POS).
-- **Outbox:** antrean transaksi offline yang menunggu sinkronisasi.
+- **Idempotency Key:** kunci unik per transaksi agar pengiriman ulang (retry jaringan) tidak menghasilkan transaksi dobel.
  
 ### 12.2 State: Voucher
 ```

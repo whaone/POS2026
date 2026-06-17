@@ -1,7 +1,7 @@
 # Backend Specification
 # Sistem POS Modular Berbasis Monolith
 
-> **Versi:** 1.0
+> **Versi:** 1.1 (Online Web App)
 > **Stack Backend:** NestJS + TypeScript + PostgreSQL + Redis (modular monolith)
 > **ORM:** Prisma atau TypeORM (skema per modul, satu database)
 > **Dokumen terkait:** `prd-pos-monolith.md`, `srs-pos-monolith.md`, `sequence-diagrams.md`, `frontend-spec-pos-monolith.md`
@@ -19,7 +19,7 @@
 7. WebSocket (Real-time)
 8. Endpoint API per Modul
 9. Skema Database (ERD per Modul)
-10. Offline Sync & Idempotency
+10. Idempotency & Keandalan Transaksi
 11. Struktur Folder Backend
 12. Checklist Pekerjaan Backend
 
@@ -54,14 +54,13 @@ NestJS App (main.ts)
 | `StockModule` | Stok per lokasi, adjustment, transfer, real-time check, low-stock/expiry alert | Product, Business |
 | `PricingModule` | Pricelist, selling price group, diskon bersyarat, markdown, voucher | Product, Customer |
 | `CustomerModule` (CRM) | Profil, kategori, loyalty points, membership | Business |
-| `SalesModule` (Checkout) | Keranjang, split payment, hold, pajak, sales return, kredit/partial, komisi | Product, Stock, Pricing, Customer, Accounting |
+| `SalesModule` (Checkout) | Keranjang, tab transaksi multi-pelanggan (maks 10), split payment, hold, pajak, sales return, kredit/partial, komisi | Product, Stock, Pricing, Customer, Accounting |
 | `PurchaseModule` | Pembelian, terima barang, purchase return, pembayaran supplier, reminder | Product, Stock, Contact, Accounting |
 | `ContactModule` | Supplier/Customer/keduanya, pay terms, payment alert, saldo hutang/piutang | Business |
 | `BookingModule` | Reservasi, kalender, pre-order/Click&Collect, DP, reminder | Stock, Customer, Sales |
 | `AccountingModule` | Payment account, jurnal, balance sheet, trial balance, cash flow | - |
 | `CashRegisterModule` | Buka/tutup shift, kas masuk/keluar, rekonsiliasi (fraud) | Sales, Accounting |
 | `ReportModule` | P&L, purchase/sell, stock, trending, tax, expense, contacts, cash register, salesperson | (read lintas modul) |
-| `SyncModule` | Endpoint sinkronisasi transaksi offline (idempotent) | Sales, Pricing, Stock |
 
 ---
 
@@ -75,10 +74,11 @@ sales/
 │   └── sales.controller.ts      # REST endpoints (HTTP)
 ├── services/
 │   ├── checkout.service.ts      # use-case: proses checkout (transaksi ACID)
+│   ├── tab.service.ts           # tab transaksi multi-pelanggan (maks 10, hold/resume/park)
 │   ├── hold.service.ts          # parkir tagihan
 │   └── sales-return.service.ts
 ├── domain/
-│   ├── entities/                # Sale, SaleItem, Payment
+│   ├── entities/                # Sale, SaleItem, Payment, TransactionTab
 │   ├── events/                  # TransactionCompleted, SalesReturned
 │   └── value-objects/           # Money, TaxLine
 ├── repositories/
@@ -146,7 +146,6 @@ Memakai **BullMQ** (Redis). Untuk tugas non-blocking & terjadwal.
 | `booking-reminder` | Saat booking dibuat / cron | Ingatkan reservasi mendatang |
 | `stock-alerts` | Event/cron | Low stock & expiry nearing |
 | `report-generation` | On-demand | Generate laporan berat -> file/cache |
-| `sync-conflict-review` | Saat sync | Tandai transaksi/voucher konflik untuk ditinjau |
 | `loyalty-recalc` | Event | Hitung ulang poin bila perlu |
 
 ---
@@ -160,7 +159,6 @@ Memakai **BullMQ** (Redis). Untuk tugas non-blocking & terjadwal.
 | `stock:check` | Klien subscribe stok produk -> dapat snapshot per lokasi |
 | `stock:changed` | Broadcast saat stok berubah (transaksi/transfer/adjust) |
 | `booking:queue` | Update antrean booking ke layar POS |
-| `sync:status` | Notifikasi status sinkron (opsional) |
 
 ---
 
@@ -247,11 +245,23 @@ POST   /sales/cart/hold                           # parkir
 GET    /sales/cart/hold | GET /sales/cart/hold/{id} | POST .../resume
 POST   /checkout/apply-voucher
 POST   /checkout/apply-discount
-POST   /checkout/pay                              # split payment (transaksi ACID)
+POST   /checkout/pay                              # split payment (transaksi ACID); tutup tab terkait
 POST   /checkout/from-booking/{bookingId}         # potong DP
 GET    /sales | GET /sales/{id} | PATCH | DELETE
 POST   /sales/{id}/return                         # sales return
 GET    /sales/{id}/print
+```
+
+#### 8.8.1 Tab Transaksi (Multi-Tab Checkout)
+```
+GET    /sales/tabs                                # daftar tab sesi kasir aktif (maks 10)
+POST   /sales/tabs                                # buka tab baru (409 bila sudah 10 tab)
+GET    /sales/tabs/{id}                            # detail isi tab
+PATCH  /sales/tabs/{id}                            # update keranjang/pelanggan/label tab
+POST   /sales/tabs/{id}/hold                       # tandai tab On Hold (state dipersist ke DB)
+POST   /sales/tabs/{id}/resume                      # aktifkan kembali tab On Hold
+POST   /sales/tabs/{id}/park                        # turunkan tab -> parkir tagihan (held_cart)
+DELETE /sales/tabs/{id}                             # tutup tab (butuh konfirmasi bila masih ada item)
 ```
 
 ### 8.9 Purchase
@@ -308,12 +318,6 @@ GET    /reports/expense
 GET    /reports/contacts
 GET    /reports/cash-register
 GET    /reports/salesperson
-```
-
-### 8.15 Sync (Offline)
-```
-POST   /sync/transactions      # batch + idempotencyKey
-GET    /sync/pull              # data master terbaru untuk klien
 ```
 
 ---
@@ -401,7 +405,16 @@ sale_payment(id, sale_id, method[cash|qris|card|cheque|transfer|voucher|points],
              amount, account_id, ref)
 sales_return(id, sale_id, business_id, reason, refund_method, refund_amount, created_at)
 sales_return_item(return_id, sale_item_id, qty)
-held_cart(id, business_id, location_id, cashier_id, customer_id, cart_json, created_at)
+
+# Tab transaksi multi-pelanggan (maks 10 tab aktif per sesi kasir/shift)
+transaction_tab(id, business_id, location_id, shift_id, cashier_id, customer_id,
+        tab_index[1..10], label, status[active|on_hold], cart_json, item_count,
+        subtotal_amount, created_at, updated_at, held_at)
+  # UNIQUE(shift_id, tab_index) ; jumlah baris per shift dibatasi <= 10 (app-level)
+
+# Parkir tagihan jangka panjang / lintas sesi (melengkapi tab)
+held_cart(id, business_id, location_id, cashier_id, customer_id, cart_json,
+        source_tab_id[nullable], created_at)
 ```
 
 ### 9.8 Purchase
@@ -447,18 +460,19 @@ cash_movement(id, shift_id, type[in|out|sale|refund|expense], amount, ref, creat
 
 > **Catatan integritas penting:**
 > - `voucher_redemption.voucher_id` = **UNIQUE** -> jaminan voucher single-use.
-> - `sale.idempotency_key` = **UNIQUE** -> mencegah dobel saat sync offline.
+> - `sale.idempotency_key` = **UNIQUE** -> mencegah transaksi dobel saat retry jaringan.
+> - `transaction_tab` = **UNIQUE(shift_id, tab_index)**; jumlah tab aktif per shift **dibatasi maksimal 10** (divalidasi di service layer). Tab dapat **diturunkan (park)** menjadi `held_cart` dan `held_cart` dapat **diangkat (resume)** menjadi tab baru.
 > - Operasi checkout, redeem voucher, stock transfer, purchase receive -> dibungkus **DB transaction**.
 
 ---
 
-## 10. Offline Sync & Idempotency
+## 10. Idempotency & Keandalan Transaksi
 
-- Klien mengirim batch transaksi offline ke `POST /sync/transactions` dengan **`idempotencyKey`** per transaksi.
-- `SyncModule` mengecek `sale.idempotency_key`; jika sudah ada -> skip (idempotent).
-- **Voucher:** verifikasi ulang status; bila sudah `redeemed` di tempat lain -> kembalikan **409 konflik** -> job `sync-conflict-review`.
-- **Stok:** validasi ketersediaan; konflik dicatat untuk ditinjau.
-- `GET /sync/pull` mengirim data master terbaru (produk/harga/customer) untuk klien offline.
+- Setiap permintaan transaksi (mis. `POST /checkout/pay`) menyertakan **`idempotencyKey`** unik per transaksi pada header/body.
+- Server menyimpan `sale.idempotency_key` (UNIQUE). Bila request dikirim ulang (retry akibat timeout/kegagalan jaringan), server **mengembalikan hasil transaksi yang sudah ada** alih-alih membuat duplikat.
+- Operasi kritikal (checkout, redeem voucher, stock transfer, purchase receive) dibungkus **DB transaction**; bila gagal -> rollback penuh.
+- Voucher divalidasi & di-redeem **online secara atomik** (lock baris + UNIQUE `voucher_redemption.voucher_id`) sehingga tidak ada pemakaian ganda walau ada request bersamaan (race condition).
+- Frontend menerapkan UX retry yang jelas saat koneksi terganggu, mengandalkan idempotency agar aman mengirim ulang.
 
 ---
 
@@ -484,8 +498,7 @@ src/
 │   ├── booking/
 │   ├── accounting/
 │   ├── cash-register/
-│   ├── reports/
-│   └── sync/
+│   └── reports/
 ├── events/                      # definisi event lintas modul (kontrak)
 └── prisma/ (atau entities/)     # schema DB
 ```
@@ -509,18 +522,18 @@ src/
 - [ ] StockModule (stok per lokasi, serial/lot, adjustment, transfer, alerts)
 - [ ] PricingModule (pricelist, price group, diskon, markdown, voucher + redeem atomik)
 - [ ] CustomerModule (CRM, loyalty points, membership)
-- [ ] SalesModule (cart, hold, split payment, checkout ACID, sales return, komisi)
+- [ ] SalesModule (cart, tab transaksi multi-pelanggan [maks 10, hold/resume/park], split payment, checkout ACID, sales return, komisi)
 - [ ] PurchaseModule (purchase, return, payments, reminder, dokumen)
 - [ ] ContactModule (supplier/customer, ledger hutang/piutang, payments)
 - [ ] BookingModule (reservasi, kalender, pre-order, DP)
 - [ ] AccountingModule (accounts, journal, balance sheet, trial balance, cash flow)
 - [ ] CashRegisterModule (open/close shift, rekonsiliasi/fraud)
 - [ ] ReportModule (semua laporan + filter)
-- [ ] SyncModule (offline batch + idempotency + konflik)
+- [ ] Idempotency transaksi (idempotency_key UNIQUE pada checkout & operasi tulis kritikal)
 
 **Lintas Modul**
 - [ ] Domain events (Bagian 5) + listener
-- [ ] Background jobs (Bagian 6): reminder, alerts, report-gen, conflict-review
+- [ ] Background jobs (Bagian 6): reminder, alerts, report-gen, loyalty-recalc
 - [ ] WebSocket gateway (stock check/changed, booking queue)
 - [ ] Audit trail aksi sensitif
 - [ ] Seed data (predefined roles Admin & Cashier, akun kas default)

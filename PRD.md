@@ -1,9 +1,9 @@
 # Product Requirements Document (PRD)
 # Sistem POS Modular Berbasis Monolith
 
-> **Versi:** 2.0 (Consolidated Final)
+> **Versi:** 2.1 (Consolidated Final — Online Web App)
 > **Arsitektur:** Modular Monolith (adaptasi dari konsep microservices)
-> **Stack:** SvelteKit (PWA) + NestJS (TypeScript) + PostgreSQL + Redis
+> **Stack:** SvelteKit + NestJS (TypeScript) + PostgreSQL + Redis
 > **Dokumen terkait:** `srs-pos-monolith.md` (kebutuhan rinci), `sequence-diagrams.md` (alur sistem)
 
 ---
@@ -18,7 +18,7 @@
 7. Arsitektur Sistem & Tech Stack
 8. Pemetaan Modul Domain
 9. Lingkup Fungsional (per Modul)
-10. Deep-Dive Fitur Unggulan (Voucher & Scan Smartphone)
+10. Deep-Dive Fitur Unggulan (Voucher, Scan Smartphone & Tab Transaksi)
 11. Kebutuhan Non-Fungsional
 12. Rencana Rilis & Fase (MVP -> Lanjutan)
 13. Asumsi, Ketergantungan & Risiko
@@ -32,12 +32,15 @@ Sistem **Point of Sale (POS)** berbasis web yang **modular namun dideploy sebaga
 
 Sistem ini menggabungkan kapabilitas POS operasional, manajemen multi-bisnis & multi-cabang, pembelian (purchasing), CRM & loyalty, promo engine, booking/reservasi, akuntansi dasar, serta laporan lengkap — semuanya dalam satu aplikasi yang mudah dikelola tim kecil hingga menengah.
 
+Front-end dibangun sebagai **web app SvelteKit (online)** yang berkomunikasi langsung ke backend NestJS via REST/WebSocket. Sistem mengandalkan koneksi jaringan saat operasi (bukan offline-first/PWA).
+
 **Sorotan kapabilitas:**
-- POS kasir **offline-first** (PWA + IndexedDB) dengan sinkronisasi.
+- POS kasir berbasis **web app SvelteKit (online)** dengan UI cepat dan responsif.
+- **Tab transaksi multi-pelanggan** (mirip tab browser, maksimal 10 tab) — pelanggan yang di-hold **tetap berada di tabnya**.
 - **Multi-Business, multi-cabang, multi-gudang** dalam satu back-end.
 - **Split payment** (Tunai, QRIS, Kartu, Cheque, Bank Transfer, Voucher).
 - **Voucher fisik** single-use sebagai pengurang nilai belanja.
-- **Scan barcode via kamera smartphone** (PWA, tanpa hardware tambahan).
+- **Scan barcode via kamera smartphone** (langsung di browser, tanpa hardware tambahan).
 - **Manajemen produk lanjutan** (single/variable, IMEI/Serial/Lot, expiry, SKU, label, CSV).
 - **Purchasing** + purchase return, kredit/partial, payment reminder.
 - **CRM & Loyalty**, pricelist per kategori, diskon bersyarat, markdown otomatis.
@@ -55,7 +58,7 @@ Konsep awal sistem dirancang sebagai microservices untuk skalabilitas & integras
 
 **Masalah yang dipecahkan PRD ini:**
 - Bisnis ritel/F&B/jasa membutuhkan POS lengkap yang **cepat dirilis, andal, dan murah dikelola**, tanpa overhead microservices.
-- Operasi kasir harus tetap jalan **saat offline** dan konsisten saat sinkron.
+- Operasi kasir harus **cepat dan responsif** saat online, dengan latensi rendah ke backend.
 - Data keuangan, stok, dan voucher harus **konsisten (ACID)** — sulit dicapai bila terpecah di banyak service.
 
 **Solusi:** Modular Monolith yang mempertahankan **semua fitur** konsep microservices, tetapi dengan kompleksitas operasional jauh lebih rendah, sambil menjaga jalur migrasi ke microservices bila bisnis tumbuh.
@@ -70,7 +73,7 @@ Konsep awal sistem dirancang sebagai microservices untuk skalabilitas & integras
 - Mempercepat time-to-market fitur baru lewat satu codebase.
 
 ### 3.2 Sasaran Produk
-- POS kasir cepat (operasi inti < 200 ms) dan **fungsional penuh saat offline**.
+- POS kasir cepat & responsif (operasi inti < 200 ms saat online).
 - Konsistensi keuangan & stok terjamin (transaksi ACID).
 - Modularitas internal yang menjaga jalur migrasi ke microservices.
 
@@ -85,10 +88,10 @@ Konsep awal sistem dirancang sebagai microservices untuk skalabilitas & integras
 
 | Kategori | Metrik | Target |
 |---|---|---|
-| Performa | Latensi operasi POS lokal | < 200 ms |
+| Performa | Latensi operasi POS (online) | < 200 ms |
 | Performa | Validasi voucher online | < 1 detik |
-| Keandalan | Transaksi offline tersinkron tanpa kehilangan/dobel | 100% (idempotent) |
-| Ketersediaan | POS dapat transaksi saat offline | Ya, fungsi inti penuh |
+| Keandalan | Transaksi tidak ganda saat retry jaringan | 100% (idempotent) |
+| Ketersediaan | Target uptime server | >= 99,5% |
 | Akurasi | Selisih kas terdeteksi saat tutup shift | 100% terlaporkan |
 | Integritas | Voucher single-use tidak terpakai ganda | 0 kasus (dijamin DB) |
 | Adopsi | Waktu pelatihan kasir baru | < 1 jam (UI user-friendly) |
@@ -99,7 +102,7 @@ Konsep awal sistem dirancang sebagai microservices untuk skalabilitas & integras
 
 | Persona | Peran | Kebutuhan Utama |
 |---|---|---|
-| **Kasir** | Operator transaksi | Checkout cepat, parkir tagihan, split payment, scan, offline |
+| **Kasir** | Operator transaksi | Checkout cepat, tab transaksi multi-pelanggan, parkir tagihan, split payment, scan |
 | **Supervisor / Manajer Toko** | Pengawas cabang | Approval void/diskon, laporan cabang, kelola shift |
 | **Admin / Owner** | Pemilik multi-bisnis | Kelola produk/harga/promo/voucher, multi-cabang, laporan global, akuntansi |
 | **Staf Gudang** | Pengelola stok | Stock adjustment, transfer antar lokasi, terima pembelian |
@@ -130,8 +133,8 @@ Konsep awal sistem dirancang sebagai microservices untuk skalabilitas & integras
 
 ```
 +-----------------------------------------------------------+
-|  POS PWA (Kasir)  |  Web Admin Dashboard  |  3rd-Party App |
-|  (Offline-First)  |                       |                |
+|  POS Web App (Kasir)  | Web Admin Dashboard | 3rd-Party App |
+|  (SvelteKit, online)  |                     |               |
 +-----------+---------------+-------------------+------------+
             |   HTTPS / REST / WebSocket          |
 +-----------v-------------------------------------v----------+
@@ -159,17 +162,17 @@ Konsep awal sistem dirancang sebagai microservices untuk skalabilitas & integras
 
 ### 7.3 Pengganti Message Broker
 - **In-process Domain Events:** mis. `TransactionCompleted` dipublish modul Sales, didengar Inventory (potong stok), Customer (poin), Accounting (posting), Reporting — tanpa jaringan.
-- **Background Job Queue (Redis):** tugas berat/non-blocking (reminder, generate laporan, sinkronisasi) agar kasir tidak terbeban.
+- **Background Job Queue (Redis):** tugas berat/non-blocking (reminder, generate laporan, agregasi data) agar kasir tidak terbeban.
 - Bila kelak butuh broker nyata, modul event siap di-swap ke RabbitMQ/Kafka tanpa ubah logika domain.
 
 ### 7.4 Tech Stack — Keputusan
 
-**Frontend: SvelteKit** (dibanding React/Vue) — bundle terkecil, performa tertinggi (compiler tanpa Virtual DOM), service worker/PWA bawaan; ideal untuk kasir offline-first di perangkat spek terbatas.
+**Frontend: SvelteKit** (dibanding React/Vue) — bundle terkecil, performa tertinggi (compiler tanpa Virtual DOM), routing & SSR bawaan; ideal untuk UI kasir yang ringan dan responsif di perangkat spek terbatas. Dibangun sebagai **web app online** (bukan PWA/offline-first).
 
 **Backend: NestJS + TypeScript** — cepat (Node.js non-blocking, opsi Fastify adapter), fleksibel (arsitektur modular cocok dengan modular-monolith), stabil (enterprise-grade). Bahasa sama dengan frontend untuk shared types.
 
 ```
-Frontend  : SvelteKit (PWA, IndexedDB via Dexie.js)
+Frontend  : SvelteKit (web app online, SSR/SPA)
 Backend   : NestJS + TypeScript (modular monolith)
 Database  : PostgreSQL (1 DB, skema per modul)
 Cache/Job : Redis (cache + background queue)
@@ -186,7 +189,7 @@ Bahasa    : TypeScript end-to-end (shared types FE<->BE)
 
 | Modul | Asal Konsep | Tanggung Jawab Utama |
 |---|---|---|
-| **Sales / Checkout** | Transaction Service | Split payment, keranjang, parkir tagihan, pajak, sales return, kredit/partial, komisi |
+| **Sales / Checkout** | Transaction Service | Split payment, keranjang, tab transaksi multi-pelanggan, parkir tagihan, pajak, sales return, kredit/partial, komisi |
 | **Inventory & Catalog** | Inventory Service | Produk single/variable, unit, brand, group tax, SKU, IMEI/Serial/Lot, expiry, label, CSV, stok multi-lokasi, adjustment & transfer |
 | **Customer (CRM & Loyalty)** | CRM Service | Poin, profil, keanggotaan, kategori harga |
 | **Pricing & Promotion** | Pricing Engine | Pricelist, selling price group, diskon bersyarat, markdown, voucher |
@@ -204,13 +207,14 @@ Bahasa    : TypeScript end-to-end (shared types FE<->BE)
 
 > Detail kebutuhan ber-ID (FR-*) ada di `srs-pos-monolith.md`. Bagian ini ringkasan naratif.
 
-### 9.1 POS Kasir & Checkout (Offline-First)
+### 9.1 POS Kasir & Checkout (Online)
 - **Multi-Session & Cash Control:** saldo awal modal saat buka shift; rekonsiliasi kas sistem vs fisik saat tutup shift (deteksi fraud).
-- **Put On Hold (Parkir Tagihan):** tahan transaksi A, layani B, lanjutkan A.
+- **Tab Transaksi Multi-Pelanggan:** kasir dapat membuka beberapa transaksi sekaligus dalam tab terpisah (mirip tab browser), **maksimal 10 tab aktif** per sesi kasir. Tiap tab menyimpan state sendiri (item, pelanggan, diskon/voucher, salesperson, catatan). Lihat Bagian 10.3.
+- **Put On Hold (Parkir Tagihan):** tahan transaksi A, layani B, lanjutkan A. Saat di-hold, transaksi **tetap berada di tab-nya** dengan status *On Hold* (melengkapi parkir tagihan jangka panjang).
 - **Split Payment:** Tunai + QRIS + Kartu + Cheque + Bank Transfer + Voucher dalam satu transaksi.
 - **Sales Return**, penjualan **Credit/Paid/Partially Paid**, Taxes/Discounts/Shipping.
 - **Fully-AJAX, Keyboard Shortcuts, Walk-In/Quick Add Customer**, commission agent per transaksi.
-- **Offline-first:** transaksi tersimpan di IndexedDB & disinkron (idempotent, penanganan konflik).
+- **Idempotent:** setiap transaksi memakai `idempotency_key` agar aman terhadap retry jaringan (tidak dobel).
 - Cetak struk & buka cash drawer.
 
 ### 9.2 Inventory, Catalog & Stok
@@ -265,7 +269,7 @@ Kupon/kartu bernilai (kode unik/barcode/QR) yang **mengurangi nilai belanja**.
 - **Bisa digabung dengan metode pembayaran lain** (komponen dalam split payment).
 - **Jenis:** Fixed Amount & Percentage (opsional max discount).
 - **Aturan:** masa berlaku, min. belanja, cakupan cabang/produk, `is_stackable` (default false).
-- **Anti-fraud:** redemption **atomik** (lock baris), `voucher_id` UNIQUE di `voucher_redemption` menjamin single-use di level DB. Saat offline: ditandai "pending" & diverifikasi ulang ketika sync.
+- **Anti-fraud:** redemption **atomik** (lock baris), `voucher_id` UNIQUE di `voucher_redemption` menjamin single-use di level DB. Validasi & redemption dilakukan online secara real-time terhadap backend.
 
 ```
 voucher(id, code [unik], type[fixed|percent], value, max_discount,
@@ -275,11 +279,32 @@ voucher_redemption(id, voucher_id [UNIQUE], transaction_id, branch_id,
         cashier_id, amount_used, redeemed_at)
 ```
 
-### 10.2 Scan Barcode via Smartphone (Opsi A — Kamera In-App PWA)
-- Kamera HP dipakai langsung di PWA (`getUserMedia` + `BarcodeDetector` API, fallback ZXing-js).
+### 10.2 Scan Barcode via Smartphone (Opsi A — Kamera In-App Browser)
+- Kamera HP dipakai langsung di web app (`getUserMedia` + `BarcodeDetector` API, fallback ZXing-js).
 - Mendukung 1D (EAN/UPC) & 2D (QR/QRIS); tanpa hardware tambahan.
 - Integrasi: lookup produk (Inventory), tambah item (Checkout), validasi voucher (Pricing), ambil pre-order (Booking).
-- Catatan: butuh HTTPS; sediakan input manual fallback; umpan balik visual + beep.
+- Catatan: butuh HTTPS (syarat akses kamera di browser); sediakan input manual fallback; umpan balik visual + beep.
+
+### 10.3 Tab Transaksi Multi-Pelanggan (Multi-Tab Checkout)
+
+Antarmuka kasir menyediakan **bar tab** di layar POS (mirip tab browser). Setiap tab mewakili **satu transaksi/keranjang aktif** milik satu pelanggan, sehingga kasir dapat melayani beberapa pelanggan secara paralel tanpa kehilangan konteks.
+
+**Perilaku inti:**
+- **Maksimal 10 tab aktif** per sesi kasir. Bila sudah 10, kasir harus menyelesaikan, menutup, atau memarkir salah satu tab sebelum membuka tab baru.
+- Setiap tab **menyimpan state-nya sendiri** secara terisolasi: daftar item & qty, pelanggan, diskon/voucher, salesperson/komisi, catatan, dan pajak. Berpindah tab **tidak mempengaruhi** tab lain.
+- **Pelanggan yang di-hold tetap berada di tab-nya** dengan status *On Hold*. Tab tidak hilang — kasir bisa pindah ke tab lain dan kembali lagi kapan saja untuk melanjutkan.
+- **Indikator per tab:** nama/label pelanggan (atau "Walk-In"), jumlah item, total sementara, dan status (*Active* / *On Hold*).
+- **Persistensi:** saat tab di-hold, state-nya dipersist ke backend agar aman terhadap refresh browser/ganti perangkat dan dapat dipulihkan saat sesi kasir dibuka kembali. Tab baru yang masih kosong cukup di sisi klien hingga ada item pertama.
+- **Menutup tab:** bila masih ada item yang belum di-checkout, sistem meminta konfirmasi (Selesaikan pembayaran / Parkir tagihan / Buang).
+- **Setelah checkout selesai**, tab otomatis ditutup (atau di-reset menjadi tab kosong baru).
+
+**Hubungan dengan Parkir Tagihan (FR-SAL-04):**
+- **Tab** = transaksi yang sedang berjalan atau *On Hold* **dalam sesi kasir saat ini** (cepat diakses, ada di bar tab).
+- **Parkir Tagihan** = penyimpanan tagihan **jangka lebih panjang / lintas sesi & lintas kasir** (mis. pelanggan kembali besok). Tab dapat **diturunkan (demote)** menjadi parkir tagihan untuk mengosongkan slot tab, dan parkir tagihan dapat **diangkat kembali (resume)** menjadi tab aktif.
+
+**Batasan & catatan:**
+- Tab bersifat **per sesi kasir/cash register** (bukan global lintas perangkat secara bersamaan).
+- Operasi checkout per tab tetap **idempotent** (memakai `idempotency_key`) untuk mencegah transaksi dobel saat retry jaringan.
 
 ---
 
@@ -287,12 +312,12 @@ voucher_redemption(id, voucher_id [UNIQUE], transaction_id, branch_id,
 
 | Kategori | Kebutuhan |
 |---|---|
-| Performa | Operasi POS lokal < 200 ms; validasi voucher online < 1 dtk |
-| Ketersediaan | POS fungsi inti penuh saat offline |
+| Performa | Operasi POS (online) < 200 ms; validasi voucher online < 1 dtk |
+| Ketersediaan | Target uptime server >= 99,5% |
 | Skalabilitas | Backend horizontal (replika stateless di balik LB); PostgreSQL read replica; Redis |
 | Keamanan | JWT/OAuth2, RBAC, HTTPS wajib, enkripsi data sensitif, audit trail |
 | Integritas | Operasi keuangan & stok ACID; redemption voucher atomik; transaksi idempotent |
-| Usabilitas | UI kasir user-friendly, alur checkout minim langkah |
+| Usabilitas | UI kasir user-friendly, alur checkout minim langkah; tab transaksi (maks 10) untuk melayani pelanggan paralel |
 | Kompatibilitas | Browser modern; BarcodeDetector + fallback; ESC/POS printer |
 | Maintainability | Modular boundary dijaga; siap migrasi microservices |
 
@@ -307,7 +332,8 @@ voucher_redemption(id, voucher_id [UNIQUE], transaction_id, branch_id,
 ### Fase 1 — MVP POS Inti
 - Auth & RBAC dasar, Business & lokasi, katalog produk dasar.
 - Checkout + split payment (Tunai/QRIS/Kartu), cetak struk, cash control.
-- Offline-first + sinkronisasi, scan barcode smartphone.
+- Tab transaksi multi-pelanggan (maks 10 tab) + parkir tagihan.
+- Scan barcode smartphone (kamera in-app browser).
 - Inventory dasar + real-time stock.
 
 ### Fase 2 — Retail & Promo
@@ -327,18 +353,18 @@ voucher_redemption(id, voucher_id [UNIQUE], transaction_id, branch_id,
 ## 13. Asumsi, Ketergantungan & Risiko
 
 ### Asumsi
-- Perangkat kasir memiliki kamera (untuk scan smartphone) & koneksi internet intermiten.
+- Perangkat kasir memiliki kamera (untuk scan smartphone) & **koneksi internet stabil** saat operasi.
 - Gateway pembayaran (QRIS/Kartu) tersedia via pihak ketiga.
 
 ### Ketergantungan
 - PostgreSQL, Redis, reverse proxy (Nginx), HTTPS/sertifikat.
-- Library: Dexie.js (IndexedDB), BarcodeDetector/ZXing-js, driver ESC/POS.
+- Library: BarcodeDetector/ZXing-js, driver ESC/POS.
 
 ### Risiko & Mitigasi
 | Risiko | Dampak | Mitigasi |
 |---|---|---|
 | Monolith membesar sulit dikelola | Sedang | Jaga modular boundary; siap strangler ke microservices |
-| Konflik data saat sync offline | Tinggi | Idempotency key, deteksi konflik, voucher pending-validation |
+| Ketergantungan koneksi internet (tanpa offline) | Tinggi | Koneksi/redundansi jaringan andal, UX retry yang jelas, idempotency key anti-dobel |
 | Kompatibilitas scan barcode antar-browser | Sedang | BarcodeDetector + fallback ZXing-js + input manual |
 | Skala trafik tinggi | Sedang | Replika stateless, read replica, cache Redis |
 | Keamanan voucher (fraud) | Tinggi | Redemption atomik, UNIQUE constraint, audit trail |
@@ -348,8 +374,9 @@ voucher_redemption(id, voucher_id [UNIQUE], transaction_id, branch_id,
 ## 14. Ringkasan Fitur (Checklist)
 
 **POS Inti & Pembayaran**
-- [x] POS Web/PWA Offline-First (IndexedDB) + sinkronisasi idempotent
+- [x] POS Web App (SvelteKit, online) dengan transaksi idempotent (anti-dobel saat retry)
 - [x] Multi-Session & Cash Control (deteksi fraud)
+- [x] Tab Transaksi Multi-Pelanggan (maks 10 tab; pelanggan yang di-hold tetap di tabnya)
 - [x] Put On Hold (Parkir Tagihan)
 - [x] Split Payment (Tunai + QRIS + Kartu + Cheque + Bank Transfer + Voucher)
 - [x] Sales Return, Penjualan Kredit/Partial, Taxes/Discounts/Shipping
@@ -358,7 +385,7 @@ voucher_redemption(id, voucher_id [UNIQUE], transaction_id, branch_id,
 - [x] Cetak struk & buka cash drawer
 
 **Scan & Hardware**
-- [x] Scan Barcode via Smartphone (kamera in-app PWA)
+- [x] Scan Barcode via Smartphone (kamera in-app browser)
 - [x] Barcode Scanner USB/Bluetooth (HID)
 - [x] Thermal Printer ESC/POS
 - [x] Fully Customizable Invoice Layout & Barcode Setting
@@ -407,6 +434,6 @@ voucher_redemption(id, voucher_id [UNIQUE], transaction_id, branch_id,
 
 > **Dokumen pendamping:**
 > - `SRS.md` — Software Requirements Specification (kebutuhan fungsional & non-fungsional ber-ID, IEEE 830).
-> - `Sequence_Diagram.md` — 19 sequence diagram (Mermaid) untuk alur-alur utama sistem.
+> - `Sequence_Diagram.md` — sequence diagram (Mermaid) untuk alur-alur utama sistem (termasuk tab transaksi multi-pelanggan).
 > - `Frontend.md` — UI/UX Requirement 
 > - `Backend.md` — Alur-alur dll.
