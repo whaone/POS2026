@@ -49,7 +49,7 @@
 
 - **SvelteKit** + **TypeScript** (strict). Bundle ringan, cocok untuk perangkat kasir spek terbatas (PRD §7.4).
 - **Shared types FE↔BE**: tipe request/response API didefinisikan/diselaraskan dengan backend (satu sumber, hindari duplikasi liar).
-- **Styling**: _(TBD — tentukan: Tailwind / UnoCSS / CSS vanilla; catat di PLAN sebagai keputusan)._
+- **Styling**: **Tailwind CSS** dengan token design system "Luminous Industrial" (lihat `reference/frontend/Reference/luminous_industrial_1/DESIGN.md`). Pindahkan token ke `tailwind.config` proyek; **jangan** memakai `cdn.tailwindcss.com` di produksi. Ikon: Material Symbols. Font: Inter.
 - **Testing**: Vitest (unit komponen) + Playwright (E2E opsional), single-run di CI (AGENTS §6.2).
 
 Usulan struktur (`src/`):
@@ -78,7 +78,7 @@ src/
 
 ## 3. Folder Referensi Desain (HTML + PNG)
 
-File referensi desain dari pemilik produk disimpan di **`reference/frontend/`** (read-only, panduan visual).
+File referensi desain dari pemilik produk disimpan di **`reference/frontend/Reference/`** (read-only, panduan visual). **Sudah tersedia** 11 layar prototipe (Tailwind HTML + screenshot) + spesifikasi design system "Luminous Industrial". **Katalog lengkap + pemetaan layar→route→FR ada di `reference/frontend/Reference/README.md`.**
 
 **Konvensi penamaan** (memudahkan pemetaan ke route & FR):
 ```

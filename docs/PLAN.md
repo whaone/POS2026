@@ -157,9 +157,9 @@ dukungan thermal printer ESC/POS & scanner HID.
 | Q1 | ~~`Frontend.md` masih kosong~~ **TERJAWAB: Frontend.md v0.1 dibuat** (API-first, route map, traceability). Detail per layar menyusul referensi `reference/frontend/*` dari user. | Frontend.md | ✅ Selesai |
 | Q2 | ~~ORM final: Prisma atau TypeORM?~~ **TERJAWAB: Drizzle ORM** (lihat ADR-05 & Spec Change Log) | Backend.md header | ✅ Selesai |
 | Q3 | Strategi cetak struk Fase 1: WebUSB/WebBluetooth langsung atau bridge lokal? | UC-10, FR-CFG-04 | ⬜ Menunggu |
-| Q4 | Library styling frontend (Tailwind / UnoCSS / lainnya)? | Frontend.md §2 | ⬜ Menunggu |
+| Q4 | ~~Library styling frontend?~~ **TERJAWAB: Tailwind CSS** + design system "Luminous Industrial" (token di `reference/frontend/Reference/.../DESIGN.md`) | Frontend.md §2 | ✅ Selesai |
 | Q5 | Strategi shared types FE↔BE (generate dari OpenAPI vs paket manual)? | Frontend.md §2, §11 | ⬜ Menunggu |
-| Q6 | File referensi UI (`reference/frontend/*.html|png`) belum disediakan user — layar apa saja & pemetaan ke FR? | Frontend.md §3 | ⬜ Menunggu |
+| Q6 | ~~File referensi UI belum disediakan~~ **TERJAWAB: 11 layar tersedia** di `reference/frontend/Reference/` (lihat README katalognya). Gap: tab transaksi, scanner, buka shift belum ada mockup khusus. | reference/frontend/Reference/ | ✅ Selesai |
 
 ---
 
@@ -173,6 +173,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | 2026-06-17 | Backend.md | ORM difinalkan ke **Drizzle ORM** (header, CoreModule, repository, struktur folder `db/`, checklist) | Keputusan user; sebelumnya "Prisma atau TypeORM" masih opsi | User |
 | 2026-06-17 | AGENTS.md, PLAN.md, .github/, .kiro/ | Tambah harness anti-halusinasi: bagian TDD & Quality Gate (AGENTS §6), kolom Test/AC & Gate (PLAN), workflow `quality-gate.yml`, agent `pos-code-reviewer.md` | Permintaan user untuk mencegah halusinasi via guardrail keras | User |
 | 2026-06-17 | Frontend.md, AGENTS.md | Buat `Frontend.md` v0.1 (API-first, route map, komponen, traceability layar→FR, konvensi `reference/frontend/`); AGENTS §3 ditambah aturan baca frontend API-first | Menjawab Q1; menyiapkan kerja frontend dari file referensi HTML/PNG | User |
+| 2026-06-17 | reference/frontend/Reference/README.md, Frontend.md, PLAN.md | Tambah README katalog 11 layar referensi "Luminous Industrial" (pemetaan layar→route→FR); finalisasi styling = Tailwind (Q4), referensi tersedia (Q6) | User menyediakan file referensi UI di branch main | User |
 
 ---
 
