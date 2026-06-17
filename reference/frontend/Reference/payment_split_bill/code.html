@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Payment &amp; Split-Bill Modal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#006c47",
+                        "on-error-container": "#93000a",
+                        "secondary": "#994700",
+                        "surface-container-highest": "#e4e2e0",
+                        "on-background": "#1b1c1b",
+                        "on-surface": "#1b1c1b",
+                        "surface-variant": "#e4e2e0",
+                        "on-tertiary-container": "#f6fffa",
+                        "primary-container": "#00885a",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#321300",
+                        "inverse-on-surface": "#f2f0ee",
+                        "tertiary": "#555e5b",
+                        "surface-bright": "#fbf9f7",
+                        "surface-container-high": "#e9e8e6",
+                        "on-secondary": "#ffffff",
+                        "background": "#fbf9f7",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#bfc8c5",
+                        "primary-fixed": "#7efabd",
+                        "surface-container": "#efeeeb",
+                        "on-tertiary-fixed": "#151d1b",
+                        "on-secondary-fixed-variant": "#743400",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#006c47",
+                        "primary-fixed-dim": "#60dda2",
+                        "on-surface-variant": "#414942",
+                        "tertiary-container": "#6e7673",
+                        "on-tertiary-fixed-variant": "#404946",
+                        "on-primary-fixed-variant": "#005235",
+                        "error": "#ba1a1a",
+                        "surface": "#fbf9f7",
+                        "inverse-primary": "#60dda2",
+                        "secondary-fixed-dim": "#ffb68a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#000703",
+                        "surface-dim": "#dbdad8",
+                        "secondary-container": "#fe852b",
+                        "secondary-fixed": "#ffdbc8",
+                        "surface-container-low": "#f5f3f1",
+                        "tertiary-fixed": "#dbe4e1",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c0c9c0",
+                        "on-secondary-container": "#632c00",
+                        "inverse-surface": "#30312f",
+                        "outline": "#717972"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "lg": "32px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "container-margin": "32px",
+                        "base": "4px",
+                        "sm": "16px",
+                        "xs": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "headline-xl": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["22px", {"lineHeight": "1.3", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background-color: rgba(251, 249, 247, 0.85); /* surface color with opacity */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px -15px rgba(0, 108, 71, 0.05); /* ambient primary shadow */
+        }
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #00885a 0%, #006c47 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 20px -10px rgba(0, 108, 71, 0.3);
+        }
+        .ambient-glow {
+            box-shadow: 0 0 50px 10px rgba(96, 221, 162, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex items-center justify-center p-4" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB6bC6FNg0JVtwzsqb_B1KMmLS94f79rEm_O6aYtfR04dt2YcSWMptu0EgG2AqiasLY-0VAa1AH1s23OxG_QQVbEJcUvRNBWDVugPsfIfJ5-Dzi8YNIwYRCnjhKHAEWLTuHCYZAaRvSH0LGPbAsPtR2e1UPO3OhNOY9EW49BtWXpTTFADBXulT6GT1SqqkHjO8Z_bZtNOHSPDipUfUk64SeU8oVKOxvVE8vnxITHorAIRIQTIWb4yIvhA5qPAAG1Qqyl-uMjsPEI_43'); background-size: cover; background-position: center;">
+<!-- Modal Overlay Backdrop -->
+<div class="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-40 flex items-center justify-center p-4 md:p-container-margin">
+<!-- Modal Container -->
+<div class="glass-panel w-full max-w-5xl rounded-[24px] overflow-hidden flex flex-col md:flex-row shadow-2xl ambient-glow z-50 animate-in fade-in zoom-in-95 duration-300">
+<!-- Left Side: Bill Summary -->
+<div class="w-full md:w-5/12 bg-surface/40 p-lg border-b md:border-b-0 md:border-r border-white/40 flex flex-col">
+<div class="flex items-center gap-xs mb-lg">
+<span class="material-symbols-outlined text-primary font-bold text-[28px]">receipt_long</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Bill Summary</h2>
+</div>
+<div class="flex-grow space-y-md">
+<!-- Order Items -->
+<div class="space-y-sm">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-body-md text-body-md font-medium">Artisan Espresso</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">2 x $4.50</p>
+</div>
+<p class="font-body-md text-body-md font-medium">$9.00</p>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-body-md text-body-md font-medium">Avocado Toast</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">1 x $12.00</p>
+</div>
+<p class="font-body-md text-body-md font-medium">$12.00</p>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-body-md text-body-md font-medium">Matcha Latte</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">1 x $6.50</p>
+</div>
+<p class="font-body-md text-body-md font-medium">$6.50</p>
+</div>
+</div>
+<hr class="border-outline-variant/30"/>
+<!-- Subtotals -->
+<div class="space-y-xs">
+<div class="flex justify-between text-on-surface-variant">
+<p class="font-body-md text-body-md">Subtotal</p>
+<p class="font-body-md text-body-md">$27.50</p>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<p class="font-body-md text-body-md">Tax (8%)</p>
+<p class="font-body-md text-body-md">$2.20</p>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<p class="font-body-md text-body-md">Service Charge</p>
+<p class="font-body-md text-body-md">$1.50</p>
+</div>
+</div>
+</div>
+<div class="mt-lg pt-md border-t border-outline-variant/30">
+<div class="flex justify-between items-end">
+<p class="font-headline-md text-headline-md text-on-surface">Total Due</p>
+<p class="font-headline-xl text-headline-xl text-primary">$31.20</p>
+</div>
+</div>
+</div>
+<!-- Right Side: Payment Selection -->
+<div class="w-full md:w-7/12 bg-surface/60 p-lg flex flex-col relative">
+<!-- Close Button -->
+<button class="absolute top-md right-md p-xs rounded-full hover:bg-surface-container-highest text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Payment Method</h3>
+<!-- Payment Methods Grid -->
+<div class="grid grid-cols-2 gap-sm mb-lg">
+<button class="glass-card rounded-lg p-sm flex flex-col items-center justify-center gap-xs border-primary/50 bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-primary text-[32px]">payments</span>
+<span class="font-label-sm text-label-sm text-primary">Cash</span>
+</button>
+<button class="glass-card rounded-lg p-sm flex flex-col items-center justify-center gap-xs hover:border-primary/30 hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-[32px]">qr_code_scanner</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">QRIS</span>
+</button>
+<button class="glass-card rounded-lg p-sm flex flex-col items-center justify-center gap-xs hover:border-primary/30 hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-[32px]">credit_card</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Card</span>
+</button>
+<button class="glass-card rounded-lg p-sm flex flex-col items-center justify-center gap-xs hover:border-primary/30 hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-[32px]">loyalty</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Voucher</span>
+</button>
+</div>
+<!-- Split Payment Section -->
+<div class="glass-card rounded-xl p-md mb-lg">
+<div class="flex justify-between items-center mb-sm">
+<h4 class="font-headline-md text-headline-md text-on-surface text-base">Split Payment</h4>
+<span class="bg-primary-container text-on-primary-container font-label-sm text-label-sm px-2 py-1 rounded-full">Active</span>
+</div>
+<div class="space-y-sm">
+<!-- Added Method 1 -->
+<div class="flex items-center gap-sm bg-surface p-xs rounded-lg border border-outline-variant/20">
+<span class="material-symbols-outlined text-primary p-xs bg-primary/10 rounded-md">payments</span>
+<div class="flex-grow">
+<p class="font-body-md text-body-md font-medium text-on-surface">Cash</p>
+</div>
+<div class="flex items-center gap-xs">
+<span class="font-body-md text-body-md text-on-surface-variant">$</span>
+<input class="w-20 bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 px-1 text-right font-body-md text-body-md text-on-surface" type="number" value="10.00"/>
+</div>
+<button class="text-error hover:bg-error-container p-1 rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">remove_circle_outline</span>
+</button>
+</div>
+<!-- Added Method 2 -->
+<div class="flex items-center gap-sm bg-surface p-xs rounded-lg border border-outline-variant/20">
+<span class="material-symbols-outlined text-on-surface-variant p-xs bg-surface-container rounded-md">qr_code_scanner</span>
+<div class="flex-grow">
+<p class="font-body-md text-body-md font-medium text-on-surface">QRIS</p>
+</div>
+<div class="flex items-center gap-xs">
+<span class="font-body-md text-body-md text-on-surface-variant">$</span>
+<input class="w-20 bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 px-1 text-right font-body-md text-body-md text-on-surface" type="number" value="21.20"/>
+</div>
+<button class="text-error hover:bg-error-container p-1 rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">remove_circle_outline</span>
+</button>
+</div>
+</div>
+<div class="mt-sm flex justify-between items-center text-sm">
+<span class="font-body-md text-body-md text-on-surface-variant">Remaining to assign:</span>
+<span class="font-body-md text-body-md text-primary font-medium">$0.00</span>
+</div>
+</div>
+<!-- Voucher Toggle -->
+<div class="flex items-center justify-between mb-auto py-sm">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary">local_activity</span>
+<span class="font-body-md text-body-md text-on-surface">Stackable Vouchers</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Action Button -->
+<button class="btn-primary-gradient w-full mt-lg py-sm px-md rounded-full text-on-primary font-headline-md text-headline-md flex items-center justify-center gap-xs hover:brightness-110 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    Confirm Payment - $31.20
+                </button>
+</div>
+</div>
+</div>
+</body></html>

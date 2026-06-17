@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Luminous POS - Accounting</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#006c47",
+                        "primary-fixed-dim": "#60dda2",
+                        "tertiary-container": "#6e7673",
+                        "surface": "#fbf9f7",
+                        "outline": "#717972",
+                        "background": "#fbf9f7",
+                        "secondary": "#994700",
+                        "tertiary-fixed": "#dbe4e1",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c0c9c0",
+                        "on-secondary-fixed": "#321300",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e4e2e0",
+                        "primary-container": "#00885a",
+                        "on-tertiary-fixed": "#151d1b",
+                        "secondary-container": "#fe852b",
+                        "surface-container-high": "#e9e8e6",
+                        "primary": "#006c47",
+                        "on-primary-fixed-variant": "#005235",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdbc8",
+                        "inverse-on-surface": "#f2f0ee",
+                        "surface-dim": "#dbdad8",
+                        "primary-fixed": "#7efabd",
+                        "on-tertiary-container": "#f6fffa",
+                        "surface-container": "#efeeeb",
+                        "inverse-primary": "#60dda2",
+                        "on-tertiary-fixed-variant": "#404946",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#002113",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#30312f",
+                        "surface-container-highest": "#e4e2e0",
+                        "tertiary-fixed-dim": "#bfc8c5",
+                        "surface-container-low": "#f5f3f1",
+                        "tertiary": "#555e5b",
+                        "secondary-fixed-dim": "#ffb68a",
+                        "on-secondary-container": "#632c00",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1b1c1b",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#414942",
+                        "on-surface": "#1b1c1b",
+                        "surface-bright": "#fbf9f7",
+                        "on-secondary-fixed-variant": "#743400",
+                        "on-primary-container": "#000703"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "container-margin": "32px",
+                        "xs": "8px",
+                        "lg": "32px",
+                        "xl": "48px",
+                        "base": "4px",
+                        "gutter": "24px",
+                        "sm": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", { "lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400" }],
+                        "headline-xl": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+        }
+        .glass-panel {
+            background-color: rgba(245, 243, 241, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .ambient-shadow {
+            box-shadow: 0 20px 40px -15px rgba(0, 108, 71, 0.08);
+        }
+        .gradient-primary {
+            background: linear-gradient(135deg, #00885a 0%, #006c47 100%);
+        }
+        .btn-glow {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 108, 71, 0.15);
+        }
+        body {
+            background-color: #fbf9f7;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(96, 221, 162, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(96, 221, 162, 0.05), transparent 25%);
+        }
+        
+        /* Custom Scrollbar for Ledger */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #e4e2e0;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md text-on-surface antialiased overflow-hidden selection:bg-primary/20 selection:text-primary">
+<!-- App Layout -->
+<div class="flex h-screen w-full relative">
+<!-- SideNavBar Component -->
+<nav class="hidden md:flex flex-col w-64 h-full glass-panel z-50 shadow-[40px_0_60px_-15px_rgba(0,0,0,0.05)] py-6 flex-shrink-0">
+<!-- Header -->
+<div class="px-6 mb-8 flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">widgets</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">Admin Panel</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Terminal #042</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 overflow-y-auto px-4 space-y-2">
+<a class="text-on-surface-variant flex items-center gap-3 p-3 mx-2 hover:bg-surface-container-high rounded-xl transition-all hover:bg-primary-container/10 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">point_of_sale</span>
+<span class="font-body-md text-body-md font-medium">Terminal</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 p-3 mx-2 hover:bg-surface-container-high rounded-xl transition-all hover:bg-primary-container/10 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">monitoring</span>
+<span class="font-body-md text-body-md font-medium">Analytics</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 p-3 mx-2 hover:bg-surface-container-high rounded-xl transition-all hover:bg-primary-container/10 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">inventory_2</span>
+<span class="font-body-md text-body-md font-medium">Inventory</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 p-3 mx-2 hover:bg-surface-container-high rounded-xl transition-all hover:bg-primary-container/10 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">badge</span>
+<span class="font-body-md text-body-md font-medium">Staff</span>
+</a>
+<!-- Active Item -->
+<a class="bg-primary text-on-primary rounded-xl mx-2 flex items-center gap-3 p-3 shadow-sm btn-glow" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+<span class="font-body-md text-body-md font-medium">Reports</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 p-3 mx-2 hover:bg-surface-container-high rounded-xl transition-all hover:bg-primary-container/10 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">router</span>
+<span class="font-body-md text-body-md font-medium">Hardware</span>
+</a>
+</div>
+<!-- Footer Actions -->
+<div class="px-6 mt-auto pt-6 border-t border-white/40">
+<button class="w-full mb-4 py-2.5 rounded-lg border border-primary/30 text-primary font-label-sm text-label-sm hover:bg-primary/5 transition-colors">
+                    Switch Role
+                </button>
+<a class="text-on-surface-variant flex items-center gap-3 p-3 hover:bg-surface-container-high rounded-xl transition-all group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-error transition-colors">logout</span>
+<span class="font-body-md text-body-md font-medium">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+<!-- TopNavBar Component -->
+<header class="h-16 w-full flex items-center justify-between px-8 bg-surface/70 backdrop-blur-xl border-b border-white/40 shadow-sm z-40 flex-shrink-0">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight hidden md:block">Luminous POS</h2>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight md:hidden">Luminous</h2>
+</div>
+<!-- Search (Left aligned relatively to actions) -->
+<div class="flex-1 max-w-md mx-8 hidden md:block">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container border-white/50 border pl-10 pr-4 py-2 rounded-full font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-sm" placeholder="Search accounts, ledgers..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="ml-4 w-9 h-9 rounded-full bg-surface-variant border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:border-primary/50 transition-colors">
+<img alt="Manager Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a business manager, smiling slightly, wearing a neat casual shirt, shot in bright natural light, representing a polished, modern user profile image." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4pDHPsQjIPerWD8fygaOgMZZ0B9dfHO6WiSow7xBSZd_Nt4IDZRqaM7j8__CPURC_7zCHpNXBL0KhvZLFPNKGJCbbidRQo13rQvydGMS5EbhbxYGUxl5Zdp28pHml7d5zZazHva1Dtdz_YdHlRMjMsRkngnnZcmasRjNrL0i5XIJeSCtRgWpic8ineJUBvfBHv1TuuahvurFQIKyHYQ8MCXkflrFpG9BmdLh2FFf2cdJKdYC8NeDorPLfAAp_NAXq7Dm2pE1So3t1"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+<div class="max-w-7xl mx-auto space-y-6 md:space-y-8">
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface">Accounting Overview</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Manage balances, track entries, and review financial health.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-5 py-2.5 rounded-lg border border-primary text-primary font-label-sm text-label-sm font-semibold hover:bg-primary/5 transition-colors flex items-center gap-2 bg-white/50 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+                                Transfer Funds
+                            </button>
+<button class="px-5 py-2.5 rounded-lg gradient-primary text-on-primary font-label-sm text-label-sm font-semibold hover:brightness-110 transition-all flex items-center gap-2 shadow-sm btn-glow">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                New Entry
+                            </button>
+</div>
+</div>
+<!-- Top Summary Bento Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Total Assets -->
+<div class="glass-card p-6 ambient-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-primary">account_balance</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-fixed-dim"></span> Total Assets
+                            </p>
+<h3 class="font-headline-xl text-headline-xl text-on-surface">$1,245,000.00</h3>
+<div class="mt-4 flex items-center gap-2">
+<span class="px-2 py-1 bg-primary-container/20 text-primary rounded-md font-label-sm text-[10px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> +12.5%
+                                </span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">vs last month</span>
+</div>
+</div>
+<!-- Liabilities -->
+<div class="glass-card p-6 ambient-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-secondary">credit_card</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span> Liabilities
+                            </p>
+<h3 class="font-headline-xl text-headline-xl text-on-surface">$342,150.00</h3>
+<div class="mt-4 flex items-center gap-2">
+<span class="px-2 py-1 bg-error-container/50 text-error rounded-md font-label-sm text-[10px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> +2.1%
+                                </span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">vs last month</span>
+</div>
+</div>
+<!-- Equity -->
+<div class="glass-card p-6 ambient-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-tertiary">pie_chart</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> Equity
+                            </p>
+<h3 class="font-headline-xl text-headline-xl text-on-surface">$902,850.00</h3>
+<div class="mt-4 flex items-center gap-2">
+<span class="px-2 py-1 bg-primary-container/20 text-primary rounded-md font-label-sm text-[10px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> +5.4%
+                                </span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">vs last month</span>
+</div>
+</div>
+</div>
+<!-- Main Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Column: Accounts Breakdown -->
+<div class="lg:col-span-1 space-y-6">
+<div class="glass-card p-6 ambient-shadow h-full flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Payment Accounts</h3>
+<button class="text-primary hover:bg-primary-container/20 p-1.5 rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="space-y-4 flex-1">
+<!-- Bank Account -->
+<div class="p-4 rounded-xl bg-surface-container-lowest border border-white/50 hover:border-primary/30 transition-colors shadow-sm cursor-pointer group">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-primary group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+</div>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Main Bank</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Checking ••4582</span>
+</div>
+<div class="mt-3">
+<p class="font-headline-lg text-headline-lg text-on-surface">$850,200.50</p>
+</div>
+</div>
+<!-- Cash Drawer -->
+<div class="p-4 rounded-xl bg-surface-container-lowest border border-white/50 hover:border-primary/30 transition-colors shadow-sm cursor-pointer group">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-primary group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+</div>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Cash Drawers</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">All Terminals</span>
+</div>
+<div class="mt-3">
+<p class="font-headline-lg text-headline-lg text-on-surface">$24,500.00</p>
+</div>
+</div>
+<!-- E-Wallet -->
+<div class="p-4 rounded-xl bg-surface-container-lowest border border-white/50 hover:border-primary/30 transition-colors shadow-sm cursor-pointer group">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-primary group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-[18px]">wallet</span>
+</div>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Digital Wallets</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Stripe / PayPal</span>
+</div>
+<div class="mt-3">
+<p class="font-headline-lg text-headline-lg text-on-surface">$370,299.50</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-2.5 rounded-lg border border-dashed border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container-high hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_circle</span> Add Account
+                                </button>
+</div>
+</div>
+<!-- Right Column: Ledger Entries -->
+<div class="lg:col-span-2 space-y-6">
+<div class="glass-card p-6 ambient-shadow h-full flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Recent Ledger Entries</h3>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors">All</button>
+<button class="px-3 py-1.5 rounded-md text-sm font-medium bg-primary-container/20 text-primary transition-colors">Income</button>
+<button class="px-3 py-1.5 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors">Expenses</button>
+</div>
+</div>
+<div class="flex-1 overflow-x-auto rounded-xl border border-white/40 bg-surface-bright/50">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant/30 text-on-surface-variant font-label-sm text-label-sm uppercase bg-surface-container-low/50">
+<th class="p-4 font-semibold">Date</th>
+<th class="p-4 font-semibold">Description</th>
+<th class="p-4 font-semibold">Account</th>
+<th class="p-4 font-semibold">Status</th>
+<th class="p-4 font-semibold text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4 text-on-surface-variant whitespace-nowrap">Oct 24, 2023</td>
+<td class="p-4">
+<p class="font-medium text-on-surface">Daily POS Settlement</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Terminal #01 - #05</p>
+</td>
+<td class="p-4 text-on-surface-variant">Main Bank</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-container/20 text-primary">
+                                                        Cleared
+                                                    </span>
+</td>
+<td class="p-4 text-right font-medium text-primary">+$12,450.00</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4 text-on-surface-variant whitespace-nowrap">Oct 24, 2023</td>
+<td class="p-4">
+<p class="font-medium text-on-surface">Supplier Payment: FreshCo</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Inv #99283</p>
+</td>
+<td class="p-4 text-on-surface-variant">Main Bank</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-surface-variant text-on-surface-variant">
+                                                        Pending
+                                                    </span>
+</td>
+<td class="p-4 text-right font-medium text-on-surface">-$3,200.50</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4 text-on-surface-variant whitespace-nowrap">Oct 23, 2023</td>
+<td class="p-4">
+<p class="font-medium text-on-surface">Cash Deposit</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Branch 02 Manager</p>
+</td>
+<td class="p-4 text-on-surface-variant">Cash Drawers</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-container/20 text-primary">
+                                                        Cleared
+                                                    </span>
+</td>
+<td class="p-4 text-right font-medium text-primary">+$4,500.00</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4 text-on-surface-variant whitespace-nowrap">Oct 23, 2023</td>
+<td class="p-4">
+<p class="font-medium text-on-surface">Stripe Payout</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Online Orders</p>
+</td>
+<td class="p-4 text-on-surface-variant">Digital Wallets</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-container/20 text-primary">
+                                                        Cleared
+                                                    </span>
+</td>
+<td class="p-4 text-right font-medium text-primary">+$8,920.25</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4 text-on-surface-variant whitespace-nowrap">Oct 22, 2023</td>
+<td class="p-4">
+<p class="font-medium text-on-surface">Equipment Repair</p>
+<p class="text-xs text-on-surface-variant mt-0.5">FixIt Services Inc.</p>
+</td>
+<td class="p-4 text-on-surface-variant">Main Bank</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-container/20 text-primary">
+                                                        Cleared
+                                                    </span>
+</td>
+<td class="p-4 text-right font-medium text-on-surface">-$450.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-4 flex justify-between items-center px-2">
+<span class="text-sm text-on-surface-variant">Showing 5 of 124 entries</span>
+<button class="text-primary font-label-sm text-label-sm hover:underline flex items-center gap-1">
+                                        View Full Ledger <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
