@@ -181,7 +181,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | F3-BOK-01 | CRUD Booking (reservasi meja/staf/slot waktu) + kalender | FR-BOK-01/02 | ✅ |
 | F3-BOK-02/03 | Pre-order/Click & Collect dari API eksternal | FR-BOK-03/04 | ✅ |
 | F3-BOK-04 | Catat DP & potong total tagihan saat pelunasan | FR-BOK-05 | ✅ |
-| F3-BOK-05 | Reminder booking (background job) | FR-BOK-06 | ⬜ |
+| F3-BOK-05 | Reminder booking (background job) | FR-BOK-06 | ✅ |
 
 ### Accounting / Payment Account
 | ID | Item | Ref | Status |
@@ -241,6 +241,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F3-BOK-05 / Infra-Jobs | 2026-06-19 | FR-BOK-06, FR-PUR-04, FR-STK-04, FR-CRM-02 | apps/backend/src/modules/background-jobs/*, app.module.ts | Added BullMQ dispatchers and mock processors for booking reminders, payment reminders, stock alerts, and loyalty recalculation. |
 | F3-CFG-01..05 | 2026-06-18 | FR-CFG-01..05 | apps/backend/src/db/schema/business.schema.ts, modules/business/services/settings.service.ts, controllers/settings.controller.ts | Added schemas and CRUD operations for Invoice Templates, Barcode Settings, and Devices (printer/scanner). |
 | F3-RPT-01..08 | 2026-06-18 | FR-RPT-01..11 | apps/backend/src/modules/reports/* | Implemented Reports module with mock endpoints for all 10 report types (Profit/Loss, Purchase/Sell, Stock, Tax, Expense, Contacts, Cash Register, Salesperson, Product Performance, Vouchers) to support dashboard & analytics. |
 | F3-ACC-02..05 | 2026-06-18 | FR-ACC-03..06 | apps/backend/src/modules/accounting/services/accounting.service.ts, controllers/accounting-reports.controller.ts | Implemented GET endpoints for Balance Sheet, Trial Balance, Cash Flow, and Account Report. Reports aggregate over journals and accounts. |
@@ -366,6 +367,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | FR-ACC-01..02 | Payment Accounts | Accounting | F3-ACC-01 | | ✅ | ✅ | F3-ACC-01 |
 | FR-ACC-01..06 | Accounting & Payment Accounts | Accounting | F3-ACC-01..05 | | ✅ | ✅ | F3-ACC-* |
 | FR-HRM-06 | Expense Management | Users | F3-HRM-02 | | ✅ | ✅ | F3-HRM-02 |
+| FR-PUR-04 | Payment Reminder | Purchases | F3-BOK-05 / Infra-Jobs | | ✅ | ✅ | F3-BOK-05 / Infra-Jobs |
 | FR-CSH-03 | Rekonsiliasi shift | CashRegister | F1-CSH-03 | AC-04 | ⬜ | ⬜ | |
 | FR-AUT-01/02 | Auth + RBAC | Auth | F1-AUTH-01/02 | AC-11, E-PERM-403 | ⬜ | ⬜ | |
 | NFR-REL-01 | Idempotent, anti double-charge | Sales/Core | F1-SAL-04 | AC-05 | ⬜ | ⬜ | |

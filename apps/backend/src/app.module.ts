@@ -24,6 +24,7 @@ import { PurchasesModule } from './modules/purchases/purchases.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { AccountingModule } from './modules/accounting/accounting.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { BackgroundJobsModule } from './modules/background-jobs/background-jobs.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     BookingModule,
     AccountingModule,
     ReportsModule,
+    BackgroundJobsModule,
   ],
   controllers: [AppController],
   providers: [

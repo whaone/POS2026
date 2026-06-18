@@ -33,6 +33,7 @@ const purchases_module_1 = require("./modules/purchases/purchases.module");
 const booking_module_1 = require("./modules/booking/booking.module");
 const accounting_module_1 = require("./modules/accounting/accounting.module");
 const reports_module_1 = require("./modules/reports/reports.module");
+const background_jobs_module_1 = require("./modules/background-jobs/background-jobs.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -60,6 +61,7 @@ exports.AppModule = AppModule = __decorate([
             booking_module_1.BookingModule,
             accounting_module_1.AccountingModule,
             reports_module_1.ReportsModule,
+            background_jobs_module_1.BackgroundJobsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
