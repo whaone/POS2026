@@ -42,11 +42,11 @@ Auth & RBAC dasar, Business & lokasi, katalog produk dasar, checkout + split pay
 (Tunai/QRIS/Kartu), cetak struk, cash control, tab transaksi (maks 10) + parkir tagihan,
 scan barcode smartphone, inventory dasar + real-time stock.
 
-### Fase 2 — Retail & Promo  ← AKTIF
+### Fase 2 — Retail & Promo (SELESAI)
 Voucher fisik, CRM & loyalty, pricelist & diskon bersyarat, markdown, purchasing + contact,
 purchase return, payment reminder, stock adjustment & transfer, produk lanjutan (IMEI/Serial/Lot, CSV, label).
 
-### Fase 3 — Back-Office & Keuangan
+### Fase 3 — Back-Office & Keuangan  ← AKTIF
 Booking/reservasi, pre-order, DP, akuntansi (payment account, balance sheet, trial balance, cash flow),
 expense & payroll, commission agent, laporan lengkap + dashboard, kustomisasi invoice, barcode setting,
 dukungan thermal printer ESC/POS & scanner HID.

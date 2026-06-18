@@ -519,20 +519,20 @@ src/
 - [ ] Multi-tenancy: TenantInterceptor (business_id/location_id)
 
 **Modul Domain**
-- [ ] BusinessModule (business, locations, settings, invoice/barcode/devices)
+- [x] BusinessModule (business, locations, settings, invoice/barcode/devices)
 - [ ] UserModule/HRM (users, roles, agents, payroll, expense)
-- [ ] ProductModule (produk single/variable, master, SKU, CSV, label)
-- [ ] StockModule (stok per lokasi, serial/lot, adjustment, transfer, alerts)
-- [ ] PricingModule (pricelist, price group, diskon, markdown, voucher + redeem atomik)
-- [ ] CustomerModule (CRM, loyalty points, membership)
-- [ ] SalesModule (cart, tab transaksi multi-pelanggan [maks 10, hold/resume/park], split payment, checkout ACID, sales return, komisi)
-- [ ] PurchaseModule (purchase, return, payments, reminder, dokumen)
-- [ ] ContactModule (supplier/customer, ledger hutang/piutang, payments)
+- [x] ProductModule (produk single/variable, master, SKU, CSV, label)
+- [x] StockModule (stok per lokasi, serial/lot, adjustment, transfer, alerts)
+- [x] PricingModule (pricelist, price group, diskon, markdown, voucher + redeem atomik)
+- [x] CustomerModule (CRM, loyalty points, membership)
+- [x] SalesModule (cart, tab transaksi multi-pelanggan [maks 10, hold/resume/park], split payment, checkout ACID, sales return, komisi)
+- [x] PurchaseModule (purchase, return, payments, reminder, dokumen)
+- [x] ContactModule (supplier/customer, ledger hutang/piutang, payments)
 - [ ] BookingModule (reservasi, kalender, pre-order, DP)
 - [ ] AccountingModule (accounts, journal, balance sheet, trial balance, cash flow)
-- [ ] CashRegisterModule (open/close shift, rekonsiliasi/fraud)
+- [x] CashRegisterModule (open/close shift, rekonsiliasi/fraud)
 - [ ] ReportModule (semua laporan + filter)
-- [ ] Idempotency transaksi (idempotency_key UNIQUE pada checkout & operasi tulis kritikal)
+- [x] Idempotency transaksi (idempotency_key UNIQUE pada checkout & operasi tulis kritikal)
 
 **Lintas Modul**
 - [ ] Domain events (Bagian 5) + listener
