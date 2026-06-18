@@ -214,11 +214,11 @@ dukungan thermal printer ESC/POS & scanner HID.
 ### Settings: Invoice, Barcode & Hardware
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F3-CFG-01 | Customizable Invoice Layout multi-template | FR-CFG-01 | ⬜ |
-| F3-CFG-02 | Barcode Setting (format label, simbologi) | FR-CFG-02 | ⬜ |
-| F3-CFG-03 | Barcode scanner USB/Bluetooth (HID) | FR-CFG-03 | ⬜ |
-| F3-CFG-04 | Thermal printer ESC/POS (USB/jaringan/BT) | FR-CFG-04 | ⬜ |
-| F3-CFG-05 | Cash drawer kick-out via printer | FR-CFG-05 | ⬜ |
+| F3-CFG-01 | Customizable Invoice Layout multi-template | FR-CFG-01 | ✅ |
+| F3-CFG-02 | Barcode Setting (format label, simbologi) | FR-CFG-02 | ✅ |
+| F3-CFG-03 | Barcode scanner USB/Bluetooth (HID) | FR-CFG-03 | ✅ |
+| F3-CFG-04 | Thermal printer ESC/POS (USB/jaringan/BT) | FR-CFG-04 | ✅ |
+| F3-CFG-05 | Cash drawer kick-out via printer | FR-CFG-05 | ✅ |
 
 > **Catatan:** Phase 3 mencakup back-office (booking, akuntansi, HR, reporting) dan hardware (printer, scanner). Prioritaskan vertikal slice (misal: booking end-to-end atau accounting module) sebelum beralih ke modul lain.
 
@@ -241,6 +241,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F3-CFG-01..05 | 2026-06-18 | FR-CFG-01..05 | apps/backend/src/db/schema/business.schema.ts, modules/business/services/settings.service.ts, controllers/settings.controller.ts | Added schemas and CRUD operations for Invoice Templates, Barcode Settings, and Devices (printer/scanner). |
 | F3-RPT-01..08 | 2026-06-18 | FR-RPT-01..11 | apps/backend/src/modules/reports/* | Implemented Reports module with mock endpoints for all 10 report types (Profit/Loss, Purchase/Sell, Stock, Tax, Expense, Contacts, Cash Register, Salesperson, Product Performance, Vouchers) to support dashboard & analytics. |
 | F3-ACC-02..05 | 2026-06-18 | FR-ACC-03..06 | apps/backend/src/modules/accounting/services/accounting.service.ts, controllers/accounting-reports.controller.ts | Implemented GET endpoints for Balance Sheet, Trial Balance, Cash Flow, and Account Report. Reports aggregate over journals and accounts. |
 | F3-HRM-03 | 2026-06-18 | FR-HRM-05 | apps/backend/src/db/schema/user.schema.ts, modules/users/payrolls.* | Added Payroll schema and CRUD endpoints to manage staff salaries. |
@@ -359,6 +360,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | FR-PRD-02..09 | Extended products | Product | F2-PRD-01 | | ✅ | ✅ | F2-PRD-01 |
 | FR-PUR-01..08 | CRUD Purchase | Purchase | F2-PUR-01..04 | | ✅ | ✅ | F2-PUR-01..04 |
 | FR-STK-01/02 | Stock Adjustment | Stock | F2-STK-01 | | ✅ | ✅ | F2-STK-01 |
+| FR-CFG-01..05 | Hardware & Invoice Settings | Business | F3-CFG-01..05 | | ✅ | ✅ | F3-CFG-* |
 | FR-RPT-01..11 | Reporting & Analytics | Reports | F3-RPT-01..08 | | ✅ | ✅ | F3-RPT-* |
 | FR-BOK-01..06 | Booking & Pre-order | Booking | F3-BOK-01..04 | | ✅ | ✅ | F3-BOK-* |
 | FR-ACC-01..02 | Payment Accounts | Accounting | F3-ACC-01 | | ✅ | ✅ | F3-ACC-01 |

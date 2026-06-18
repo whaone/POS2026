@@ -9,9 +9,9 @@ export declare class CashRegisterController {
     openRegister(user: JwtPayload, dto: OpenRegisterDto): Promise<{
         id: string;
         businessId: string;
+        locationId: string;
         openingBalance: number;
         status: string;
-        locationId: string;
         cashierId: string;
         closingCounted: number | null;
         systemCash: number;
@@ -35,16 +35,16 @@ export declare class CashRegisterController {
     cashIn(user: JwtPayload, dto: CashMovementDto): Promise<{
         type: string;
         id: string;
-        createdAt: Date;
         ref: string | null;
+        createdAt: Date;
         amount: number;
         shiftId: string;
     }>;
     cashOut(user: JwtPayload, dto: CashMovementDto): Promise<{
         type: string;
         id: string;
-        createdAt: Date;
         ref: string | null;
+        createdAt: Date;
         amount: number;
         shiftId: string;
     }>;

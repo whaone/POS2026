@@ -7,8 +7,8 @@ export declare class CartService {
         id: string;
         createdAt: Date;
         businessId: string;
-        status: string;
         locationId: string;
+        status: string;
         customerId: string | null;
         cashierId: string | null;
         commissionAgentId: string | null;

@@ -8,9 +8,9 @@ export declare class CashRegisterService {
     openRegister(businessId: string, cashierId: string, dto: OpenRegisterDto): Promise<{
         id: string;
         businessId: string;
+        locationId: string;
         openingBalance: number;
         status: string;
-        locationId: string;
         cashierId: string;
         closingCounted: number | null;
         systemCash: number;
@@ -34,16 +34,16 @@ export declare class CashRegisterService {
     cashIn(businessId: string, cashierId: string, dto: CashMovementDto): Promise<{
         type: string;
         id: string;
-        createdAt: Date;
         ref: string | null;
+        createdAt: Date;
         amount: number;
         shiftId: string;
     }>;
     cashOut(businessId: string, cashierId: string, dto: CashMovementDto): Promise<{
         type: string;
         id: string;
-        createdAt: Date;
         ref: string | null;
+        createdAt: Date;
         amount: number;
         shiftId: string;
     }>;

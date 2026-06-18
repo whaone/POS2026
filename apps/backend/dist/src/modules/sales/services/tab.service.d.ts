@@ -25,8 +25,8 @@ export declare class TabService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        status: string;
         locationId: string;
+        status: string;
         customerId: string | null;
         cashierId: string | null;
         shiftId: string | null;

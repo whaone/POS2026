@@ -52,8 +52,8 @@ export declare class BookingController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        status: string;
         locationId: string;
+        status: string;
         resourceId: string | null;
         customerId: string;
         startTime: Date;

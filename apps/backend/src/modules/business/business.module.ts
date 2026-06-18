@@ -3,11 +3,13 @@ import { BusinessService } from './business.service';
 import { BusinessController } from './business.controller';
 import { UsersModule } from '../users/users.module';
 import { LocationModule } from './location.module';
+import { SettingsService } from './services/settings.service';
+import { SettingsController } from './controllers/settings.controller';
 
 @Module({
   imports: [UsersModule, LocationModule],
-  controllers: [BusinessController],
-  providers: [BusinessService],
-  exports: [BusinessService],
+  controllers: [BusinessController, SettingsController],
+  providers: [BusinessService, SettingsService],
+  exports: [BusinessService, SettingsService],
 })
 export class BusinessModule {}

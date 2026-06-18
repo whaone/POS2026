@@ -12,15 +12,17 @@ const business_service_1 = require("./business.service");
 const business_controller_1 = require("./business.controller");
 const users_module_1 = require("../users/users.module");
 const location_module_1 = require("./location.module");
+const settings_service_1 = require("./services/settings.service");
+const settings_controller_1 = require("./controllers/settings.controller");
 let BusinessModule = class BusinessModule {
 };
 exports.BusinessModule = BusinessModule;
 exports.BusinessModule = BusinessModule = __decorate([
     (0, common_1.Module)({
         imports: [users_module_1.UsersModule, location_module_1.LocationModule],
-        controllers: [business_controller_1.BusinessController],
-        providers: [business_service_1.BusinessService],
-        exports: [business_service_1.BusinessService],
+        controllers: [business_controller_1.BusinessController, settings_controller_1.SettingsController],
+        providers: [business_service_1.BusinessService, settings_service_1.SettingsService],
+        exports: [business_service_1.BusinessService, settings_service_1.SettingsService],
     })
 ], BusinessModule);
 //# sourceMappingURL=business.module.js.map

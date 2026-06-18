@@ -11,6 +11,7 @@ export declare class ProductsService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        barcode: string | null;
         brandId: string | null;
         categoryId: string | null;
         unitId: string | null;
@@ -18,7 +19,6 @@ export declare class ProductsService {
         manageStock: boolean;
         hasExpiry: boolean;
         sku: string;
-        barcode: string | null;
     }>;
     findAllProducts(businessId: string): Promise<{
         id: string;
@@ -116,6 +116,7 @@ export declare class ProductsService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        barcode: string | null;
         brandId: string | null;
         categoryId: string | null;
         unitId: string | null;
@@ -123,7 +124,6 @@ export declare class ProductsService {
         manageStock: boolean;
         hasExpiry: boolean;
         sku: string;
-        barcode: string | null;
     }[]>;
     findAllCategories(businessId: string): Promise<{
         id: string;

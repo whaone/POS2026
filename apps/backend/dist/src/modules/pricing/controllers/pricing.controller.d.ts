@@ -21,8 +21,8 @@ export declare class PricingController {
         id: string;
         createdAt: Date;
         businessId: string;
-        active: boolean;
         configJson: unknown;
+        active: boolean;
         startDate: Date | null;
         endDate: Date | null;
     }>;
@@ -40,8 +40,8 @@ export declare class PricingController {
         id: string;
         createdAt: Date;
         businessId: string;
-        productId: string;
         configJson: unknown;
+        productId: string;
         rule: string;
     }>;
     findAllMarkdowns(req: RequestWithUser): Promise<{

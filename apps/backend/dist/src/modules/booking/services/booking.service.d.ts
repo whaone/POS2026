@@ -11,8 +11,8 @@ export declare class BookingService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        status: string;
         locationId: string;
+        status: string;
         resourceId: string | null;
         customerId: string;
         startTime: Date;
@@ -97,8 +97,8 @@ export declare class BookingService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        status: string;
         locationId: string;
+        status: string;
         customerId: string;
         source: string;
         pickupCode: string | null;

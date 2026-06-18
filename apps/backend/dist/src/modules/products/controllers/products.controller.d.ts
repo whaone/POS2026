@@ -12,6 +12,7 @@ export declare class ProductsController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        barcode: string | null;
         brandId: string | null;
         categoryId: string | null;
         unitId: string | null;
@@ -19,7 +20,6 @@ export declare class ProductsController {
         manageStock: boolean;
         hasExpiry: boolean;
         sku: string;
-        barcode: string | null;
     }>;
     findAllProducts(user: JwtPayload): Promise<{
         id: string;
@@ -117,6 +117,7 @@ export declare class ProductsController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        barcode: string | null;
         brandId: string | null;
         categoryId: string | null;
         unitId: string | null;
@@ -124,7 +125,6 @@ export declare class ProductsController {
         manageStock: boolean;
         hasExpiry: boolean;
         sku: string;
-        barcode: string | null;
     }[]>;
     printBarcodes(user: JwtPayload, payload: {
         productId: string;

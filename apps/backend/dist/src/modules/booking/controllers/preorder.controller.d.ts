@@ -9,8 +9,8 @@ export declare class PreorderController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        status: string;
         locationId: string;
+        status: string;
         customerId: string;
         source: string;
         pickupCode: string | null;

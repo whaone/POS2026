@@ -8,8 +8,8 @@ export declare class ExpensesService {
         id: string;
         createdAt: Date;
         businessId: string;
-        accountId: string | null;
         locationId: string;
+        accountId: string | null;
         category: string;
         amount: number;
         note: string | null;

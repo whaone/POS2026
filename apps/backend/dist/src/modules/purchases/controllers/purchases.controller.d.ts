@@ -52,8 +52,8 @@ export declare class PurchasesController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        status: string;
         locationId: string;
+        status: string;
         subtotal: number;
         taxTotal: number;
         shipping: number;
