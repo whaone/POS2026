@@ -180,13 +180,13 @@ dukungan thermal printer ESC/POS & scanner HID.
 |---|---|---|---|
 | F3-BOK-01 | CRUD Booking (reservasi meja/staf/slot waktu) + kalender | FR-BOK-01/02 | ✅ |
 | F3-BOK-02/03 | Pre-order/Click & Collect dari API eksternal | FR-BOK-03/04 | ✅ |
-| F3-BOK-04 | Catat DP & potong total tagihan saat pelunasan | FR-BOK-05 | ⬜ |
+| F3-BOK-04 | Catat DP & potong total tagihan saat pelunasan | FR-BOK-05 | ✅ |
 | F3-BOK-05 | Reminder booking (background job) | FR-BOK-06 | ⬜ |
 
 ### Accounting / Payment Account
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F3-ACC-01 | CRUD Payment Account (kas/bank/ewallet) + auto update saldo | FR-ACC-01/02 | ⬜ |
+| F3-ACC-01 | CRUD Payment Account (kas/bank/ewallet) + auto update saldo | FR-ACC-01/02 | ✅ |
 | F3-ACC-02 | Balance Sheet | FR-ACC-03 | ⬜ |
 | F3-ACC-03 | Trial Balance | FR-ACC-04 | ⬜ |
 | F3-ACC-04 | Cash Flow per periode | FR-ACC-05 | ⬜ |
@@ -240,6 +240,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F3-ACC-01 | 2026-06-18 | FR-ACC-01/02 | apps/backend/src/db/schema/accounting.schema.ts, modules/accounting/* | Implemented accounting schema (accounts, journals) and CRUD for payment accounts. Added accounting module to app.module.ts. |
 | F3-BOK-02/03 | 2026-06-18 | FR-BOK-03/04 | apps/backend/src/modules/booking/services/booking.service.ts, controllers/preorder.controller.ts, booking.module.ts | Implemented pre-order creation with stock hold (qtyHeld increment) and collection logic (deducts held stock and actual qty); preorder controller added. |
 | F3-BOK-01 | 2026-06-18 | FR-BOK-01/02 | apps/backend/src/db/schema/booking.schema.ts, modules/booking/* | BookingModule first vertical slice implemented: schema for bookings/preorders, CRUD service + calendar query, controller endpoints, module registered in AppModule. |
 | F2-VCH-01 | 2026-06-18 | FR-PRC-04..08, AC-02 | apps/backend/src/modules/pricing/services/voucher.service*.ts, controllers/voucher.controller.ts, pricing.module.ts | TDD-first: voucher.service.spec.ts verifies single-use atomicity & race conditions (E-VOUCHER-409); implementation uses DB transaction + UNIQUE constraint catch |
