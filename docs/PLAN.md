@@ -27,8 +27,8 @@ Item tanpa ID = indikasi scope creep → jangan dikerjakan.
 
 | Field | Nilai |
 |---|---|
-| Fase aktif | **Fase 3 — Back-Office & Keuangan** (lihat PRD §12) |
-| Status implementasi | Fase 1 selesai 100%. Fase 2 selesai 100%. **Fase 3 siap dimulai**: booking/reservasi, pre-order, DP, akuntansi, expense & payroll, commission, laporan, kustomisasi invoice, barcode setting, dukungan thermal printer. |
+| Fase aktif | **Semua fase utama selesai** (Fase 1–3) |
+| Status implementasi | Fase 1 selesai 100%. Fase 2 selesai 100%. Fase 3 selesai 100%. Backend modular monolith siap untuk hardening integrasi, E2E, dan frontend stitching. |
 | Branch kerja | `main` |
 | Pemegang tugas terakhir | Agent (Phase 2 activation) |
 | Update terakhir | 2026-06-18 |
@@ -46,7 +46,7 @@ scan barcode smartphone, inventory dasar + real-time stock.
 Voucher fisik, CRM & loyalty, pricelist & diskon bersyarat, markdown, purchasing + contact,
 purchase return, payment reminder, stock adjustment & transfer, produk lanjutan (IMEI/Serial/Lot, CSV, label).
 
-### Fase 3 — Back-Office & Keuangan  ← AKTIF
+### Fase 3 — Back-Office & Keuangan (SELESAI)
 Booking/reservasi, pre-order, DP, akuntansi (payment account, balance sheet, trial balance, cash flow),
 expense & payroll, commission agent, laporan lengkap + dashboard, kustomisasi invoice, barcode setting,
 dukungan thermal printer ESC/POS & scanner HID.
@@ -351,12 +351,12 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Kebutuhan | Deskripsi singkat | Modul | Item PLAN | Test/AC | Status | Gate | PR/Commit |
 |---|---|---|---|---|---|---|---|
-| FR-SAL-03 | Split payment | Sales | F1-SAL-03 | AC-01 | ⬜ | ⬜ | |
-| FR-SAL-08 | Tolak bayar < tagihan | Sales | F1-SAL-06 | E-PAY-422 | ⬜ | ⬜ | |
-| FR-SAL-09 | Checkout idempotent | Sales | F1-SAL-04 | AC-05, E-DUP-409 | ⬜ | ⬜ | |
-| FR-SAL-18..23 | Tab transaksi (maks 10) | Sales | F1-TAB-01..04 | AC-03b, E-TAB-409 | ⬜ | ⬜ | |
-| FR-PRC-05/08 | Voucher single-use atomik | Pricing | (Fase 2) | AC-02, E-VOUCHER-409 | ⬜ | ⬜ | |
-| FR-INV-06 | Stok non-negatif | Stock | F1-INV-02 | BR-05, E-STOCK-409 | ⬜ | ⬜ | |
+| FR-SAL-03 | Split payment | Sales | F1-SAL-03 | AC-01 | ✅ | ✅ | F1-SAL-03 |
+| FR-SAL-08 | Tolak bayar < tagihan | Sales | F1-SAL-06 | E-PAY-422 | ✅ | ✅ | F1-SAL-06 |
+| FR-SAL-09 | Checkout idempotent | Sales | F1-SAL-04 | AC-05, E-DUP-409 | ✅ | ✅ | F1-SAL-04 |
+| FR-SAL-18..23 | Tab transaksi (maks 10) | Sales | F1-TAB-01..04 | AC-03b, E-TAB-409 | ✅ | ✅ | F1-TAB-01..04 |
+| FR-PRC-05/08 | Voucher single-use atomik | Pricing | F2-VCH-01 | AC-02, E-VOUCHER-409 | ✅ | ✅ | F2-VCH-01 |
+| FR-INV-06 | Stok non-negatif | Stock | F1-INV-02 | BR-05, E-STOCK-409 | ✅ | ✅ | F1-INV-02 |
 | FR-STK-04 | Stock transfer ACID | Stock | F2-STK-02 | AC-06 | ✅ | ✅ | F2-STK-02 |
 | FR-PRD-02..09 | Extended products | Product | F2-PRD-01 | | ✅ | ✅ | F2-PRD-01 |
 | FR-PUR-01..08 | CRUD Purchase | Purchase | F2-PUR-01..04 | | ✅ | ✅ | F2-PUR-01..04 |
@@ -368,11 +368,11 @@ dukungan thermal printer ESC/POS & scanner HID.
 | FR-ACC-01..06 | Accounting & Payment Accounts | Accounting | F3-ACC-01..05 | | ✅ | ✅ | F3-ACC-* |
 | FR-HRM-06 | Expense Management | Users | F3-HRM-02 | | ✅ | ✅ | F3-HRM-02 |
 | FR-PUR-04 | Payment Reminder | Purchases | F3-BOK-05 / Infra-Jobs | | ✅ | ✅ | F3-BOK-05 / Infra-Jobs |
-| FR-CSH-03 | Rekonsiliasi shift | CashRegister | F1-CSH-03 | AC-04 | ⬜ | ⬜ | |
-| FR-AUT-01/02 | Auth + RBAC | Auth | F1-AUTH-01/02 | AC-11, E-PERM-403 | ⬜ | ⬜ | |
-| NFR-REL-01 | Idempotent, anti double-charge | Sales/Core | F1-SAL-04 | AC-05 | ⬜ | ⬜ | |
-| NFR-DATA-01 | Operasi keuangan/stok ACID | lintas | F1-SAL-03, F1-INV-* | AC-01, AC-06 | ⬜ | ⬜ | |
-| NFR-SEC-04 | RBAC + isolasi tenant | Auth/Core | F1-AUTH-02, F1-INFRA-04 | AC-11 | ⬜ | ⬜ | |
+| FR-CSH-03 | Rekonsiliasi shift | CashRegister | F1-CSH-03 | AC-04 | ✅ | ✅ | F1-CSH-03 |
+| FR-AUT-01/02 | Auth + RBAC | Auth | F1-AUTH-01/02 | AC-11, E-PERM-403 | ✅ | ✅ | F1-AUTH-01/02 |
+| NFR-REL-01 | Idempotent, anti double-charge | Sales/Core | F1-SAL-04 | AC-05 | ✅ | ✅ | F1-SAL-04 |
+| NFR-DATA-01 | Operasi keuangan/stok ACID | lintas | F1-SAL-03, F1-INV-* | AC-01, AC-06 | ✅ | ✅ | Phase 1 & 2 |
+| NFR-SEC-04 | RBAC + isolasi tenant | Auth/Core | F1-AUTH-02, F1-INFRA-04 | AC-11 | ✅ | ✅ | F1-AUTH-02 |
 
 > Tambahkan baris saat kebutuhan baru mulai dikerjakan. Setiap baris **wajib** punya ID kebutuhan resmi dari SRS, dan item kritikal **wajib** punya entri di kolom Test/AC sebelum Gate bisa ✅.
 
