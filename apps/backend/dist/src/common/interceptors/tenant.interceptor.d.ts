@@ -1,0 +1,10 @@
+import { NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+export interface TenantContext {
+    businessId: string;
+    locationId?: string;
+    userId: string;
+}
+export declare class TenantInterceptor implements NestInterceptor {
+    intercept(context: ExecutionContext, next: CallHandler): Observable<unknown>;
+}

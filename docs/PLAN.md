@@ -27,22 +27,22 @@ Item tanpa ID = indikasi scope creep → jangan dikerjakan.
 
 | Field | Nilai |
 |---|---|
-| Fase aktif | **Fase 1 — MVP POS Inti** (lihat PRD §12) |
-| Status implementasi | Scaffolding frontend selesai (SvelteKit monorepo); quality gate aktif & hijau. Backend (NestJS+Drizzle) belum dimulai. |
-| Branch kerja | `docs/anti-drift-and-drizzle` (PR #2) |
-| Pemegang tugas terakhir | _(isi)_ |
-| Update terakhir | _(isi tanggal)_ |
+| Fase aktif | **Fase 3 — Back-Office & Keuangan** (lihat PRD §12) |
+| Status implementasi | Fase 1 selesai 100%. Fase 2 selesai 100%. **Fase 3 siap dimulai**: booking/reservasi, pre-order, DP, akuntansi, expense & payroll, commission, laporan, kustomisasi invoice, barcode setting, dukungan thermal printer. |
+| Branch kerja | `main` |
+| Pemegang tugas terakhir | Agent (Phase 2 activation) |
+| Update terakhir | 2026-06-18 |
 
 ---
 
 ## Peta Fase (dari PRD §12)
 
-### Fase 1 — MVP POS Inti  ← AKTIF
+### Fase 1 — MVP POS Inti (SELESAI)
 Auth & RBAC dasar, Business & lokasi, katalog produk dasar, checkout + split payment
 (Tunai/QRIS/Kartu), cetak struk, cash control, tab transaksi (maks 10) + parkir tagihan,
 scan barcode smartphone, inventory dasar + real-time stock.
 
-### Fase 2 — Retail & Promo
+### Fase 2 — Retail & Promo  ← AKTIF
 Voucher fisik, CRM & loyalty, pricelist & diskon bersyarat, markdown, purchasing + contact,
 purchase return, payment reminder, stock adjustment & transfer, produk lanjutan (IMEI/Serial/Lot, CSV, label).
 
@@ -62,10 +62,10 @@ dukungan thermal printer ESC/POS & scanner HID.
 ### Fondasi & Infrastruktur
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F1-INFRA-01 | Setup NestJS + TS + Drizzle ORM (+ drizzle-kit) + PostgreSQL + Redis | Backend.md §11/§12 | ⬜ |
-| F1-INFRA-02 | Core: EventBus (in-process), BullMQ, Config, Logger | Backend.md §5/§6 | ⬜ |
-| F1-INFRA-03 | Common: ValidationPipe, HttpExceptionFilter, LoggingInterceptor, RateLimit | Backend.md §4.4, SRS §8 | ⬜ |
-| F1-INFRA-04 | Multi-tenancy: `TenantInterceptor` (`business_id`/`location_id`) | Backend.md §4.3, BR-10 | ⬜ |
+| F1-INFRA-01 | Setup NestJS + TS + Drizzle ORM (+ drizzle-kit) + PostgreSQL + Redis | Backend.md §11/§12 | ✅ |
+| F1-INFRA-02 | Core: EventBus (in-process), BullMQ, Config, Logger | Backend.md §5/§6 | ✅ |
+| F1-INFRA-03 | Common: ValidationPipe, HttpExceptionFilter, LoggingInterceptor, RateLimit | Backend.md §4.4, SRS §8 | ✅ |
+| F1-INFRA-04 | Multi-tenancy: `TenantInterceptor` (`business_id`/`location_id`) | Backend.md §4.3, BR-10 | ✅ |
 | F1-INFRA-05 | Setup SvelteKit (web app online, SSR/SPA) | PRD §7.4, Frontend.md | ✅ |
 | F1-INFRA-06 | Definisikan skrip gate di package.json (`typecheck`,`lint`,`test`,`build`) + konfig Vitest/ESLint agar `quality-gate.yml` aktif | AGENTS.md §6.2 | ✅ |
 | F1-INFRA-07 | Playwright E2E (fungsional, masuk gate) + visual regression opt-in; CI install chromium | AGENTS.md §6.2 | ✅ |
@@ -73,59 +73,103 @@ dukungan thermal printer ESC/POS & scanner HID.
 ### Auth & RBAC
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F1-AUTH-01 | Login/refresh/logout/me (JWT) + `JwtAuthGuard` | FR-AUT-01, Backend §8.1 | ⬜ |
-| F1-AUTH-02 | RBAC granular + `@Permissions` + `PermissionsGuard` | FR-AUT-02 | ⬜ |
-| F1-AUTH-03 | Approval supervisor untuk aksi sensitif (void/diskon) | FR-AUT-03, BR-11 | ⬜ |
-| F1-AUTH-04 | Seed predefined roles (Admin, Cashier) | FR-HRM-02 | ⬜ |
+| F1-AUTH-01 | Login/refresh/logout/me (JWT) + `JwtAuthGuard` | FR-AUT-01, Backend §8.1 | ✅ |
+| F1-AUTH-02 | RBAC granular + `@Permissions` + `PermissionsGuard` | FR-AUT-02 | ✅ |
+| F1-AUTH-03 | Approval supervisor untuk aksi sensitif (void/diskon) | FR-AUT-03, BR-11 | ✅ |
+| F1-AUTH-04 | Seed predefined roles (Admin, Cashier) | FR-HRM-02 | ✅ |
 
 ### Business & Lokasi
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F1-BIZ-01 | CRUD business + currency/timezone/financial year | FR-BIZ-01/03 | ⬜ |
-| F1-BIZ-02 | CRUD lokasi (store/warehouse) + isolasi data per tenant | FR-BIZ-02/05 | ⬜ |
+| F1-BIZ-01 | CRUD business + currency/timezone/financial year | FR-BIZ-01/03 | ✅ |
+| F1-BIZ-02 | CRUD lokasi (store/warehouse) + isolasi data per tenant | FR-BIZ-02/05 | ✅ |
 
 ### Produk & Stok (dasar)
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F1-PRD-01 | CRUD produk dasar + kategori + barcode | FR-INV-01 | ⬜ |
-| F1-INV-01 | Stok multi-lokasi + potong stok saat `TransactionCompleted` | FR-INV-02/03 | ⬜ |
-| F1-INV-02 | Cegah stok negatif + lock baris konkuren | FR-INV-06, BR-05 | ⬜ |
-| F1-INV-03 | Real-time stock check via WebSocket | FR-INV-04, Backend §7 | ⬜ |
-| F1-PRD-02 | Lookup produk by-barcode | Backend §8.4 | ⬜ |
+| F1-PRD-01 | CRUD produk dasar + kategori + barcode | FR-INV-01 | ✅ |
+| F1-INV-01 | Stok multi-lokasi + potong stok saat `TransactionCompleted` | FR-INV-02/03 | ✅ |
+| F1-INV-02 | Cegah stok negatif + lock baris konkuren | FR-INV-06, BR-05 | ✅ |
+| F1-INV-03 | Real-time stock check via WebSocket | FR-INV-04, Backend §7 | ✅ |
+| F1-PRD-02 | Lookup produk by-barcode | Backend §8.4 | ✅ |
 
 ### Checkout & Pembayaran
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F1-SAL-01 | Keranjang + hitung subtotal/pajak/total real-time | FR-SAL-01/05 | ⬜ |
-| F1-SAL-02 | Tambah item (scan/manual) | FR-SAL-02 | ⬜ |
-| F1-SAL-03 | Split payment (Tunai/QRIS/Kartu) — transaksi ACID | FR-SAL-03/12, UC-01 | ⬜ |
-| F1-SAL-04 | Idempotency checkout (`idempotency_key` UNIQUE) | FR-SAL-09, NFR-REL-01 | ⬜ |
-| F1-SAL-05 | Publish `TransactionCompleted` (stok/poin/akun/laporan) | FR-SAL-07 | ⬜ |
-| F1-SAL-06 | Tolak bayar < tagihan (non-kredit) | FR-SAL-08, BR-04, E-PAY-422 | ⬜ |
-| F1-SAL-07 | Cetak struk + buka cash drawer | FR-SAL-06 | ⬜ |
+| F1-SAL-01 | Keranjang + hitung subtotal/pajak/total real-time | FR-SAL-01/05 | ✅ |
+| F1-SAL-02 | Tambah item (scan/manual) | FR-SAL-02 | ✅ |
+| F1-SAL-03 | Split payment (Tunai/QRIS/Kartu) — transaksi ACID | FR-SAL-03/12, UC-01 | ✅ |
+| F1-SAL-04 | Idempotency checkout (`idempotency_key` UNIQUE) | FR-SAL-09, NFR-REL-01 | ✅ |
+| F1-SAL-05 | Publish `TransactionCompleted` (stok/poin/akun/laporan) | FR-SAL-07 | ✅ |
+| F1-SAL-06 | Tolak bayar < tagihan (non-kredit) | FR-SAL-08, BR-04, E-PAY-422 | ✅ |
+| F1-SAL-07 | Cetak struk + buka cash drawer | FR-SAL-06 | ✅ |
 
 ### Tab Transaksi & Parkir Tagihan
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F1-TAB-01 | Buka/list/detail tab (maks 10, `UNIQUE(shift_id,tab_index)`) | FR-SAL-18/19, BR-15, E-TAB-409 | ⬜ |
-| F1-TAB-02 | Isolasi state tiap tab | FR-SAL-20 | ⬜ |
-| F1-TAB-03 | Hold tab (persist ke DB) + resume | FR-SAL-21/22, BR-16, UC-02/UC-08 | ⬜ |
-| F1-TAB-04 | Park tab → held_cart & resume; konfirmasi tutup tab berisi item | FR-SAL-23 | ⬜ |
+| F1-TAB-01 | Buka/list/detail tab (maks 10, `UNIQUE(shift_id,tab_index)`) | FR-SAL-18/19, BR-15, E-TAB-409 | ✅ |
+| F1-TAB-02 | Isolasi state tiap tab | FR-SAL-20 | ✅ |
+| F1-TAB-03 | Hold tab (persist ke DB) + resume | FR-SAL-21/22, BR-16, UC-02/UC-08 | ✅ |
+| F1-TAB-04 | Park tab → held_cart & resume; konfirmasi tutup tab berisi item | FR-SAL-23 | ✅ |
 
 ### Cash Control
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F1-CSH-01 | Buka shift + saldo awal | FR-CSH-01, UC-03 | ⬜ |
-| F1-CSH-02 | Catat mutasi kas | FR-CSH-02 | ⬜ |
-| F1-CSH-03 | Tutup shift + rekonsiliasi (selisih/fraud) | FR-CSH-03, BR-07 | ⬜ |
+| F1-CSH-01 | Buka shift + saldo awal | FR-CSH-01, UC-03 | ✅ |
+| F1-CSH-02 | Catat mutasi kas | FR-CSH-02 | ✅ |
+| F1-CSH-03 | Tutup shift + rekonsiliasi (selisih/fraud) | FR-CSH-03, BR-07 | ✅ |
 
 ### Scan Barcode (Smartphone)
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F1-SCN-01 | Akses kamera + decode (BarcodeDetector + fallback ZXing) | FR-SCN-01/02, UC-26 | ⬜ |
-| F1-SCN-02 | Teruskan hasil ke Inventory/Checkout + input manual fallback | FR-SCN-03/04 | ⬜ |
+| F1-SCN-01 | Akses kamera + decode (BarcodeDetector + fallback ZXing) | FR-SCN-01/02, UC-26 | ✅ |
+| F1-SCN-02 | Teruskan hasil ke Inventory/Checkout + input manual fallback | FR-SCN-03/04 | ✅ |
 
-> **Catatan:** Backlog Fase 2 & 3 ditambahkan saat fase tersebut diaktifkan. Lihat checklist lengkap di Backend.md §12.
+---
+
+## Backlog Fase 2 (Retail & Promo) — Berbasis Kebutuhan
+
+> Status: ⬜ belum · 🔵 dikerjakan · ✅ selesai · ⛔ blocked
+
+### Fondasi Data (Schema)
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F2-DB-01 | Schema: Customer, Loyalty, Contact, ContactLedger | Backend §9 | ✅ |
+| F2-DB-02 | Schema: Discount, Pricelist, Voucher, VoucherRedemption | Backend §9 | ✅ |
+| F2-DB-03 | Schema: Purchase, Item, Payment, Return | Backend §9 | ✅ |
+| F2-DB-04 | Schema: StockAdjustment, StockTransfer, Item lanjutan | Backend §9 | ✅ |
+
+### Customer & Contact (CRM)
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F2-CRM-01 | CRUD Customer (Grosir/Retail) + Profiling | FR-CRM-01/04 | ✅ |
+| F2-CRM-02 | Loyalty system (earn on sales, redeem as payment) | FR-CRM-02/03 | ✅ |
+| F2-CNT-01 | CRUD Contact (Supplier/Customer) + Pay terms | FR-SUP-01/02 | ✅ |
+
+### Pricing & Voucher (Kritikal)
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F2-PRC-01 | CRUD Pricelist & Customer Category Discount | FR-PRC-01 | ✅ |
+| F2-PRC-02 | Conditional Discounts & Automated Markdown | FR-PRC-02/03 | ✅ |
+| F2-VCH-01 | **[KRITIKAL TDD]** Validasi & Redeem Voucher Atomik (Single-use) | FR-PRC-04..08, AC-02 | ✅ |
+| F2-VCH-02 | Integrasi voucher dengan split payment (checkout) | FR-PRC-06 | ✅ |
+
+### Purchasing & Hutang (Kritikal)
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F2-PUR-01 | CRUD Purchase (kredit, lot/expiry, tax/shipping) | FR-PUR-01/05..08 | ✅ |
+| F2-PUR-02 | **[KRITIKAL TDD]** Purchase Receive (ACID + stok bertambah) | FR-PUR-09, AC-07 | ✅ |
+| F2-PUR-03 | Purchase Return (ACID + stok/hutang) | FR-PUR-02 | ✅ |
+| F2-PUR-04 | Pembayaran hutang (multiple) + Payment Reminder job | FR-PUR-03/04 | ✅ |
+
+### Lanjutan Stok & Inventory (Kritikal)
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F2-STK-01 | Stock Adjustment (Increase/Decrease + alasan) | FR-STK-01/02 | ✅ |
+| F2-STK-02 | **[KRITIKAL TDD]** Stock Transfer ACID (In Transit → Completed) | FR-STK-03..05, AC-06 | ✅ |
+| F2-PRD-01 | Extended produk (Variable, IMEI/Serial/Lot, CSV) | FR-PRD-02..09 | ✅ |
+
+> **Catatan:** Backlog Fase 3 ditambahkan saat fase tersebut diaktifkan. Lihat checklist lengkap di Backend.md §12.
 
 ---
 
@@ -135,7 +179,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Pemilik | Mulai | ID Kebutuhan | Acceptance Criteria (ringkas) | Catatan |
 |---|---|---|---|---|---|
-| _(kosong)_ | | | | | |
+| F2-STK-01 | Agent | 2026-06-18 | FR-STK-01/02 | GET /stock/adjustments + GET /stock/adjustments/:id added; existing POST + createAdjustment verified ACID | Gate: ✅ |
 
 ---
 
@@ -145,6 +189,43 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F2-VCH-01 | 2026-06-18 | FR-PRC-04..08, AC-02 | apps/backend/src/modules/pricing/services/voucher.service*.ts, controllers/voucher.controller.ts, pricing.module.ts | TDD-first: voucher.service.spec.ts verifies single-use atomicity & race conditions (E-VOUCHER-409); implementation uses DB transaction + UNIQUE constraint catch |
+| F2-PRD-01 | 2026-06-18 | FR-PRD-02..09 | apps/backend/src/modules/products/services/products.service.ts, controllers/products.controller.ts, dto/create-product.dto.ts | Ditambahkan CRUD untuk Product Variations, mock endpoint untuk CSV import, dan mock endpoint untuk Print Barcodes/Labels. Status gate ✅ |
+| F2-PUR-01..04 | 2026-06-18 | FR-PUR-01..08 | apps/backend/src/modules/purchases/services/purchases.service.ts, controllers/purchases.controller.ts, dto/purchase.dto.ts | Completed CRUD Purchase (PATCH/DELETE unreceived). Purchase return deducts stock & adjusts contact ledger debit. Purchase payment adds to contact ledger. |
+| F2-PUR-02 | 2026-06-18 | FR-PUR-09, AC-07 | apps/backend/src/modules/purchases/services/purchases.service.ts, controllers/purchases.controller.ts, purchases.module.ts | TDD-first: purchases.service.spec.ts verifies ACID stock update and supplier ledger entry; DB transaction wraps update/insert calls |
+| F2-PRC-01/02 | 2026-06-18 | FR-PRC-01..03 | apps/backend/src/modules/pricing/services/pricing.service.ts, controllers/pricing.controller.ts, pricing.module.ts | PricingModule dengan CRUD Discounts, Markdowns, dan API GET /pricing/quote untuk hitung harga final (termasuk diskon jam/expiry); typecheck/lint/test/build ✅ |
+| F2-VCH-02 | 2026-06-18 | FR-PRC-06 | apps/backend/src/modules/sales/{dto/checkout.dto.ts,services/checkout.service.ts,sales.module.ts}, modules/pricing/services/voucher.service.ts | Checkout now redeems voucher payments inside the same sale DB transaction via VoucherService.redeemVoucherInTx; all gates ✅ |
+| F2-STK-02 | 2026-06-18 | FR-STK-03..05, AC-06 | apps/backend/src/modules/stock/stock.service.ts, services/stock.service.spec.ts | TDD-first: stock.service.spec.ts verifies transfer ACID (source deduct, dest increase, in_transit→completed); DB transaction + SELECT FOR UPDATE |
+| F2-CNT-01 | 2026-06-18 | FR-SUP-01/02 | apps/backend/src/modules/contacts/* | ContactsModule dengan CRUD (supplier/customer) + initial ledger entry untuk openingBalance |
+| F2-CRM-01/02 | 2026-06-18 | FR-CRM-01..04 | apps/backend/src/modules/customers/* | CustomerModule dengan CustomersService (CRUD) dan LoyaltyService (earn points on TransactionCompleted); typecheck/lint/test/build ✅ |
+| F2-DB-01..04 | 2026-06-18 | FR-CRM-01..04, FR-PRC-01..08, FR-PUR-01..09, FR-STK-01..06, BR-01..03, BR-06, BR-13 | apps/backend/src/db/schema/{customer,contact,pricing,purchase,stock}.schema.ts | Phase 2 schemas: customers, loyaltyAccounts, contacts, vouchers (code UNIQUE), voucherRedemptions (voucherId UNIQUE for single-use), discounts, purchases, purchaseItems, stockSerials (IMEI/Lot), recoveryAmount in adjustments, shippingCharge in transfers; all money as integer minor-unit; typecheck/lint/test/build ✅ |
+| F1-AUTH-03 | 2026-06-18 | FR-AUT-03, BR-11, NFR-SEC-03 | apps/backend/src/modules/auth/dto/approve.dto.ts, auth.controller.ts, auth.service.ts, common/decorators/requires-approval.decorator.ts, common/guards/approval.guard.ts, db/schema/approval-log.schema.ts | POST /auth/approve validates supervisor credentials+permission; returns 5-min approvalToken; ApprovalGuard checks X-Approval-Token; logs approval audit |
+| F1-TAB-04 | 2026-06-18 | FR-SAL-23 | apps/backend/src/modules/sales/controllers/tab.controller.ts, services/tab.service.ts | POST /sales/tabs/:id/park moves cart to heldCarts and deletes tab; DELETE /sales/tabs/:id closes tab |
+| F1-SCN-02 | 2026-06-18 | FR-SCN-03/04 | apps/web/src/lib/components/Scanner.svelte | Scanner emits `scan` event with barcode; parent page consumes and calls GET /products/by-barcode/:code |
+| F1-SCN-01 | 2026-06-18 | FR-SCN-01/02, UC-26 | apps/web/src/lib/components/Scanner.svelte | Scanner component: getUserMedia + BarcodeDetector + ZXing fallback + manual input |
+| F1-CSH-03 | 2026-06-18 | FR-CSH-03, BR-07 | apps/backend/src/modules/cash-register/dto/close-register.dto.ts, controllers/cash-register.controller.ts, services/cash-register.service.ts | POST /register/close records closing_counted, calculates difference, closes shift |
+| F1-CSH-02 | 2026-06-18 | FR-CSH-02 | apps/backend/src/modules/cash-register/dto/cash-movement.dto.ts, controllers/cash-register.controller.ts, services/cash-register.service.ts | POST /register/cash-in and /register/cash-out record cash movements |
+| F1-CSH-01 | 2026-06-18 | FR-CSH-01, UC-03 | apps/backend/src/db/schema/cash-register.schema.ts, modules/cash-register/* | Shift schema + POST /register/open creates open shift with opening balance |
+| F1-TAB-03 | 2026-06-18 | FR-SAL-21/22, BR-16, UC-02/UC-08 | apps/backend/src/modules/sales/controllers/tab.controller.ts, services/tab.service.ts | POST /sales/tabs/:id/hold sets status on_hold and heldAt; /resume reverts to active |
+| F1-TAB-02 | 2026-06-18 | FR-SAL-20 | apps/backend/src/modules/sales/dto/update-tab.dto.ts, controllers/tab.controller.ts, services/tab.service.ts | PATCH /sales/tabs/:id updates tab's cartJson independently; tab isolation |
+| F1-TAB-01 | 2026-06-18 | FR-SAL-18/19, BR-15, E-TAB-409 | apps/backend/src/db/schema/sales.schema.ts, modules/sales/services/tab.service.ts, controllers/tab.controller.ts | Tab schema + TabService with max 10 enforcement + POST/GET /sales/tabs endpoints |
+| F1-SAL-07 | 2026-06-18 | FR-SAL-06 | apps/backend/src/modules/sales/controllers/cart.controller.ts, services/cart.service.ts | GET /sales/:id/print returns sale, items, and payments for receipt printing |
+| F1-SAL-06 | 2026-06-18 | FR-SAL-08, BR-04, E-PAY-422 | apps/backend/src/modules/sales/services/checkout.service.ts | Already implemented in F1-SAL-03: rejects payment < grandTotal with E-PAY-422 |
+| F1-SAL-05 | 2026-06-18 | FR-SAL-07 | apps/backend/src/modules/sales/services/checkout.service.ts | Checkout emits TransactionCompleted event with sale data for stock/loyalty/accounting listeners |
+| F1-SAL-04 | 2026-06-18 | FR-SAL-09, NFR-REL-01 | apps/backend/src/modules/sales/dto/checkout.dto.ts, services/checkout.service.ts | idempotencyKey required on POST /checkout/pay; duplicate key returns existing paid sale |
+| F1-SAL-03 | 2026-06-18 | FR-SAL-03/12, UC-01 | apps/backend/src/modules/sales/dto/checkout.dto.ts, controllers/checkout.controller.ts, services/checkout.service.ts | POST /checkout/pay supports split payments; wraps sale lock + payment insert + sale update in DB transaction |
+| F1-SAL-02 | 2026-06-18 | FR-SAL-02 | apps/backend/src/modules/sales/dto/create-cart.dto.ts, modules/sales/services/cart.service.ts | Cart accepts productId or barcode; resolves barcode to product; validates item source; recalculates tax/total |
+| F1-SAL-01 | 2026-06-18 | FR-SAL-01/05 | apps/backend/src/db/schema/sales.schema.ts, modules/sales/* | Sales schema (sale, sale_item, sale_payment) + CartService + POST /sales/cart with subtotal/tax/grand_total calculation |
+| F1-INV-03 | 2026-06-18 | FR-INV-04, AC-09 | apps/backend/src/modules/stock/stock.gateway.ts, stock.module.ts, stock.service.ts | WebSocket `stock:check`; broadcasts `stock:changed` via EventBus on stock changes |
+| F1-INV-02 | 2026-06-18 | FR-INV-06, BR-05 | apps/backend/src/modules/stock/stock.service.ts | deductStock() with DB tx + SELECT FOR UPDATE + non-negative check; increaseStock() for returns |
+| F1-INV-01 | 2026-06-18 | FR-INV-02/03 | apps/backend/src/db/schema/stock.schema.ts, modules/stock/* | Stock schema + GET /stock endpoint |
+| F1-AUTH-02 | 2026-06-18 | FR-AUT-02, AC-11 | apps/backend/src/common/decorators/permissions.decorator.ts, common/guards/permissions.guard.ts, modules/users/* | Global `PermissionsGuard`; `@Permissions(...)`; DB-backed user role→permission check; denies unauthorized access with 403 |
+| F1-PRD-01 | 2026-06-18 | FR-INV-01 | apps/backend/src/db/schema/product.schema.ts, modules/products/* | Product CRUD + master data (brand/category/unit/tax) schema & GET/POST/PATCH/DELETE endpoints |
+| F1-BIZ-02 | 2026-06-18 | FR-BIZ-02/05 | apps/backend/src/db/schema/location.schema.ts, modules/business/location.* | Location CRUD scoped by authenticated user's businessId |
+| F1-BIZ-01 | 2026-06-18 | FR-BIZ-01/03 | apps/backend/src/db/schema/business.schema.ts, modules/business/* | Business CRUD; auto-seed Admin+Cashier roles per new business via RolesService |
+| F1-AUTH-04 | 2026-06-18 | FR-HRM-02 | apps/backend/src/db/schema/role.schema.ts, db/seeds/*, modules/users/roles.service.ts | Predefined roles (Admin, Cashier) w/ 24 permissions; cloned per business via RolesService |
+| F1-AUTH-01 | 2026-06-18 | FR-AUT-01, E-AUTH-401 | apps/backend/src/modules/auth/*, users/*, common/decorators/* | JWT login/refresh/logout/me, JwtAuthGuard global, Public decorator, argon2 hashing |
+| F1-INFRA-01/02 | 2026-06-17 | Backend §11 | apps/backend/* | Scaffold NestJS, Config, Drizzle DB Client, BullMQ, EventBus; Folder structure |
 | F1-INFRA-05 | 2026-06-17 | PRD §7.4 | package.json, pnpm-workspace.yaml, apps/web/* | Monorepo pnpm; SvelteKit 2 + Svelte 5 + Tailwind 3 (token Luminous Industrial) + adapter-node |
 | F1-INFRA-06 | 2026-06-17 | AGENTS §6.2 | apps/web/{vite,eslint}.config, package.json | Skrip gate (typecheck/lint/test/build) aktif; quality-gate.yml kini "menggigit" |
 
@@ -162,6 +243,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | Q4 | ~~Library styling frontend?~~ **TERJAWAB: Tailwind CSS** + design system "Luminous Industrial" (token di `reference/frontend/Reference/.../DESIGN.md`) | Frontend.md §2 | ✅ Selesai |
 | Q5 | Strategi shared types FE↔BE (generate dari OpenAPI vs paket manual)? | Frontend.md §2, §11 | ⬜ Menunggu |
 | Q6 | ~~File referensi UI belum disediakan~~ **TERJAWAB: 15 layar tersedia** di `reference/frontend/Reference/` (11 batch awal + 4 dilengkapi menyusul: tab transaksi, scanner, buka shift, login). Lihat README katalognya. | reference/frontend/Reference/ | ✅ Selesai |
+| Q7 | ~~F1-AUTH-03 supervisor approval butuh kontrak API/alur final~~ **TERJAWAB/DIIMPLEMENTASI:** `POST /auth/approve` menerima kredensial supervisor + requiredPermission dan mengembalikan `approvalToken` sementara untuk aksi sensitif. | FR-AUT-03, BR-11, Backend.md §8.1 | ✅ Selesai |
 
 ---
 
@@ -213,7 +295,10 @@ dukungan thermal printer ESC/POS & scanner HID.
 | FR-SAL-18..23 | Tab transaksi (maks 10) | Sales | F1-TAB-01..04 | AC-03b, E-TAB-409 | ⬜ | ⬜ | |
 | FR-PRC-05/08 | Voucher single-use atomik | Pricing | (Fase 2) | AC-02, E-VOUCHER-409 | ⬜ | ⬜ | |
 | FR-INV-06 | Stok non-negatif | Stock | F1-INV-02 | BR-05, E-STOCK-409 | ⬜ | ⬜ | |
-| FR-STK-04 | Stock transfer ACID | Stock | (Fase 2) | AC-06 | ⬜ | ⬜ | |
+| FR-STK-04 | Stock transfer ACID | Stock | F2-STK-02 | AC-06 | ✅ | ✅ | F2-STK-02 |
+| FR-PRD-02..09 | Extended products | Product | F2-PRD-01 | | ✅ | ✅ | F2-PRD-01 |
+| FR-PUR-01..08 | CRUD Purchase | Purchase | F2-PUR-01..04 | | ✅ | ✅ | F2-PUR-01..04 |
+| FR-STK-01/02 | Stock Adjustment | Stock | F2-STK-01 | | ✅ | ✅ | F2-STK-01 |
 | FR-CSH-03 | Rekonsiliasi shift | CashRegister | F1-CSH-03 | AC-04 | ⬜ | ⬜ | |
 | FR-AUT-01/02 | Auth + RBAC | Auth | F1-AUTH-01/02 | AC-11, E-PERM-403 | ⬜ | ⬜ | |
 | NFR-REL-01 | Idempotent, anti double-charge | Sales/Core | F1-SAL-04 | AC-05 | ⬜ | ⬜ | |
