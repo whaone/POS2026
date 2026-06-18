@@ -169,7 +169,59 @@ dukungan thermal printer ESC/POS & scanner HID.
 | F2-STK-02 | **[KRITIKAL TDD]** Stock Transfer ACID (In Transit → Completed) | FR-STK-03..05, AC-06 | ✅ |
 | F2-PRD-01 | Extended produk (Variable, IMEI/Serial/Lot, CSV) | FR-PRD-02..09 | ✅ |
 
-> **Catatan:** Backlog Fase 3 ditambahkan saat fase tersebut diaktifkan. Lihat checklist lengkap di Backend.md §12.
+---
+
+## Backlog Fase 3 (Back-Office & Keuangan) — Berbasis Kebutuhan
+
+> Status: ⬜ belum · 🔵 dikerjakan · ✅ selesai · ⛔ blocked
+
+### Booking & Reservasi
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F3-BOK-01 | CRUD Booking (reservasi meja/staf/slot waktu) + kalender | FR-BOK-01/02 | ✅ |
+| F3-BOK-02 | Pre-order/Click & Collect dari API eksternal | FR-BOK-03 | ⬜ |
+| F3-BOK-03 | Stock hold untuk pre-order hingga diambil/dibatalkan | FR-BOK-04 | ⬜ |
+| F3-BOK-04 | Catat DP & potong total tagihan saat pelunasan | FR-BOK-05 | ⬜ |
+| F3-BOK-05 | Reminder booking (background job) | FR-BOK-06 | ⬜ |
+
+### Accounting / Payment Account
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F3-ACC-01 | CRUD Payment Account (kas/bank/ewallet) + auto update saldo | FR-ACC-01/02 | ⬜ |
+| F3-ACC-02 | Balance Sheet | FR-ACC-03 | ⬜ |
+| F3-ACC-03 | Trial Balance | FR-ACC-04 | ⬜ |
+| F3-ACC-04 | Cash Flow per periode | FR-ACC-05 | ⬜ |
+| F3-ACC-05 | Payment Account Report (mutasi & saldo) | FR-ACC-06 | ⬜ |
+
+### HR: Commission, Expense, Payroll
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F3-HRM-01 | Commission Agent + perhitungan komisi | FR-HRM-04, FR-SAL-15 | ⬜ |
+| F3-HRM-02 | Expense Management + link kas & laporan | FR-HRM-06 | ⬜ |
+| F3-HRM-03 | Staff Salary (gaji) | FR-HRM-05 | ⬜ |
+
+### Reporting & Analytics
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F3-RPT-01 | Dashboard penjualan & laba-rugi | FR-RPT-01/06 | ⬜ |
+| F3-RPT-02 | Purchase & Sell Report + Stock Reports | FR-RPT-07 | ⬜ |
+| F3-RPT-03 | Tax Report + Expenses Report | FR-RPT-08 | ⬜ |
+| F3-RPT-04 | Supplier & Customer Report + Cash Register Report | FR-RPT-09 | ⬜ |
+| F3-RPT-05 | Commission Agent / Salesperson Report | FR-RPT-10 | ⬜ |
+| F3-RPT-06 | Analisis performa produk (Fast/Slow Moving) | FR-RPT-02 | ⬜ |
+| F3-RPT-07 | Laporan redemption & liability voucher | FR-RPT-04 | ⬜ |
+| F3-RPT-08 | Filter, chart, ekspor untuk semua laporan | FR-RPT-11 | ⬜ |
+
+### Settings: Invoice, Barcode & Hardware
+| ID | Item | Ref | Status |
+|---|---|---|---|
+| F3-CFG-01 | Customizable Invoice Layout multi-template | FR-CFG-01 | ⬜ |
+| F3-CFG-02 | Barcode Setting (format label, simbologi) | FR-CFG-02 | ⬜ |
+| F3-CFG-03 | Barcode scanner USB/Bluetooth (HID) | FR-CFG-03 | ⬜ |
+| F3-CFG-04 | Thermal printer ESC/POS (USB/jaringan/BT) | FR-CFG-04 | ⬜ |
+| F3-CFG-05 | Cash drawer kick-out via printer | FR-CFG-05 | ⬜ |
+
+> **Catatan:** Phase 3 mencakup back-office (booking, akuntansi, HR, reporting) dan hardware (printer, scanner). Prioritaskan vertikal slice (misal: booking end-to-end atau accounting module) sebelum beralih ke modul lain.
 
 ---
 
@@ -179,7 +231,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Pemilik | Mulai | ID Kebutuhan | Acceptance Criteria (ringkas) | Catatan |
 |---|---|---|---|---|---|
-| F2-STK-01 | Agent | 2026-06-18 | FR-STK-01/02 | GET /stock/adjustments + GET /stock/adjustments/:id added; existing POST + createAdjustment verified ACID | Gate: ✅ |
+| _(kosong)_ | | | | | |
 
 ---
 
@@ -189,6 +241,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F3-BOK-01 | 2026-06-18 | FR-BOK-01/02 | apps/backend/src/db/schema/booking.schema.ts, modules/booking/* | BookingModule first vertical slice implemented: schema for bookings/preorders, CRUD service + calendar query, controller endpoints, module registered in AppModule. |
 | F2-VCH-01 | 2026-06-18 | FR-PRC-04..08, AC-02 | apps/backend/src/modules/pricing/services/voucher.service*.ts, controllers/voucher.controller.ts, pricing.module.ts | TDD-first: voucher.service.spec.ts verifies single-use atomicity & race conditions (E-VOUCHER-409); implementation uses DB transaction + UNIQUE constraint catch |
 | F2-PRD-01 | 2026-06-18 | FR-PRD-02..09 | apps/backend/src/modules/products/services/products.service.ts, controllers/products.controller.ts, dto/create-product.dto.ts | Ditambahkan CRUD untuk Product Variations, mock endpoint untuk CSV import, dan mock endpoint untuk Print Barcodes/Labels. Status gate ✅ |
 | F2-PUR-01..04 | 2026-06-18 | FR-PUR-01..08 | apps/backend/src/modules/purchases/services/purchases.service.ts, controllers/purchases.controller.ts, dto/purchase.dto.ts | Completed CRUD Purchase (PATCH/DELETE unreceived). Purchase return deducts stock & adjusts contact ledger debit. Purchase payment adds to contact ledger. |

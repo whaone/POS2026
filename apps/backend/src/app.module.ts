@@ -21,6 +21,7 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
+import { BookingModule } from './modules/booking/booking.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PurchasesModule } from './modules/purchases/purchases.module';
     ContactsModule,
     PricingModule,
     PurchasesModule,
+    BookingModule,
   ],
   controllers: [AppController],
   providers: [
