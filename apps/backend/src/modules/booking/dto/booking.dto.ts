@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsDateString,
   IsEnum,
   IsInt,
@@ -6,7 +7,9 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 
 enum BookingType {
@@ -60,4 +63,41 @@ export class BookingDepositDto {
   @IsInt()
   @IsNotEmpty()
   amount: number;
+}
+
+export class CreatePreorderItemDto {
+  @IsUUID()
+  @IsNotEmpty()
+  productId: string;
+
+  @IsUUID()
+  @IsOptional()
+  variationId?: string;
+
+  @IsInt()
+  @IsNotEmpty()
+  qty: number;
+}
+
+export class CreatePreorderDto {
+  @IsUUID()
+  @IsNotEmpty()
+  locationId: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  customerId: string;
+
+  @IsString()
+  @IsOptional()
+  source?: string;
+
+  @IsString()
+  @IsOptional()
+  pickupCode?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreatePreorderItemDto)
+  items: CreatePreorderItemDto[];
 }

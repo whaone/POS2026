@@ -179,8 +179,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | ID | Item | Ref | Status |
 |---|---|---|---|
 | F3-BOK-01 | CRUD Booking (reservasi meja/staf/slot waktu) + kalender | FR-BOK-01/02 | ✅ |
-| F3-BOK-02 | Pre-order/Click & Collect dari API eksternal | FR-BOK-03 | ⬜ |
-| F3-BOK-03 | Stock hold untuk pre-order hingga diambil/dibatalkan | FR-BOK-04 | ⬜ |
+| F3-BOK-02/03 | Pre-order/Click & Collect dari API eksternal | FR-BOK-03/04 | ✅ |
 | F3-BOK-04 | Catat DP & potong total tagihan saat pelunasan | FR-BOK-05 | ⬜ |
 | F3-BOK-05 | Reminder booking (background job) | FR-BOK-06 | ⬜ |
 
@@ -241,6 +240,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F3-BOK-02/03 | 2026-06-18 | FR-BOK-03/04 | apps/backend/src/modules/booking/services/booking.service.ts, controllers/preorder.controller.ts, booking.module.ts | Implemented pre-order creation with stock hold (qtyHeld increment) and collection logic (deducts held stock and actual qty); preorder controller added. |
 | F3-BOK-01 | 2026-06-18 | FR-BOK-01/02 | apps/backend/src/db/schema/booking.schema.ts, modules/booking/* | BookingModule first vertical slice implemented: schema for bookings/preorders, CRUD service + calendar query, controller endpoints, module registered in AppModule. |
 | F2-VCH-01 | 2026-06-18 | FR-PRC-04..08, AC-02 | apps/backend/src/modules/pricing/services/voucher.service*.ts, controllers/voucher.controller.ts, pricing.module.ts | TDD-first: voucher.service.spec.ts verifies single-use atomicity & race conditions (E-VOUCHER-409); implementation uses DB transaction + UNIQUE constraint catch |
 | F2-PRD-01 | 2026-06-18 | FR-PRD-02..09 | apps/backend/src/modules/products/services/products.service.ts, controllers/products.controller.ts, dto/create-product.dto.ts | Ditambahkan CRUD untuk Product Variations, mock endpoint untuk CSV import, dan mock endpoint untuk Print Barcodes/Labels. Status gate ✅ |

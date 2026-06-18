@@ -24,4 +24,16 @@ export declare class UpdateBookingDto extends UpdateBookingDto_base {
 export declare class BookingDepositDto {
     amount: number;
 }
+export declare class CreatePreorderItemDto {
+    productId: string;
+    variationId?: string;
+    qty: number;
+}
+export declare class CreatePreorderDto {
+    locationId: string;
+    customerId: string;
+    source?: string;
+    pickupCode?: string;
+    items: CreatePreorderItemDto[];
+}
 export {};

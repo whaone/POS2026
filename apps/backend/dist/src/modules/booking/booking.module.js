@@ -9,13 +9,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BookingModule = void 0;
 const common_1 = require("@nestjs/common");
 const booking_controller_1 = require("./controllers/booking.controller");
+const preorder_controller_1 = require("./controllers/preorder.controller");
 const booking_service_1 = require("./services/booking.service");
 let BookingModule = class BookingModule {
 };
 exports.BookingModule = BookingModule;
 exports.BookingModule = BookingModule = __decorate([
     (0, common_1.Module)({
-        controllers: [booking_controller_1.BookingController],
+        controllers: [booking_controller_1.BookingController, preorder_controller_1.PreorderController],
         providers: [booking_service_1.BookingService],
         exports: [booking_service_1.BookingService],
     })

@@ -1,5 +1,5 @@
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { CreateBookingDto, UpdateBookingDto, BookingDepositDto } from '../dto/booking.dto';
+import { CreateBookingDto, UpdateBookingDto, BookingDepositDto, CreatePreorderDto } from '../dto/booking.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 export declare class BookingService {
     private readonly db;
@@ -91,5 +91,19 @@ export declare class BookingService {
         dpAmount: number;
         createdAt: Date;
         updatedAt: Date;
+    }>;
+    createPreorder(businessId: string, dto: CreatePreorderDto): Promise<{
+        id: string;
+        businessId: string;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        locationId: string;
+        customerId: string;
+        source: string;
+        pickupCode: string | null;
+    }>;
+    collectPreorder(businessId: string, id: string): Promise<{
+        success: boolean;
     }>;
 }

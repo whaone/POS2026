@@ -7,11 +7,17 @@ import {
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import { DATABASE_TOKEN } from '../../../core/database/database.module';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { bookings } from '../../../db/schema/booking.schema';
+import {
+  bookings,
+  preorders,
+  preorderItems,
+} from '../../../db/schema/booking.schema';
+import { stock } from '../../../db/schema/stock.schema';
 import {
   CreateBookingDto,
   UpdateBookingDto,
   BookingDepositDto,
+  CreatePreorderDto,
 } from '../dto/booking.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
@@ -156,5 +162,141 @@ export class BookingService {
       .returning();
 
     return updated;
+  }
+
+  // Preorders
+  async createPreorder(businessId: string, dto: CreatePreorderDto) {
+    return this.db.transaction(async (tx) => {
+      const [preorder] = await tx
+        .insert(preorders)
+        .values({
+          businessId,
+          locationId: dto.locationId,
+          customerId: dto.customerId,
+          source: dto.source || 'pos',
+          pickupCode: dto.pickupCode,
+        })
+        .returning();
+
+      if (dto.items && dto.items.length > 0) {
+        await tx.insert(preorderItems).values(
+          dto.items.map((item) => ({
+            preorderId: preorder.id,
+            productId: item.productId,
+            variationId: item.variationId,
+            qty: item.qty,
+          })),
+        );
+
+        // Hold stock
+        for (const item of dto.items) {
+          const whereClause = item.variationId
+            ? and(
+                eq(stock.businessId, businessId),
+                eq(stock.locationId, dto.locationId),
+                eq(stock.productId, item.productId),
+                eq(stock.variationId, item.variationId),
+              )
+            : and(
+                eq(stock.businessId, businessId),
+                eq(stock.locationId, dto.locationId),
+                eq(stock.productId, item.productId),
+              );
+
+          const [existingStock] = await tx
+            .select()
+            .from(stock)
+            .where(whereClause)
+            .for('update')
+            .limit(1);
+
+          if (existingStock) {
+            await tx
+              .update(stock)
+              .set({
+                qtyHeld: existingStock.qtyHeld + item.qty,
+                updatedAt: new Date(),
+              })
+              .where(eq(stock.id, existingStock.id));
+          } else {
+            await tx.insert(stock).values({
+              businessId,
+              locationId: dto.locationId,
+              productId: item.productId,
+              variationId: item.variationId,
+              qty: 0,
+              qtyHeld: item.qty,
+            });
+          }
+        }
+      }
+
+      this.eventEmitter.emit('preorder.created', {
+        preorderId: preorder.id,
+        businessId,
+      });
+
+      return preorder;
+    });
+  }
+
+  async collectPreorder(businessId: string, id: string) {
+    return this.db.transaction(async (tx) => {
+      const [preorder] = await tx
+        .select()
+        .from(preorders)
+        .where(and(eq(preorders.id, id), eq(preorders.businessId, businessId)));
+
+      if (!preorder) throw new NotFoundException('Preorder not found');
+      if (preorder.status !== 'reserved') {
+        throw new BadRequestException('Preorder already processed');
+      }
+
+      const items = await tx
+        .select()
+        .from(preorderItems)
+        .where(eq(preorderItems.preorderId, id));
+
+      await tx
+        .update(preorders)
+        .set({ status: 'collected', updatedAt: new Date() })
+        .where(eq(preorders.id, id));
+
+      // Release hold and deduct qty (since it is collected)
+      for (const item of items) {
+        const whereClause = item.variationId
+          ? and(
+              eq(stock.businessId, businessId),
+              eq(stock.locationId, preorder.locationId),
+              eq(stock.productId, item.productId),
+              eq(stock.variationId, item.variationId),
+            )
+          : and(
+              eq(stock.businessId, businessId),
+              eq(stock.locationId, preorder.locationId),
+              eq(stock.productId, item.productId),
+            );
+
+        const [existingStock] = await tx
+          .select()
+          .from(stock)
+          .where(whereClause)
+          .for('update')
+          .limit(1);
+
+        if (existingStock) {
+          await tx
+            .update(stock)
+            .set({
+              qty: existingStock.qty - item.qty,
+              qtyHeld: existingStock.qtyHeld - item.qty,
+              updatedAt: new Date(),
+            })
+            .where(eq(stock.id, existingStock.id));
+        }
+      }
+
+      return { success: true };
+    });
   }
 }

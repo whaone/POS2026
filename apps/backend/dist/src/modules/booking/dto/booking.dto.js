@@ -9,8 +9,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BookingDepositDto = exports.UpdateBookingDto = exports.CreateBookingDto = void 0;
+exports.CreatePreorderDto = exports.CreatePreorderItemDto = exports.BookingDepositDto = exports.UpdateBookingDto = exports.CreateBookingDto = void 0;
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 const mapped_types_1 = require("@nestjs/mapped-types");
 var BookingType;
 (function (BookingType) {
@@ -86,4 +87,59 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], BookingDepositDto.prototype, "amount", void 0);
+class CreatePreorderItemDto {
+    productId;
+    variationId;
+    qty;
+}
+exports.CreatePreorderItemDto = CreatePreorderItemDto;
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreatePreorderItemDto.prototype, "productId", void 0);
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreatePreorderItemDto.prototype, "variationId", void 0);
+__decorate([
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], CreatePreorderItemDto.prototype, "qty", void 0);
+class CreatePreorderDto {
+    locationId;
+    customerId;
+    source;
+    pickupCode;
+    items;
+}
+exports.CreatePreorderDto = CreatePreorderDto;
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreatePreorderDto.prototype, "locationId", void 0);
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreatePreorderDto.prototype, "customerId", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreatePreorderDto.prototype, "source", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreatePreorderDto.prototype, "pickupCode", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => CreatePreorderItemDto),
+    __metadata("design:type", Array)
+], CreatePreorderDto.prototype, "items", void 0);
 //# sourceMappingURL=booking.dto.js.map

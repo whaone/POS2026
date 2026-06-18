@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const drizzle_orm_1 = require("drizzle-orm");
 const database_module_1 = require("../../../core/database/database.module");
 const booking_schema_1 = require("../../../db/schema/booking.schema");
+const stock_schema_1 = require("../../../db/schema/stock.schema");
 const event_emitter_1 = require("@nestjs/event-emitter");
 let BookingService = class BookingService {
     db;
@@ -127,6 +128,106 @@ let BookingService = class BookingService {
             .where((0, drizzle_orm_1.eq)(booking_schema_1.bookings.id, id))
             .returning();
         return updated;
+    }
+    async createPreorder(businessId, dto) {
+        return this.db.transaction(async (tx) => {
+            const [preorder] = await tx
+                .insert(booking_schema_1.preorders)
+                .values({
+                businessId,
+                locationId: dto.locationId,
+                customerId: dto.customerId,
+                source: dto.source || 'pos',
+                pickupCode: dto.pickupCode,
+            })
+                .returning();
+            if (dto.items && dto.items.length > 0) {
+                await tx.insert(booking_schema_1.preorderItems).values(dto.items.map((item) => ({
+                    preorderId: preorder.id,
+                    productId: item.productId,
+                    variationId: item.variationId,
+                    qty: item.qty,
+                })));
+                for (const item of dto.items) {
+                    const whereClause = item.variationId
+                        ? (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(stock_schema_1.stock.businessId, businessId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.locationId, dto.locationId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.productId, item.productId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.variationId, item.variationId))
+                        : (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(stock_schema_1.stock.businessId, businessId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.locationId, dto.locationId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.productId, item.productId));
+                    const [existingStock] = await tx
+                        .select()
+                        .from(stock_schema_1.stock)
+                        .where(whereClause)
+                        .for('update')
+                        .limit(1);
+                    if (existingStock) {
+                        await tx
+                            .update(stock_schema_1.stock)
+                            .set({
+                            qtyHeld: existingStock.qtyHeld + item.qty,
+                            updatedAt: new Date(),
+                        })
+                            .where((0, drizzle_orm_1.eq)(stock_schema_1.stock.id, existingStock.id));
+                    }
+                    else {
+                        await tx.insert(stock_schema_1.stock).values({
+                            businessId,
+                            locationId: dto.locationId,
+                            productId: item.productId,
+                            variationId: item.variationId,
+                            qty: 0,
+                            qtyHeld: item.qty,
+                        });
+                    }
+                }
+            }
+            this.eventEmitter.emit('preorder.created', {
+                preorderId: preorder.id,
+                businessId,
+            });
+            return preorder;
+        });
+    }
+    async collectPreorder(businessId, id) {
+        return this.db.transaction(async (tx) => {
+            const [preorder] = await tx
+                .select()
+                .from(booking_schema_1.preorders)
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(booking_schema_1.preorders.id, id), (0, drizzle_orm_1.eq)(booking_schema_1.preorders.businessId, businessId)));
+            if (!preorder)
+                throw new common_1.NotFoundException('Preorder not found');
+            if (preorder.status !== 'reserved') {
+                throw new common_1.BadRequestException('Preorder already processed');
+            }
+            const items = await tx
+                .select()
+                .from(booking_schema_1.preorderItems)
+                .where((0, drizzle_orm_1.eq)(booking_schema_1.preorderItems.preorderId, id));
+            await tx
+                .update(booking_schema_1.preorders)
+                .set({ status: 'collected', updatedAt: new Date() })
+                .where((0, drizzle_orm_1.eq)(booking_schema_1.preorders.id, id));
+            for (const item of items) {
+                const whereClause = item.variationId
+                    ? (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(stock_schema_1.stock.businessId, businessId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.locationId, preorder.locationId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.productId, item.productId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.variationId, item.variationId))
+                    : (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(stock_schema_1.stock.businessId, businessId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.locationId, preorder.locationId), (0, drizzle_orm_1.eq)(stock_schema_1.stock.productId, item.productId));
+                const [existingStock] = await tx
+                    .select()
+                    .from(stock_schema_1.stock)
+                    .where(whereClause)
+                    .for('update')
+                    .limit(1);
+                if (existingStock) {
+                    await tx
+                        .update(stock_schema_1.stock)
+                        .set({
+                        qty: existingStock.qty - item.qty,
+                        qtyHeld: existingStock.qtyHeld - item.qty,
+                        updatedAt: new Date(),
+                    })
+                        .where((0, drizzle_orm_1.eq)(stock_schema_1.stock.id, existingStock.id));
+                }
+            }
+            return { success: true };
+        });
     }
 };
 exports.BookingService = BookingService;
