@@ -38,6 +38,19 @@ export const expenses = pgTable('expenses', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const commissionAgents = pgTable('commission_agents', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  businessId: uuid('business_id')
+    .notNull()
+    .references(() => businesses.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  rate: integer('rate').notNull().default(0), // percentage * 100 for precision, e.g. 5.5% = 550
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Expense = typeof expenses.$inferSelect;

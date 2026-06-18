@@ -4,10 +4,18 @@ import { UsersRepository } from './users.repository';
 import { RolesService } from './roles.service';
 import { ExpensesService } from './expenses.service';
 import { ExpensesController } from './expenses.controller';
+import { CommissionAgentsService } from './commission-agents.service';
+import { CommissionAgentsController } from './commission-agents.controller';
 
 @Module({
-  controllers: [ExpensesController],
-  providers: [UsersService, UsersRepository, RolesService, ExpensesService],
+  controllers: [ExpensesController, CommissionAgentsController],
+  providers: [
+    UsersService,
+    UsersRepository,
+    RolesService,
+    ExpensesService,
+    CommissionAgentsService,
+  ],
   exports: [UsersService, RolesService],
 })
 export class UsersModule {}
