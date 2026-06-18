@@ -43,10 +43,10 @@ export declare class StockService {
     }): Promise<{
         type: string;
         id: string;
-        businessId: string;
         createdAt: Date;
-        reason: string | null;
+        businessId: string;
         locationId: string;
+        reason: string | null;
         recoveryAmount: number;
         createdBy: string | null;
     }>;
@@ -87,9 +87,9 @@ export declare class StockService {
         }[];
     }): Promise<{
         id: string;
+        createdAt: Date;
         businessId: string;
         status: string;
-        createdAt: Date;
         fromLocationId: string;
         toLocationId: string;
         shippingCharge: number;

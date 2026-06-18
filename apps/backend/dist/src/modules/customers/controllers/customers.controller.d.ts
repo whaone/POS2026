@@ -8,13 +8,13 @@ export declare class CustomersController {
     create(req: RequestWithUser, createCustomerDto: CreateCustomerDto): Promise<{
         name: string;
         id: string;
-        businessId: string;
-        email: string | null;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        email: string | null;
+        category: string;
         priceGroupId: string | null;
         phone: string | null;
-        category: string;
     }>;
     findAll(req: RequestWithUser): Promise<{
         id: string;
@@ -52,12 +52,12 @@ export declare class CustomersController {
     remove(req: RequestWithUser, id: string): Promise<{
         name: string;
         id: string;
-        businessId: string;
-        email: string | null;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        email: string | null;
+        category: string;
         priceGroupId: string | null;
         phone: string | null;
-        category: string;
     }>;
 }

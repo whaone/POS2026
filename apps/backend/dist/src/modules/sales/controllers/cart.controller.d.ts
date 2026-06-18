@@ -6,9 +6,9 @@ export declare class CartController {
     constructor(cartService: CartService);
     createOrUpdateCart(user: JwtPayload, dto: CreateCartDto): Promise<{
         id: string;
+        createdAt: Date;
         businessId: string;
         status: string;
-        createdAt: Date;
         locationId: string;
         customerId: string | null;
         cashierId: string | null;

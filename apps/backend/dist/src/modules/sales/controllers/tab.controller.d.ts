@@ -23,10 +23,10 @@ export declare class TabController {
     }[]>;
     openTab(user: JwtPayload): Promise<{
         id: string;
-        businessId: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        status: string;
         locationId: string;
         customerId: string | null;
         cashierId: string | null;
@@ -108,8 +108,8 @@ export declare class TabController {
     }>;
     parkTab(user: JwtPayload, id: string): Promise<{
         id: string;
-        businessId: string;
         createdAt: Date;
+        businessId: string;
         locationId: string;
         customerId: string | null;
         cashierId: string | null;

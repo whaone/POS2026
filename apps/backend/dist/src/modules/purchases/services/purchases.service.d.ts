@@ -7,10 +7,10 @@ export declare class PurchasesService {
     constructor(db: NodePgDatabase, eventEmitter: EventEmitter2);
     create(businessId: string, dto: CreatePurchaseDto): Promise<{
         id: string;
-        businessId: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        status: string;
         locationId: string;
         subtotal: number;
         taxTotal: number;
@@ -89,17 +89,17 @@ export declare class PurchasesService {
     createPayment(purchaseId: string, dto: PurchasePaymentDto): Promise<{
         method: string;
         id: string;
-        amount: number;
         accountId: string | null;
+        amount: number;
         purchaseId: string;
         paidAt: Date;
     }>;
     createReturn(businessId: string, purchaseId: string, dto: PurchaseReturnDto): Promise<{
         id: string;
-        businessId: string;
         createdAt: Date;
-        reason: string | null;
+        businessId: string;
         amount: number;
+        reason: string | null;
         purchaseId: string;
     }>;
 }

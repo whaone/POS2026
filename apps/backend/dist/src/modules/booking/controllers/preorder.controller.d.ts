@@ -6,10 +6,10 @@ export declare class PreorderController {
     constructor(bookingService: BookingService);
     createPreorder(req: RequestWithUser, dto: CreatePreorderDto): Promise<{
         id: string;
-        businessId: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        status: string;
         locationId: string;
         customerId: string;
         source: string;

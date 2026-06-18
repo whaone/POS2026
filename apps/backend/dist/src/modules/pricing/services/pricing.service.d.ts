@@ -18,9 +18,9 @@ export declare class PricingService {
     createDiscount(businessId: string, data: any): Promise<{
         type: string;
         id: string;
+        createdAt: Date;
         businessId: string;
         active: boolean;
-        createdAt: Date;
         configJson: unknown;
         startDate: Date | null;
         endDate: Date | null;
@@ -37,8 +37,8 @@ export declare class PricingService {
     }[]>;
     createMarkdown(businessId: string, data: any): Promise<{
         id: string;
-        businessId: string;
         createdAt: Date;
+        businessId: string;
         productId: string;
         configJson: unknown;
         rule: string;

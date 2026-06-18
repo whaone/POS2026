@@ -7,9 +7,9 @@ export declare class AccountingService {
         name: string;
         type: string;
         id: string;
-        businessId: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         openingBalance: number;
         balance: number;
     }>;

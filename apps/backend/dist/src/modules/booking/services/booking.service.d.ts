@@ -8,12 +8,12 @@ export declare class BookingService {
     create(businessId: string, dto: CreateBookingDto): Promise<{
         type: string;
         id: string;
-        businessId: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
-        resourceId: string | null;
+        businessId: string;
+        status: string;
         locationId: string;
+        resourceId: string | null;
         customerId: string;
         startTime: Date;
         endTime: Date;
@@ -94,10 +94,10 @@ export declare class BookingService {
     }>;
     createPreorder(businessId: string, dto: CreatePreorderDto): Promise<{
         id: string;
-        businessId: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        status: string;
         locationId: string;
         customerId: string;
         source: string;

@@ -1,4 +1,14 @@
-import { pgTable, uuid, varchar, timestamp, text } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+  text,
+  integer,
+} from 'drizzle-orm/pg-core';
+import { businesses } from './business.schema';
+import { locations } from './location.schema';
+import { accounts } from './accounting.schema';
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -12,5 +22,22 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const expenses = pgTable('expenses', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  businessId: uuid('business_id')
+    .notNull()
+    .references(() => businesses.id, { onDelete: 'cascade' }),
+  locationId: uuid('location_id')
+    .notNull()
+    .references(() => locations.id),
+  category: varchar('category', { length: 255 }).notNull(),
+  amount: integer('amount').notNull(),
+  accountId: uuid('account_id').references(() => accounts.id),
+  date: timestamp('date').defaultNow().notNull(),
+  note: text('note'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type Expense = typeof expenses.$inferSelect;

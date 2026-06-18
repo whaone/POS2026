@@ -7,13 +7,13 @@ export declare class CustomersService {
     create(businessId: string, createCustomerDto: CreateCustomerDto): Promise<{
         name: string;
         id: string;
-        businessId: string;
-        email: string | null;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        email: string | null;
+        category: string;
         priceGroupId: string | null;
         phone: string | null;
-        category: string;
     }>;
     findAll(businessId: string): Promise<{
         id: string;
@@ -51,12 +51,12 @@ export declare class CustomersService {
     remove(businessId: string, id: string): Promise<{
         name: string;
         id: string;
-        businessId: string;
-        email: string | null;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        email: string | null;
+        category: string;
         priceGroupId: string | null;
         phone: string | null;
-        category: string;
     }>;
 }

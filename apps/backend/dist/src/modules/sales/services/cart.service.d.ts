@@ -5,9 +5,9 @@ export declare class CartService {
     constructor(db: NodePgDatabase);
     createOrUpdateCart(businessId: string, locationId: string, cashierId: string, dto: CreateCartDto): Promise<{
         id: string;
+        createdAt: Date;
         businessId: string;
         status: string;
-        createdAt: Date;
         locationId: string;
         customerId: string | null;
         cashierId: string | null;

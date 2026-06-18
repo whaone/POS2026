@@ -19,9 +19,9 @@ export declare class PricingController {
     createDiscount(req: RequestWithUser, data: any): Promise<{
         type: string;
         id: string;
+        createdAt: Date;
         businessId: string;
         active: boolean;
-        createdAt: Date;
         configJson: unknown;
         startDate: Date | null;
         endDate: Date | null;
@@ -38,8 +38,8 @@ export declare class PricingController {
     }[]>;
     createMarkdown(req: RequestWithUser, data: any): Promise<{
         id: string;
-        businessId: string;
         createdAt: Date;
+        businessId: string;
         productId: string;
         configJson: unknown;
         rule: string;

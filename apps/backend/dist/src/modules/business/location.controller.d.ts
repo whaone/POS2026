@@ -9,36 +9,36 @@ export declare class LocationController {
         name: string;
         type: string;
         id: string;
-        businessId: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         address: string | null;
     }>;
     findAll(user: JwtPayload): Promise<{
         name: string;
         type: string;
         id: string;
-        businessId: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         address: string | null;
     }[]>;
     findOne(user: JwtPayload, id: string): Promise<{
         name: string;
         type: string;
         id: string;
-        businessId: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         address: string | null;
     }>;
     update(user: JwtPayload, id: string, updateLocationDto: UpdateLocationDto): Promise<{
         name: string;
         type: string;
         id: string;
-        businessId: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         address: string | null;
     }>;
     remove(user: JwtPayload, id: string): Promise<void>;

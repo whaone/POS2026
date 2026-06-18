@@ -9,9 +9,9 @@ export declare class ProductsController {
         name: string;
         type: string;
         id: string;
-        businessId: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         brandId: string | null;
         categoryId: string | null;
         unitId: string | null;
@@ -114,9 +114,9 @@ export declare class ProductsController {
         name: string;
         type: string;
         id: string;
-        businessId: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         brandId: string | null;
         categoryId: string | null;
         unitId: string | null;

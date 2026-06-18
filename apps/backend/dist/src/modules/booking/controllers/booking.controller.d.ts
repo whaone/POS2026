@@ -49,12 +49,12 @@ export declare class BookingController {
     create(req: RequestWithUser, dto: CreateBookingDto): Promise<{
         type: string;
         id: string;
-        businessId: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
-        resourceId: string | null;
+        businessId: string;
+        status: string;
         locationId: string;
+        resourceId: string | null;
         customerId: string;
         startTime: Date;
         endTime: Date;

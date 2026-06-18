@@ -196,7 +196,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | ID | Item | Ref | Status |
 |---|---|---|---|
 | F3-HRM-01 | Commission Agent + perhitungan komisi | FR-HRM-04, FR-SAL-15 | ⬜ |
-| F3-HRM-02 | Expense Management + link kas & laporan | FR-HRM-06 | ⬜ |
+| F3-HRM-02 | Expense Management + link kas & laporan | FR-HRM-06 | ✅ |
 | F3-HRM-03 | Staff Salary (gaji) | FR-HRM-05 | ⬜ |
 
 ### Reporting & Analytics
@@ -240,6 +240,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F3-HRM-02 | 2026-06-18 | FR-HRM-06 | apps/backend/src/db/schema/user.schema.ts, modules/users/expenses.* | Implemented expense schema in user module, created expense CRUD API (controller, service, dto) in users module. |
 | F3-ACC-01 | 2026-06-18 | FR-ACC-01/02 | apps/backend/src/db/schema/accounting.schema.ts, modules/accounting/* | Implemented accounting schema (accounts, journals) and CRUD for payment accounts. Added accounting module to app.module.ts. |
 | F3-BOK-02/03 | 2026-06-18 | FR-BOK-03/04 | apps/backend/src/modules/booking/services/booking.service.ts, controllers/preorder.controller.ts, booking.module.ts | Implemented pre-order creation with stock hold (qtyHeld increment) and collection logic (deducts held stock and actual qty); preorder controller added. |
 | F3-BOK-01 | 2026-06-18 | FR-BOK-01/02 | apps/backend/src/db/schema/booking.schema.ts, modules/booking/* | BookingModule first vertical slice implemented: schema for bookings/preorders, CRUD service + calendar query, controller endpoints, module registered in AppModule. |
@@ -353,6 +354,8 @@ dukungan thermal printer ESC/POS & scanner HID.
 | FR-PRD-02..09 | Extended products | Product | F2-PRD-01 | | ✅ | ✅ | F2-PRD-01 |
 | FR-PUR-01..08 | CRUD Purchase | Purchase | F2-PUR-01..04 | | ✅ | ✅ | F2-PUR-01..04 |
 | FR-STK-01/02 | Stock Adjustment | Stock | F2-STK-01 | | ✅ | ✅ | F2-STK-01 |
+| FR-BOK-01..06 | Booking & Pre-order | Booking | F3-BOK-01..04 | | ✅ | ✅ | F3-BOK-* |
+| FR-ACC-01..02 | Payment Accounts | Accounting | F3-ACC-01 | | ✅ | ✅ | F3-ACC-01 |
 | FR-CSH-03 | Rekonsiliasi shift | CashRegister | F1-CSH-03 | AC-04 | ⬜ | ⬜ | |
 | FR-AUT-01/02 | Auth + RBAC | Auth | F1-AUTH-01/02 | AC-11, E-PERM-403 | ⬜ | ⬜ | |
 | NFR-REL-01 | Idempotent, anti double-charge | Sales/Core | F1-SAL-04 | AC-05 | ⬜ | ⬜ | |

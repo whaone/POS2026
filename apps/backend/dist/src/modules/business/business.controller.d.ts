@@ -7,46 +7,46 @@ export declare class BusinessController {
     create(createBusinessDto: CreateBusinessDto): Promise<{
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         currency: string;
         timezone: string;
         financialYearStartMonth: number;
         profitMargin: number;
         taxNumber: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findAll(): Promise<{
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         currency: string;
         timezone: string;
         financialYearStartMonth: number;
         profitMargin: number;
         taxNumber: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }[]>;
     findOne(id: string): Promise<{
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         currency: string;
         timezone: string;
         financialYearStartMonth: number;
         profitMargin: number;
         taxNumber: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     update(id: string, updateBusinessDto: UpdateBusinessDto): Promise<{
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         currency: string;
         timezone: string;
         financialYearStartMonth: number;
         profitMargin: number;
         taxNumber: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     remove(id: string): Promise<void>;
 }

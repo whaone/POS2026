@@ -22,10 +22,10 @@ export declare class TabService {
     }[]>;
     openTab(businessId: string, locationId: string, cashierId: string, shiftId?: string): Promise<{
         id: string;
-        businessId: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        status: string;
         locationId: string;
         customerId: string | null;
         cashierId: string | null;
@@ -107,8 +107,8 @@ export declare class TabService {
     }>;
     parkTab(businessId: string, tabId: string): Promise<{
         id: string;
-        businessId: string;
         createdAt: Date;
+        businessId: string;
         locationId: string;
         customerId: string | null;
         cashierId: string | null;
