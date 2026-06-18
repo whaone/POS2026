@@ -15,18 +15,25 @@ const expenses_service_1 = require("./expenses.service");
 const expenses_controller_1 = require("./expenses.controller");
 const commission_agents_service_1 = require("./commission-agents.service");
 const commission_agents_controller_1 = require("./commission-agents.controller");
+const payrolls_service_1 = require("./payrolls.service");
+const payrolls_controller_1 = require("./payrolls.controller");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
-        controllers: [expenses_controller_1.ExpensesController, commission_agents_controller_1.CommissionAgentsController],
+        controllers: [
+            expenses_controller_1.ExpensesController,
+            commission_agents_controller_1.CommissionAgentsController,
+            payrolls_controller_1.PayrollsController,
+        ],
         providers: [
             users_service_1.UsersService,
             users_repository_1.UsersRepository,
             roles_service_1.RolesService,
             expenses_service_1.ExpensesService,
             commission_agents_service_1.CommissionAgentsService,
+            payrolls_service_1.PayrollsService,
         ],
         exports: [users_service_1.UsersService, roles_service_1.RolesService],
     })

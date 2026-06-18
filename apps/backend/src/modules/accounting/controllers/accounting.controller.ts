@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   Req,
   HttpCode,
@@ -29,6 +30,21 @@ export class AccountingController {
   @Get(':id')
   findOne(@Req() req: RequestWithUser, @Param('id') id: string) {
     return this.accountingService.findAccount(req.user.businessId, id);
+  }
+
+  @Get(':id/report')
+  getAccountReport(
+    @Req() req: RequestWithUser,
+    @Param('id') id: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.accountingService.getAccountReport(
+      req.user.businessId,
+      id,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
   }
 
   @Post()

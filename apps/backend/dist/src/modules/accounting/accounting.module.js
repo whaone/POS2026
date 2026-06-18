@@ -9,13 +9,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AccountingModule = void 0;
 const common_1 = require("@nestjs/common");
 const accounting_controller_1 = require("./controllers/accounting.controller");
+const accounting_reports_controller_1 = require("./controllers/accounting-reports.controller");
 const accounting_service_1 = require("./services/accounting.service");
 let AccountingModule = class AccountingModule {
 };
 exports.AccountingModule = AccountingModule;
 exports.AccountingModule = AccountingModule = __decorate([
     (0, common_1.Module)({
-        controllers: [accounting_controller_1.AccountingController],
+        controllers: [accounting_controller_1.AccountingController, accounting_reports_controller_1.AccountingReportsController],
         providers: [accounting_service_1.AccountingService],
         exports: [accounting_service_1.AccountingService],
     })

@@ -12,43 +12,40 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AccountingController = void 0;
+exports.PayrollsController = void 0;
 const common_1 = require("@nestjs/common");
-const accounting_service_1 = require("../services/accounting.service");
-const jwt_auth_guard_1 = require("../../auth/guards/jwt-auth.guard");
-const accounting_dto_1 = require("../dto/accounting.dto");
-let AccountingController = class AccountingController {
-    accountingService;
-    constructor(accountingService) {
-        this.accountingService = accountingService;
+const payrolls_service_1 = require("./payrolls.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const payroll_dto_1 = require("./dto/payroll.dto");
+let PayrollsController = class PayrollsController {
+    service;
+    constructor(service) {
+        this.service = service;
     }
     findAll(req) {
-        return this.accountingService.findAllAccounts(req.user.businessId);
+        return this.service.findAll(req.user.businessId);
     }
     findOne(req, id) {
-        return this.accountingService.findAccount(req.user.businessId, id);
-    }
-    getAccountReport(req, id, startDate, endDate) {
-        return this.accountingService.getAccountReport(req.user.businessId, id, startDate ? new Date(startDate) : undefined, endDate ? new Date(endDate) : undefined);
+        return this.service.findOne(req.user.businessId, id);
     }
     create(req, dto) {
-        return this.accountingService.createAccount(req.user.businessId, dto);
+        return this.service.create(req.user.businessId, dto);
     }
     update(req, id, dto) {
-        return this.accountingService.updateAccount(req.user.businessId, id, dto);
+        return this.service.update(req.user.businessId, id, dto);
     }
     remove(req, id) {
-        return this.accountingService.deleteAccount(req.user.businessId, id);
+        return this.service.remove(req.user.businessId, id);
     }
 };
-exports.AccountingController = AccountingController;
+exports.PayrollsController = PayrollsController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], AccountingController.prototype, "findAll", null);
+], PayrollsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Req)()),
@@ -56,34 +53,24 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
-], AccountingController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Get)(':id/report'),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Param)('id')),
-    __param(2, (0, common_1.Query)('startDate')),
-    __param(3, (0, common_1.Query)('endDate')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String]),
-    __metadata("design:returntype", void 0)
-], AccountingController.prototype, "getAccountReport", null);
+], PayrollsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, accounting_dto_1.CreateAccountDto]),
+    __metadata("design:paramtypes", [Object, payroll_dto_1.CreatePayrollDto]),
     __metadata("design:returntype", void 0)
-], AccountingController.prototype, "create", null);
+], PayrollsController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, accounting_dto_1.UpdateAccountDto]),
+    __metadata("design:paramtypes", [Object, String, payroll_dto_1.UpdatePayrollDto]),
     __metadata("design:returntype", void 0)
-], AccountingController.prototype, "update", null);
+], PayrollsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
@@ -92,10 +79,10 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
-], AccountingController.prototype, "remove", null);
-exports.AccountingController = AccountingController = __decorate([
+], PayrollsController.prototype, "remove", null);
+exports.PayrollsController = PayrollsController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Controller)('accounts'),
-    __metadata("design:paramtypes", [accounting_service_1.AccountingService])
-], AccountingController);
-//# sourceMappingURL=accounting.controller.js.map
+    (0, common_1.Controller)('payroll'),
+    __metadata("design:paramtypes", [payrolls_service_1.PayrollsService])
+], PayrollsController);
+//# sourceMappingURL=payrolls.controller.js.map

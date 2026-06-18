@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commissionAgents = exports.expenses = exports.users = void 0;
+exports.commissionAgents = exports.payrolls = exports.expenses = exports.users = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
 const business_schema_1 = require("./business.schema");
 const location_schema_1 = require("./location.schema");
@@ -30,6 +30,20 @@ exports.expenses = (0, pg_core_1.pgTable)('expenses', {
     date: (0, pg_core_1.timestamp)('date').defaultNow().notNull(),
     note: (0, pg_core_1.text)('note'),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
+});
+exports.payrolls = (0, pg_core_1.pgTable)('payrolls', {
+    id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
+    businessId: (0, pg_core_1.uuid)('business_id')
+        .notNull()
+        .references(() => business_schema_1.businesses.id, { onDelete: 'cascade' }),
+    userId: (0, pg_core_1.uuid)('user_id')
+        .notNull()
+        .references(() => exports.users.id, { onDelete: 'cascade' }),
+    period: (0, pg_core_1.varchar)('period', { length: 50 }).notNull(),
+    amount: (0, pg_core_1.integer)('amount').notNull(),
+    note: (0, pg_core_1.text)('note'),
+    createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
+    updatedAt: (0, pg_core_1.timestamp)('updated_at').defaultNow().notNull(),
 });
 exports.commissionAgents = (0, pg_core_1.pgTable)('commission_agents', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),

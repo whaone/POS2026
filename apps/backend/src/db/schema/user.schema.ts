@@ -38,6 +38,21 @@ export const expenses = pgTable('expenses', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const payrolls = pgTable('payrolls', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  businessId: uuid('business_id')
+    .notNull()
+    .references(() => businesses.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  period: varchar('period', { length: 50 }).notNull(), // YYYY-MM
+  amount: integer('amount').notNull(),
+  note: text('note'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export const commissionAgents = pgTable('commission_agents', {
   id: uuid('id').defaultRandom().primaryKey(),
   businessId: uuid('business_id')

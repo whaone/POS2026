@@ -23,6 +23,7 @@ import { PricingModule } from './modules/pricing/pricing.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { AccountingModule } from './modules/accounting/accounting.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { AccountingModule } from './modules/accounting/accounting.module';
     PurchasesModule,
     BookingModule,
     AccountingModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [

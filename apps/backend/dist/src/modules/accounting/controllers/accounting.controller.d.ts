@@ -24,6 +24,26 @@ export declare class AccountingController {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    getAccountReport(req: RequestWithUser, id: string, startDate?: string, endDate?: string): Promise<{
+        account: {
+            id: string;
+            businessId: string;
+            name: string;
+            type: string;
+            openingBalance: number;
+            balance: number;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+        mutations: {
+            id: string;
+            debit: number;
+            credit: number;
+            date: Date;
+            memo: string | null;
+            refType: string | null;
+        }[];
+    }>;
     create(req: RequestWithUser, dto: CreateAccountDto): Promise<{
         name: string;
         type: string;

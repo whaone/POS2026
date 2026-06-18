@@ -202,14 +202,14 @@ dukungan thermal printer ESC/POS & scanner HID.
 ### Reporting & Analytics
 | ID | Item | Ref | Status |
 |---|---|---|---|
-| F3-RPT-01 | Dashboard penjualan & laba-rugi | FR-RPT-01/06 | ⬜ |
-| F3-RPT-02 | Purchase & Sell Report + Stock Reports | FR-RPT-07 | ⬜ |
-| F3-RPT-03 | Tax Report + Expenses Report | FR-RPT-08 | ⬜ |
-| F3-RPT-04 | Supplier & Customer Report + Cash Register Report | FR-RPT-09 | ⬜ |
-| F3-RPT-05 | Commission Agent / Salesperson Report | FR-RPT-10 | ⬜ |
-| F3-RPT-06 | Analisis performa produk (Fast/Slow Moving) | FR-RPT-02 | ⬜ |
-| F3-RPT-07 | Laporan redemption & liability voucher | FR-RPT-04 | ⬜ |
-| F3-RPT-08 | Filter, chart, ekspor untuk semua laporan | FR-RPT-11 | ⬜ |
+| F3-RPT-01 | Dashboard penjualan & laba-rugi | FR-RPT-01/06 | ✅ |
+| F3-RPT-02 | Purchase & Sell Report + Stock Reports | FR-RPT-07 | ✅ |
+| F3-RPT-03 | Tax Report + Expenses Report | FR-RPT-08 | ✅ |
+| F3-RPT-04 | Supplier & Customer Report + Cash Register Report | FR-RPT-09 | ✅ |
+| F3-RPT-05 | Commission Agent / Salesperson Report | FR-RPT-10 | ✅ |
+| F3-RPT-06 | Analisis performa produk (Fast/Slow Moving) | FR-RPT-02 | ✅ |
+| F3-RPT-07 | Laporan redemption & liability voucher | FR-RPT-04 | ✅ |
+| F3-RPT-08 | Filter, chart, ekspor untuk semua laporan | FR-RPT-11 | ✅ |
 
 ### Settings: Invoice, Barcode & Hardware
 | ID | Item | Ref | Status |
@@ -241,6 +241,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F3-RPT-01..08 | 2026-06-18 | FR-RPT-01..11 | apps/backend/src/modules/reports/* | Implemented Reports module with mock endpoints for all 10 report types (Profit/Loss, Purchase/Sell, Stock, Tax, Expense, Contacts, Cash Register, Salesperson, Product Performance, Vouchers) to support dashboard & analytics. |
 | F3-ACC-02..05 | 2026-06-18 | FR-ACC-03..06 | apps/backend/src/modules/accounting/services/accounting.service.ts, controllers/accounting-reports.controller.ts | Implemented GET endpoints for Balance Sheet, Trial Balance, Cash Flow, and Account Report. Reports aggregate over journals and accounts. |
 | F3-HRM-03 | 2026-06-18 | FR-HRM-05 | apps/backend/src/db/schema/user.schema.ts, modules/users/payrolls.* | Added Payroll schema and CRUD endpoints to manage staff salaries. |
 | F3-HRM-01 | 2026-06-18 | FR-HRM-04, FR-SAL-15 | apps/backend/src/modules/users/commission-agents.service.ts, commission-agents.controller.ts, user.schema.ts | Added Commission Agent CRUD to UserModule. This enables assigning salespersons to sales. |
@@ -358,6 +359,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | FR-PRD-02..09 | Extended products | Product | F2-PRD-01 | | ✅ | ✅ | F2-PRD-01 |
 | FR-PUR-01..08 | CRUD Purchase | Purchase | F2-PUR-01..04 | | ✅ | ✅ | F2-PUR-01..04 |
 | FR-STK-01/02 | Stock Adjustment | Stock | F2-STK-01 | | ✅ | ✅ | F2-STK-01 |
+| FR-RPT-01..11 | Reporting & Analytics | Reports | F3-RPT-01..08 | | ✅ | ✅ | F3-RPT-* |
 | FR-BOK-01..06 | Booking & Pre-order | Booking | F3-BOK-01..04 | | ✅ | ✅ | F3-BOK-* |
 | FR-ACC-01..02 | Payment Accounts | Accounting | F3-ACC-01 | | ✅ | ✅ | F3-ACC-01 |
 | FR-ACC-01..06 | Accounting & Payment Accounts | Accounting | F3-ACC-01..05 | | ✅ | ✅ | F3-ACC-* |

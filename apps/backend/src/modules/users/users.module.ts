@@ -6,15 +6,22 @@ import { ExpensesService } from './expenses.service';
 import { ExpensesController } from './expenses.controller';
 import { CommissionAgentsService } from './commission-agents.service';
 import { CommissionAgentsController } from './commission-agents.controller';
+import { PayrollsService } from './payrolls.service';
+import { PayrollsController } from './payrolls.controller';
 
 @Module({
-  controllers: [ExpensesController, CommissionAgentsController],
+  controllers: [
+    ExpensesController,
+    CommissionAgentsController,
+    PayrollsController,
+  ],
   providers: [
     UsersService,
     UsersRepository,
     RolesService,
     ExpensesService,
     CommissionAgentsService,
+    PayrollsService,
   ],
   exports: [UsersService, RolesService],
 })
