@@ -187,17 +187,17 @@ dukungan thermal printer ESC/POS & scanner HID.
 | ID | Item | Ref | Status |
 |---|---|---|---|
 | F3-ACC-01 | CRUD Payment Account (kas/bank/ewallet) + auto update saldo | FR-ACC-01/02 | ✅ |
-| F3-ACC-02 | Balance Sheet | FR-ACC-03 | ⬜ |
-| F3-ACC-03 | Trial Balance | FR-ACC-04 | ⬜ |
-| F3-ACC-04 | Cash Flow per periode | FR-ACC-05 | ⬜ |
-| F3-ACC-05 | Payment Account Report (mutasi & saldo) | FR-ACC-06 | ⬜ |
+| F3-ACC-02 | Balance Sheet | FR-ACC-03 | ✅ |
+| F3-ACC-03 | Trial Balance | FR-ACC-04 | ✅ |
+| F3-ACC-04 | Cash Flow per periode | FR-ACC-05 | ✅ |
+| F3-ACC-05 | Payment Account Report (mutasi & saldo) | FR-ACC-06 | ✅ |
 
 ### HR: Commission, Expense, Payroll
 | ID | Item | Ref | Status |
 |---|---|---|---|
 | F3-HRM-01 | Commission Agent + perhitungan komisi | FR-HRM-04, FR-SAL-15 | ✅ |
 | F3-HRM-02 | Expense Management + link kas & laporan | FR-HRM-06 | ✅ |
-| F3-HRM-03 | Staff Salary (gaji) | FR-HRM-05 | ⬜ |
+| F3-HRM-03 | Staff Salary (gaji) | FR-HRM-05 | ✅ |
 
 ### Reporting & Analytics
 | ID | Item | Ref | Status |
@@ -241,6 +241,8 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F3-ACC-02..05 | 2026-06-18 | FR-ACC-03..06 | apps/backend/src/modules/accounting/services/accounting.service.ts, controllers/accounting-reports.controller.ts | Implemented GET endpoints for Balance Sheet, Trial Balance, Cash Flow, and Account Report. Reports aggregate over journals and accounts. |
+| F3-HRM-03 | 2026-06-18 | FR-HRM-05 | apps/backend/src/db/schema/user.schema.ts, modules/users/payrolls.* | Added Payroll schema and CRUD endpoints to manage staff salaries. |
 | F3-HRM-01 | 2026-06-18 | FR-HRM-04, FR-SAL-15 | apps/backend/src/modules/users/commission-agents.service.ts, commission-agents.controller.ts, user.schema.ts | Added Commission Agent CRUD to UserModule. This enables assigning salespersons to sales. |
 | F3-HRM-02 | 2026-06-18 | FR-HRM-06 | apps/backend/src/db/schema/user.schema.ts, modules/users/expenses.* | Implemented expense schema in user module, created expense CRUD API (controller, service, dto) in users module. |
 | F3-ACC-01 | 2026-06-18 | FR-ACC-01/02 | apps/backend/src/db/schema/accounting.schema.ts, modules/accounting/* | Implemented accounting schema (accounts, journals) and CRUD for payment accounts. Added accounting module to app.module.ts. |
@@ -358,6 +360,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | FR-STK-01/02 | Stock Adjustment | Stock | F2-STK-01 | | ✅ | ✅ | F2-STK-01 |
 | FR-BOK-01..06 | Booking & Pre-order | Booking | F3-BOK-01..04 | | ✅ | ✅ | F3-BOK-* |
 | FR-ACC-01..02 | Payment Accounts | Accounting | F3-ACC-01 | | ✅ | ✅ | F3-ACC-01 |
+| FR-ACC-01..06 | Accounting & Payment Accounts | Accounting | F3-ACC-01..05 | | ✅ | ✅ | F3-ACC-* |
 | FR-HRM-06 | Expense Management | Users | F3-HRM-02 | | ✅ | ✅ | F3-HRM-02 |
 | FR-CSH-03 | Rekonsiliasi shift | CashRegister | F1-CSH-03 | AC-04 | ⬜ | ⬜ | |
 | FR-AUT-01/02 | Auth + RBAC | Auth | F1-AUTH-01/02 | AC-11, E-PERM-403 | ⬜ | ⬜ | |
