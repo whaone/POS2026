@@ -1,0 +1,56 @@
+name: Update Visual Baselines
+
+# Generate/perbarui baseline visual Playwright (tag @visual) DI LINGKUNGAN CI,
+# lalu commit hasilnya ke branch. Ini memastikan baseline konsisten dengan
+# lingkungan tempat gate berjalan (font/anti-aliasing identik), sehingga
+# visual regression tidak flaky lintas mesin.
+#
+# Cara pakai: jalankan manual dari tab Actions (Run workflow) pada branch terkait.
+# Setelah commit baseline masuk, test visual dapat dijalankan: pnpm --filter web test:e2e:visual
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: visual-baseline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-snapshots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack (pnpm)
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser (chromium + system deps)
+        run: pnpm --filter web exec playwright install --with-deps chromium
+
+      - name: Update visual snapshots
+        run: pnpm --filter web exec playwright test --grep @visual --update-snapshots
+
+      - name: Commit baselines (if changed)
+        run: |
+          if [ -n "$(git status --porcelain apps/web/e2e)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add apps/web/e2e
+            git commit -m "test(web): update Playwright visual baselines [skip ci]"
+            git push
+          else
+            echo "Tidak ada perubahan baseline."
+          fi

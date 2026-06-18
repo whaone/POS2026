@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# SvelteKit / Vite
+.svelte-kit/
+apps/*/.svelte-kit/
+build/
+apps/*/build/
+.vite/
+
+# Env & logs
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Test/coverage
+coverage/
+apps/*/coverage/
+
+# Playwright (keep committed baselines in e2e/__screenshots__)
+test-results/
+apps/*/test-results/
+playwright-report/
+apps/*/playwright-report/
+blob-report/
+.playwright/
+apps/*/.playwright/

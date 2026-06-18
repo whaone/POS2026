@@ -154,8 +154,13 @@ Sebelum item PLAN ditandai ✅, gerbang berikut harus **semua hijau** (lihat `.g
 | 2 | **lint** (eslint) | impor lintas-modul terlarang, anti-pattern, dead code |
 | 3 | **test** (unit + integrasi REQ-driven) | logika bisnis/aturan karangan, AC tidak terpenuhi |
 | 4 | **build** (kompilasi produksi) | kode yang tidak benar-benar dapat di-build |
+| 5 | **e2e** (Playwright, fungsional) | alur layar melenceng dari requirement; UI tak merender data dari util/API |
 
 Prinsip: **jika satu gate merah, pekerjaan belum selesai — titik.** Jangan menonaktifkan/men-skip test atau menambah `// @ts-ignore` untuk "menghijaukan" gate.
+
+**E2E & Visual regression (frontend):**
+- E2E **fungsional** (assertion DOM/perilaku terikat `FR/AC`) masuk gate via skrip `test:e2e` (tag `@visual` dikecualikan).
+- **Visual regression** (`toHaveScreenshot`, tag `@visual`) bersifat **opt-in** (`test:e2e:visual`) karena baseline piksel sensitif terhadap lingkungan (font/AA). **Cara membuat baseline yang konsisten dengan gate:** jalankan workflow **Actions → Update Visual Baselines** (`update-visual-baseline.yml`) yang generate `--update-snapshots` di CI lalu commit baseline. Alternatif lokal: `pnpm --filter web test:e2e:visual --update-snapshots`. Saat menyetujui baseline, bandingkan dengan `reference/frontend/Reference/<layar>/screen.png`. Detail: `apps/web/e2e/README.md`.
 
 ### 6.3 Code Review oleh Agent
 - Setelah gate hijau, untuk perubahan logika kritikal jalankan agent **`pos-code-reviewer`** (didefinisikan di `.kiro/agents/pos-code-reviewer.md`).

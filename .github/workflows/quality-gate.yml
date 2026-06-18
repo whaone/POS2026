@@ -9,14 +9,16 @@ name: Quality Gate
 # discaffold (lihat docs/PLAN.md F1-INFRA-01), gate menjadi ketat otomatis.
 
 on:
+  # Hindari run ganda: branch fitur ditangani lewat event pull_request (saat PR terbuka),
+  # push hanya memicu CI untuk main (mis. setelah merge).
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
     branches: [main]
 
 # Batalkan run lama bila ada push baru pada ref yang sama.
 concurrency:
-  group: quality-gate-${{ github.ref }}
+  group: quality-gate-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -124,3 +126,23 @@ jobs:
       - name: 4) Build
         if: steps.detect.outputs.has_app == 'true'
         run: ${{ steps.pm.outputs.manager }} run build
+
+      # --- E2E (Playwright) ---
+      # Hanya test fungsional yang masuk gate (tag @visual dikecualikan oleh skrip
+      # test:e2e). Visual regression bersifat opt-in karena baseline piksel
+      # sensitif terhadap lingkungan; generate dengan `test:e2e:visual --update-snapshots`.
+      - name: 5a) Install Playwright browser (chromium + system deps)
+        if: steps.detect.outputs.has_app == 'true'
+        run: pnpm --filter web exec playwright install --with-deps chromium
+
+      - name: 5b) E2E (functional, REQ-driven)
+        if: steps.detect.outputs.has_app == 'true'
+        run: ${{ steps.pm.outputs.manager }} run test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure() && steps.detect.outputs.has_app == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7

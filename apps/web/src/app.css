@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design system "Luminous Industrial" — base + glassmorphism utilities.
+   Lihat reference/frontend/Reference/luminous_industrial_1/DESIGN.md */
+@layer base {
+	html {
+		font-family: 'Inter', system-ui, sans-serif;
+	}
+	body {
+		background-color: #fbf9f7;
+		background-image:
+			radial-gradient(at 0% 0%, hsla(158, 100%, 74%, 0.15) 0px, transparent 50%),
+			radial-gradient(at 100% 0%, hsla(28, 100%, 74%, 0.1) 0px, transparent 50%),
+			radial-gradient(at 50% 100%, hsla(158, 100%, 74%, 0.15) 0px, transparent 50%);
+		background-attachment: fixed;
+		min-height: 100vh;
+	}
+}
+
+@layer components {
+	.glass-panel {
+		background-color: rgba(255, 255, 255, 0.7);
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		border: 1px solid rgba(255, 255, 255, 0.5);
+		border-radius: 1.5rem;
+	}
+	.ambient-shadow {
+		box-shadow: 0 20px 40px -10px rgba(0, 108, 71, 0.08);
+	}
+	.btn-primary-glow {
+		background: linear-gradient(135deg, #00885a 0%, #006c47 100%);
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.2),
+			0 10px 20px -5px rgba(0, 108, 71, 0.2);
+		border: 1px solid rgba(0, 108, 71, 0.1);
+	}
+}
