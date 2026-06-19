@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { CoreModule } from './core/core.module';
 import { AppController } from './app.controller';
@@ -35,6 +36,7 @@ import { BackgroundJobsModule } from './modules/background-jobs/background-jobs.
         limit: 100,
       },
     ]),
+    JwtModule.register({ secret: process.env.JWT_SECRET || 'secret' }),
     AuthModule,
     BusinessModule,
     UsersModule,

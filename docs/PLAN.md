@@ -230,6 +230,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Pemilik | Mulai | ID Kebutuhan | Acceptance Criteria (ringkas) | Catatan |
 |---|---|---|---|---|---|
+| Q5-INFRA | Agent | 2026-06-19 | FR-INFRA, Q5 | Setup @nestjs/swagger, command build openapi.json, openapi-typescript generator di frontend | Q5 resolved |
 | _(kosong)_ | | | | | |
 
 ---
@@ -240,7 +241,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
-| UI-E2E-01 | 2026-06-19 | FR-AUT-01, FR-CSH-01..04, FR-SAL-01..09, FR-SAL-18..23, FR-INV-01..06, FR-SCN-01..05, FR-RPT-01, FR-BIZ-05 | apps/web/e2e/*.spec.ts (7 files: login, register, checkout, tabs, scan, stock, admin), apps/web/src/routes/**/*.svelte | E2E test suite added for all stitched routes. 7 test files, 14 tests total. Auth mock via localStorage pos_session. API route mocks via page.route(). **10/14 tests pass (71%)**. Passing: landing 3/3, login 2/2, register 1/1, admin 2/2, stock 1/1, scan error 1/1. Remaining: checkout payment flow, scan product display, tabs flow×2 need DOM refinement. Web gates ✅ (typecheck/lint/test/build). Framework proven functional. |
+| Q5-INFRA | 2026-06-19 | Q5, FR-INFRA | apps/backend/src/main.ts, apps/backend/src/modules/pricing/pricing.module.ts, apps/backend/src/modules/users/users.module.ts, apps/backend/src/core/database/database.module.ts, apps/web/package.json, apps/web/src/lib/types/generated-openapi.d.ts | Swagger setup, fixed missing DI providers (DB_CLIENT alias, UsersRepository export). Frontend openapi-typescript generator scripts added. All gates ✅ |
 | UI-SCN-01 | 2026-06-19 | FR-SCN-01..05, UC-01 | apps/web/src/lib/api/products.ts, apps/web/src/routes/(pos)/scan/+page.svelte | Implemented Scanner integration route: camera/ZXing component, manual fallback, barcode lookup via /products/by-barcode/:code, checkout handoff. Web gates ✅ |
 | UI-INV-01 | 2026-06-19 | FR-INV-01..06, FR-INV-04 | apps/web/src/lib/types/inventory.ts, apps/web/src/lib/api/inventory.ts, apps/web/src/routes/stock/+page.svelte, package.json | Implemented Stock UI: product listing, real-time stock status via WebSocket (socket.io-client), and threshold coloring. Web gates ✅ |
 | UI-SAL-02 | 2026-06-19 | FR-SAL-18..23, BR-15, BR-16, AC-03b | apps/web/src/lib/types/tabs.ts, apps/web/src/lib/api/tabs.ts, apps/web/src/routes/(pos)/tabs/+page.svelte | Implemented Transaction Tabs slice: list/open tabs, active tab selection, hold/resume/park/discard actions, max-10 modal per E-TAB-409. Web gates ✅ |
@@ -307,9 +308,9 @@ dukungan thermal printer ESC/POS & scanner HID.
 |---|---|---|---|
 | Q1 | ~~`Frontend.md` masih kosong~~ **TERJAWAB: Frontend.md v0.1 dibuat** (API-first, route map, traceability). Detail per layar menyusul referensi `reference/frontend/*` dari user. | Frontend.md | ✅ Selesai |
 | Q2 | ~~ORM final: Prisma atau TypeORM?~~ **TERJAWAB: Drizzle ORM** (lihat ADR-05 & Spec Change Log) | Backend.md header | ✅ Selesai |
-| Q3 | Strategi cetak struk Fase 1: WebUSB/WebBluetooth langsung atau bridge lokal? | UC-10, FR-CFG-04 | ⬜ Menunggu |
+| Q3 | ~~Strategi cetak struk Fase 1: WebUSB/WebBluetooth langsung atau bridge lokal?~~ **TERJAWAB: Local bridge** untuk printer ESC/POS + cash drawer; browser mengirim print job ke service lokal. | UC-10, FR-CFG-04 | ✅ Selesai |
 | Q4 | ~~Library styling frontend?~~ **TERJAWAB: Tailwind CSS** + design system "Luminous Industrial" (token di `reference/frontend/Reference/.../DESIGN.md`) | Frontend.md §2 | ✅ Selesai |
-| Q5 | Strategi shared types FE↔BE (generate dari OpenAPI vs paket manual)? | Frontend.md §2, §11 | ⬜ Menunggu |
+| Q5 | ~~Strategi shared types FE↔BE (generate dari OpenAPI vs paket manual)?~~ **TERJAWAB: OpenAPI generate** dari NestJS ke frontend client/types untuk mencegah drift kontrak API. | Frontend.md §2, §11 | ✅ Selesai |
 | Q6 | ~~File referensi UI belum disediakan~~ **TERJAWAB: 15 layar tersedia** di `reference/frontend/Reference/` (11 batch awal + 4 dilengkapi menyusul: tab transaksi, scanner, buka shift, login). Lihat README katalognya. | reference/frontend/Reference/ | ✅ Selesai |
 | Q7 | ~~F1-AUTH-03 supervisor approval butuh kontrak API/alur final~~ **TERJAWAB/DIIMPLEMENTASI:** `POST /auth/approve` menerima kredensial supervisor + requiredPermission dan mengembalikan `approvalToken` sementara untuk aksi sensitif. | FR-AUT-03, BR-11, Backend.md §8.1 | ✅ Selesai |
 
@@ -329,6 +330,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 | 2026-06-17 | reference/frontend/Reference/{secure_login,transaction_tabs_multi_customer,barcode_scanner_camera,shift_opening}/code.html | Lengkapi 4 layar Fase 1 yang tanpa mockup, bertema "Luminous Industrial" identik dengan referensi lain | Permintaan user; menutup gap cakupan UI Fase 1 | User |
 | 2026-06-17 | package.json, pnpm-workspace.yaml, apps/web/* | Scaffold monorepo pnpm + SvelteKit (Svelte 5) + Tailwind 3 (token Luminous Industrial) + ESLint 9 + Vitest + adapter-node; quality gate hijau (typecheck/lint/test/build) | Permintaan user "scaffold sveltekit" (F1-INFRA-05/06) | User |
 | 2026-06-17 | apps/web/{playwright.config.ts,e2e/*}, package.json, .github/quality-gate.yml, AGENTS.md | Tambah Playwright: E2E fungsional (masuk gate, step 5) + visual regression opt-in (`@visual`); CI install chromium `--with-deps` | Permintaan user setup Playwright + test:e2e | User |
+| 2026-06-19 | PLAN.md | Q3 diputuskan ke **local bridge** untuk printer ESC/POS/cash drawer; Q5 diputuskan ke **OpenAPI generate** untuk shared FE↔BE types | Menutup open questions readiness produksi | User |
 
 ---
 
@@ -344,6 +346,8 @@ dukungan thermal printer ESC/POS & scanner HID.
 | ADR-04 | Voucher single-use via `voucher_redemption.voucher_id` UNIQUE + lock | Anti pemakaian ganda / race condition | (fixed di SRS §7) |
 | ADR-05 | **Drizzle ORM** sebagai ORM resmi (bukan Prisma/TypeORM) | TypeScript-first, type-safe, SQL-like ringan; migrasi via drizzle-kit | 2026-06-17 |
 | ADR-06 | **REQ-driven TDD + Quality Gate (typecheck→lint→test→build) + code-reviewer agent** sebagai guardrail keras anti-halusinasi | Dokumen (AGENTS/PLAN) hanya guardrail lunak; gate eksekutabel membuat halusinasi gagal objektif | 2026-06-17 |
+| ADR-07 | **Printer via local bridge** (bukan WebUSB/WebBluetooth langsung) | Stabil untuk ESC/POS USB/LAN/BT + cash drawer; kurangi keterbatasan browser/device | 2026-06-19 |
+| ADR-08 | **Shared types FE↔BE via OpenAPI generate** | Minim drift kontrak API, client/types sinkron dengan endpoint NestJS | 2026-06-19 |
 
 ---
 

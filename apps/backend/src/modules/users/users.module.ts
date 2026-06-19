@@ -23,6 +23,6 @@ import { PayrollsController } from './payrolls.controller';
     CommissionAgentsService,
     PayrollsService,
   ],
-  exports: [UsersService, RolesService],
+  exports: [UsersService, RolesService, UsersRepository],
 })
 export class UsersModule {}

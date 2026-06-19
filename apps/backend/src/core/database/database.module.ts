@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { initDb, closeDb } from '../../db';
 
 export const DATABASE_TOKEN = 'DATABASE_CONNECTION';
+export const LEGACY_DB_CLIENT_TOKEN = 'DB_CLIENT';
 
 @Global()
 @Module({
@@ -25,8 +26,13 @@ export const DATABASE_TOKEN = 'DATABASE_CONNECTION';
         });
       },
     },
+    {
+      provide: LEGACY_DB_CLIENT_TOKEN,
+      inject: [DATABASE_TOKEN],
+      useFactory: (db: unknown) => db,
+    },
   ],
-  exports: [DATABASE_TOKEN],
+  exports: [DATABASE_TOKEN, LEGACY_DB_CLIENT_TOKEN],
 })
 export class DatabaseModule
   implements OnApplicationBootstrap, OnApplicationShutdown

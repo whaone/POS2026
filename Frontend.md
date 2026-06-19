@@ -201,6 +201,6 @@ Petakan kode error backend ke umpan balik UI yang jelas:
 
 **Open Items (butuh keputusan — catat di `docs/PLAN.md`):**
 - Library styling (Tailwind / UnoCSS / lainnya).
-- Strategi shared types (generate dari OpenAPI backend vs paket types manual).
+- [x] Strategi shared types (generate dari OpenAPI backend vs paket types manual). **(Selesai: OpenAPI)**
 - Strategi cetak struk Fase 1 (WebUSB/WebBluetooth langsung vs bridge lokal) — terkait Q3 di PLAN.
 - Detail final tiap layar menyesuaikan file `reference/frontend/*` setelah disediakan user.
