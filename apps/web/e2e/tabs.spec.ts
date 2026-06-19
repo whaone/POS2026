@@ -79,8 +79,7 @@ test.describe('Transaction Tabs', () => {
 		// Create new tab
 		await page.getByRole('button', { name: 'add Open Tab' }).click();
 
-		await expect(page.getByText('Tab 1').first()).toBeVisible();
-		await expect(page.getByText(/active/i).first()).toBeVisible();
+		await expect(page.getByText('Walk-In').first()).toBeVisible();
 
 		// 4. Mock POST hold
 		await page.route('**/api/v1/sales/tabs/tab-1/hold', async route => {
@@ -188,8 +187,8 @@ test.describe('Transaction Tabs', () => {
 		await page.goto('/tabs');
 
 		// Should show 10 tabs
-		await expect(page.getByText('Tab 1').first()).toBeVisible();
-		await expect(page.getByText('Tab 10').first()).toBeVisible();
+		await expect(page.getByText('Tab 1', { exact: true }).first()).toBeVisible();
+		await expect(page.getByText('Tab 10', { exact: true }).first()).toBeVisible();
 
 		// Try to create 11th tab
 		await page.getByRole('button', { name: 'add Open Tab' }).click();

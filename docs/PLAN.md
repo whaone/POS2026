@@ -230,7 +230,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Pemilik | Mulai | ID Kebutuhan | Acceptance Criteria (ringkas) | Catatan |
 |---|---|---|---|---|---|
-| Q5-INFRA | Agent | 2026-06-19 | FR-INFRA, Q5 | Setup @nestjs/swagger, command build openapi.json, openapi-typescript generator di frontend | Q5 resolved |
+| _(kosong)_ | | | | | |
 | _(kosong)_ | | | | | |
 
 ---
@@ -241,6 +241,7 @@ dukungan thermal printer ESC/POS & scanner HID.
 
 | ID Item | Tanggal | ID Kebutuhan | File Berubah | Keputusan Penting |
 |---|---|---|---|---|
+| F1-INT-01 | 2026-06-19 | NFR-DATA-01, FR-SAL-05/07, FR-INV-06, FR-CRM-02 | apps/backend/src/modules/sales/services/checkout.service.ts, apps/backend/src/modules/customers/services/loyalty.service.ts, apps/backend/src/modules/stock/stock.service.ts, apps/backend/src/modules/sales/services/checkout-integration.spec.ts | Fixed cross-module event drift: standardized sale completion event to `transaction.completed`, added sale item payload, wired Stock + Loyalty listeners, and added mocked EventBus integration test. Backend gates ✅ typecheck/lint/test/build. |
 | Q5-INFRA | 2026-06-19 | Q5, FR-INFRA | apps/backend/src/main.ts, apps/backend/src/modules/pricing/pricing.module.ts, apps/backend/src/modules/users/users.module.ts, apps/backend/src/core/database/database.module.ts, apps/web/package.json, apps/web/src/lib/types/generated-openapi.d.ts | Swagger setup, fixed missing DI providers (DB_CLIENT alias, UsersRepository export). Frontend openapi-typescript generator scripts added. All gates ✅ |
 | UI-SCN-01 | 2026-06-19 | FR-SCN-01..05, UC-01 | apps/web/src/lib/api/products.ts, apps/web/src/routes/(pos)/scan/+page.svelte | Implemented Scanner integration route: camera/ZXing component, manual fallback, barcode lookup via /products/by-barcode/:code, checkout handoff. Web gates ✅ |
 | UI-INV-01 | 2026-06-19 | FR-INV-01..06, FR-INV-04 | apps/web/src/lib/types/inventory.ts, apps/web/src/lib/api/inventory.ts, apps/web/src/routes/stock/+page.svelte, package.json | Implemented Stock UI: product listing, real-time stock status via WebSocket (socket.io-client), and threshold coloring. Web gates ✅ |

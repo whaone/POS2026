@@ -27,8 +27,8 @@ export class LoyaltyService {
     return account.pointsBalance;
   }
 
-  // Listen to TransactionCompleted event from CheckoutService
-  @OnEvent('sales.completed')
+  // Listen to transaction.completed event from CheckoutService
+  @OnEvent('transaction.completed')
   async handleTransactionCompleted(payload: {
     saleId: string;
     businessId: string;

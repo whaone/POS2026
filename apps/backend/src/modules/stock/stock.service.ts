@@ -14,7 +14,7 @@ import {
   stockAdjustments,
   stockAdjustmentItems,
 } from '../../db/schema/stock.schema';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class StockService {
@@ -23,6 +23,35 @@ export class StockService {
     private readonly db: NodePgDatabase,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  @OnEvent('transaction.completed')
+  async handleTransactionCompleted(payload: {
+    businessId: string;
+    locationId: string;
+    items: { productId: string; variationId?: string; qty: number }[];
+  }) {
+    for (const item of payload.items) {
+      if (item.productId) {
+        try {
+          await this.deductStock(
+            payload.businessId,
+            payload.locationId,
+            item.productId,
+            item.qty,
+            item.variationId,
+          );
+        } catch (error) {
+          // In a real production system, this should be logged or queued for dead-letter
+          // For now, we try to deduct, but fail silently if stock goes negative,
+          // though ideal ACID compliance would have stock check inside the checkout transaction.
+          console.error(
+            `Failed to deduct stock for product ${item.productId}:`,
+            error,
+          );
+        }
+      }
+    }
+  }
 
   async getStock(businessId: string, locationId: string) {
     return this.db

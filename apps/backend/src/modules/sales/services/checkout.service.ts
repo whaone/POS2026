@@ -9,7 +9,11 @@ import { eq, and } from 'drizzle-orm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DATABASE_TOKEN } from '../../../core/database/database.module';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { sales, salePayments } from '../../../db/schema/sales.schema';
+import {
+  sales,
+  salePayments,
+  saleItems,
+} from '../../../db/schema/sales.schema';
 import { CheckoutPayDto, PaymentMethod } from '../dto/checkout.dto';
 import { VoucherService } from '../../pricing/services/voucher.service';
 
@@ -109,8 +113,14 @@ export class CheckoutService {
         .where(eq(sales.id, sale.id))
         .returning();
 
-      // 6. Emit TransactionCompleted event after transaction succeeds
-      this.eventEmitter.emit('TransactionCompleted', {
+      // 6. Emit transaction.completed event after transaction succeeds
+      // Fetch items for the event payload (needed for stock deduction)
+      const items = await tx
+        .select()
+        .from(saleItems)
+        .where(eq(saleItems.saleId, updatedSale.id));
+
+      this.eventEmitter.emit('transaction.completed', {
         saleId: updatedSale.id,
         businessId: updatedSale.businessId,
         locationId: updatedSale.locationId,
@@ -118,6 +128,11 @@ export class CheckoutService {
         cashierId: updatedSale.cashierId,
         grandTotal: updatedSale.grandTotal,
         paidTotal: updatedSale.paidTotal,
+        items: items.map((i) => ({
+          productId: i.productId,
+          variationId: i.variationId,
+          qty: i.qty,
+        })),
       });
 
       return updatedSale;
