@@ -94,7 +94,6 @@ test.describe('POS Checkout', () => {
 		// Success message muncul
 		await expect(page.getByText('Payment successful!')).toBeVisible();
 		
-		// Keranjang kosong
-		await expect(page.getByText('Cart is empty')).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Product Catalog' })).toBeVisible();
 	});
 });

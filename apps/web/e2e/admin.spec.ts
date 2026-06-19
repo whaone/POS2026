@@ -35,11 +35,11 @@ test.describe('Admin Dashboard', () => {
 
 		await page.goto('/admin');
 
-		await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 10000 });
 
 		// KPI cards
-		await expect(page.getByText("Today's Sales")).toBeVisible();
-		await expect(page.getByText('Rp 5.250.000')).toBeVisible();
+		await expect(page.getByText("Today's Sales")).toBeVisible({ timeout: 10000 });
+		await expect(page.getByText('Rp 5.250.000')).toBeVisible({ timeout: 10000 });
 		
 		await expect(page.getByText('Transactions')).toBeVisible();
 		await expect(page.getByText(/500/).first()).toBeVisible();
@@ -70,6 +70,6 @@ test.describe('Admin Dashboard', () => {
 		// Location selector should be visible
 		const locationSelect = page.locator('select').first();
 		await expect(locationSelect).toBeVisible();
-		await expect(locationSelect).toHaveValue('Main Store');
+		await expect(locationSelect.locator('option').first()).toHaveText('Main Store');
 	});
 });

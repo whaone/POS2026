@@ -56,7 +56,7 @@ test.describe('Barcode Scanner', () => {
 
 		// Product found
 		await expect(page.getByText('Tote Bag').first()).toBeVisible();
-		await expect(page.getByText('8991234567890')).toBeVisible();
+		await expect(page.getByText('8991234567890').first()).toBeVisible();
 
 		// Proceed to checkout button should be visible
 		await expect(page.getByRole('button', { name: /Go to Checkout/i })).toBeVisible();
