@@ -9,14 +9,16 @@ name: Quality Gate
 # discaffold (lihat docs/PLAN.md F1-INFRA-01), gate menjadi ketat otomatis.
 
 on:
+  # Hindari run ganda: branch fitur ditangani lewat event pull_request (saat PR terbuka),
+  # push hanya memicu CI untuk main (mis. setelah merge).
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
     branches: [main]
 
 # Batalkan run lama bila ada push baru pada ref yang sama.
 concurrency:
-  group: quality-gate-${{ github.ref }}
+  group: quality-gate-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

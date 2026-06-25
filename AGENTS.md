@@ -160,7 +160,7 @@ Prinsip: **jika satu gate merah, pekerjaan belum selesai — titik.** Jangan men
 
 **E2E & Visual regression (frontend):**
 - E2E **fungsional** (assertion DOM/perilaku terikat `FR/AC`) masuk gate via skrip `test:e2e` (tag `@visual` dikecualikan).
-- **Visual regression** (`toHaveScreenshot`, tag `@visual`) bersifat **opt-in** (`test:e2e:visual`) karena baseline piksel sensitif terhadap lingkungan (font/AA). Generate/perbarui baseline di lingkungan yang konsisten: `pnpm --filter web test:e2e:visual --update-snapshots`, lalu commit baseline. Saat menyetujui baseline, bandingkan dengan `reference/frontend/Reference/<layar>/screen.png`.
+- **Visual regression** (`toHaveScreenshot`, tag `@visual`) bersifat **opt-in** (`test:e2e:visual`) karena baseline piksel sensitif terhadap lingkungan (font/AA). **Cara membuat baseline yang konsisten dengan gate:** jalankan workflow **Actions → Update Visual Baselines** (`update-visual-baseline.yml`) yang generate `--update-snapshots` di CI lalu commit baseline. Alternatif lokal: `pnpm --filter web test:e2e:visual --update-snapshots`. Saat menyetujui baseline, bandingkan dengan `reference/frontend/Reference/<layar>/screen.png`. Detail: `apps/web/e2e/README.md`.
 
 ### 6.3 Code Review oleh Agent
 - Setelah gate hijau, untuk perubahan logika kritikal jalankan agent **`pos-code-reviewer`** (didefinisikan di `.kiro/agents/pos-code-reviewer.md`).
