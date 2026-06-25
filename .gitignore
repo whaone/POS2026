@@ -2,11 +2,14 @@
 node_modules/
 .pnpm-store/
 
-# SvelteKit / Vite
+# Build output
 .svelte-kit/
 apps/*/.svelte-kit/
 build/
 apps/*/build/
+dist/
+apps/*/dist/
+*.tsbuildinfo
 .vite/
 
 # Env & logs
