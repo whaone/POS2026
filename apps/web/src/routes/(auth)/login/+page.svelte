@@ -65,7 +65,7 @@
 			<p class="mt-1 text-body-md text-on-surface-variant">Sign in to your terminal</p>
 		</div>
 
-		<div class="glass-panel ambient-shadow p-md md:p-lg">
+		<div class="glass-panel ambient-shadow animate-rise p-md md:p-lg">
 			{#if errorMessage}
 				<div
 					class="mb-6 flex items-center gap-3 rounded-xl border border-error/20 bg-error-container/40 px-4 py-3 text-on-error-container"
