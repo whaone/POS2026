@@ -4,7 +4,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { eq, and, between } from 'drizzle-orm';
+import { eq, and, between, gte, lte, sql, type SQL } from 'drizzle-orm';
 import { DATABASE_TOKEN } from '../../../core/database/database.module';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
@@ -12,6 +12,7 @@ import {
   journalEntries,
   journalLines,
 } from '../../../db/schema/accounting.schema';
+import { shifts, cashMovements } from '../../../db/schema/cash-register.schema';
 import { CreateAccountDto, UpdateAccountDto } from '../dto/accounting.dto';
 
 @Injectable()
@@ -214,15 +215,33 @@ export class AccountingService {
     };
   }
 
-  getCashFlow(businessId: string, startDate?: Date, endDate?: Date) {
-    // Return mock data for cash flow report based on requirements
+  async getCashFlow(businessId: string, startDate?: Date, endDate?: Date) {
+    // Operating cash flow is derived from the cash-movement ledger of every
+    // shift in this business. Investing/financing are not tracked in the
+    // simplified accounting model, so they are reported as zero.
+    const filters: SQL[] = [eq(shifts.businessId, businessId)];
+    if (startDate) filters.push(gte(cashMovements.createdAt, startDate));
+    if (endDate) filters.push(lte(cashMovements.createdAt, endDate));
+
+    const [flow] = await this.db
+      .select({
+        inflow: sql<number>`coalesce(sum(case when ${cashMovements.type} in ('in', 'sale') then ${cashMovements.amount} else 0 end), 0)`,
+        outflow: sql<number>`coalesce(sum(case when ${cashMovements.type} in ('out', 'refund', 'expense') then ${cashMovements.amount} else 0 end), 0)`,
+      })
+      .from(cashMovements)
+      .innerJoin(shifts, eq(cashMovements.shiftId, shifts.id))
+      .where(and(...filters));
+
+    const inflow = Math.round(Number(flow?.inflow ?? 0));
+    const outflow = Math.round(Number(flow?.outflow ?? 0));
+    const net = inflow - outflow;
+
     return {
-      message: 'Cash flow report',
-      period: { start: startDate, end: endDate },
-      operatingActivities: { inflow: 0, outflow: 0, net: 0 },
+      period: { start: startDate ?? null, end: endDate ?? null },
+      operatingActivities: { inflow, outflow, net },
       investingActivities: { inflow: 0, outflow: 0, net: 0 },
       financingActivities: { inflow: 0, outflow: 0, net: 0 },
-      netIncreaseInCash: 0,
+      netIncreaseInCash: net,
     };
   }
 }

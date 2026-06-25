@@ -6,7 +6,7 @@ import {
   PaymentReminderProcessor,
   StockAlertsProcessor,
   LoyaltyRecalcProcessor,
-} from './processors/mock.processors';
+} from './processors/job.processors';
 
 @Module({
   imports: [

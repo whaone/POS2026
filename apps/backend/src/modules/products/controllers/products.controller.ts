@@ -89,7 +89,7 @@ export class ProductsController {
     return this.productsService.removeVariation(id);
   }
 
-  // CSV Import mock endpoint (accepts array for now to simulate parsed CSV)
+  // Bulk import: client parses the CSV and posts the resulting product rows.
   @Post('products/import')
   importProducts(
     @CurrentUser() user: JwtPayload,
@@ -99,16 +99,16 @@ export class ProductsController {
   }
 
   @Post('products/barcodes/print')
-  printBarcodes(
+  async printBarcodes(
     @CurrentUser() user: JwtPayload,
     @Body() payload: { productId: string; variationId?: string; qty: number }[],
   ) {
-    // Return mock data for printing service
-    return {
-      success: true,
-      message: 'Barcode print jobs queued',
-      jobs: payload,
-    };
+    const { count, labels } =
+      await this.productsService.generateBarcodeLabels(
+        user.businessId,
+        payload,
+      );
+    return { success: true, count, labels };
   }
 
   // Master Data

@@ -39,7 +39,7 @@ export class JobsDispatcherService {
     businessId: string;
     grandTotal: number;
   }) {
-    // Schedule a mock payment reminder 7 days later
+    // Schedule a payment-due reminder 7 days after goods are received
     await this.paymentQueue.add('check-payment-due', payload, {
       delay: 7 * 24 * 60 * 60 * 1000,
     });

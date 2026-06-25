@@ -130,7 +130,8 @@ export class ProductsService {
     return { success: true };
   }
 
-  // CSV Import
+  // Bulk import of already-parsed CSV rows (the client parses the file and
+  // posts a row array). Each row becomes a product in a single transaction.
   async importCsv(businessId: string, productsData: CreateProductDto[]) {
     if (!productsData || productsData.length === 0) return [];
 
@@ -145,6 +146,39 @@ export class ProductsService {
       }
       return results;
     });
+  }
+
+  // Resolve printable barcode labels for the requested products. Returns one
+  // label per unit (expanded by qty) carrying the data a label renderer or
+  // ESC/POS driver needs. Actual printing happens on the client/hardware.
+  async generateBarcodeLabels(
+    businessId: string,
+    payload: { productId: string; variationId?: string; qty: number }[],
+  ) {
+    const labels: {
+      productId: string;
+      variationId?: string;
+      name: string;
+      sku: string;
+      barcode: string;
+    }[] = [];
+
+    for (const item of payload) {
+      const product = await this.findProductById(businessId, item.productId);
+      const copies = Math.max(1, Math.trunc(item.qty ?? 1));
+      for (let i = 0; i < copies; i++) {
+        labels.push({
+          productId: product.id,
+          variationId: item.variationId,
+          name: product.name,
+          sku: product.sku,
+          // Fall back to SKU when no dedicated barcode is configured.
+          barcode: product.barcode ?? product.sku,
+        });
+      }
+    }
+
+    return { count: labels.length, labels };
   }
 
   // Master data queries
