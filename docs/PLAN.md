@@ -27,11 +27,12 @@ Item tanpa ID = indikasi scope creep → jangan dikerjakan.
 
 | Field | Nilai |
 |---|---|
-| Fase aktif | **Semua fase utama selesai** (Fase 1–3) |
-| Status implementasi | Fase 1 selesai 100%. Fase 2 selesai 100%. Fase 3 selesai 100%. Backend modular monolith siap untuk hardening integrasi, E2E, dan frontend stitching. Frontend stitching: Login + Shift Panel + POS Checkout + Transaction Tabs + Stock UI + Scanner Integration + Admin Dashboard selesai. |
-| Branch kerja | `main` |
-| Pemegang tugas terakhir | Agent (Frontend stitching) |
-| Update terakhir | 2026-06-19 |
+| Fase aktif | **Semua fase utama selesai** (Fase 1–3); fase hardening berjalan |
+| Status implementasi | Fase 1–3 terimplementasi (15 modul domain, 24 controller, 26 service). Frontend stitching selesai (Login + Shift Panel + POS Checkout + Transaction Tabs + Stock UI + Scanner + Admin Dashboard). **Audit 2026-06-25:** beberapa fitur Fase 3 sempat dirilis sebagai _stub_ (data hardcoded, lolos typecheck tapi tidak query DB) — kini diperbaiki menjadi implementasi nyata (lihat Spec Change Log). |
+| Branch kerja | `docs/anti-drift-and-drizzle` (PR #2) |
+| Pemegang tugas terakhir | Agent (audit stub + remediasi + polish FE) |
+| Update terakhir | 2026-06-25 |
+| Hutang teknis diketahui | Cakupan test rendah: 5 file `*.spec.ts` untuk 26 service (~19%). DoD AGENTS §6 menuntut REQ-driven test + 80%. Backfill test untuk jalur kritikal (idempotency, rekonsiliasi kas, tab limit, lock stok, RBAC) belum dikerjakan. |
 
 ---
 
@@ -333,6 +334,10 @@ dukungan thermal printer ESC/POS & scanner HID.
 | 2026-06-17 | package.json, pnpm-workspace.yaml, apps/web/* | Scaffold monorepo pnpm + SvelteKit (Svelte 5) + Tailwind 3 (token Luminous Industrial) + ESLint 9 + Vitest + adapter-node; quality gate hijau (typecheck/lint/test/build) | Permintaan user "scaffold sveltekit" (F1-INFRA-05/06) | User |
 | 2026-06-17 | apps/web/{playwright.config.ts,e2e/*}, package.json, .github/quality-gate.yml, AGENTS.md | Tambah Playwright: E2E fungsional (masuk gate, step 5) + visual regression opt-in (`@visual`); CI install chromium `--with-deps` | Permintaan user setup Playwright + test:e2e | User |
 | 2026-06-19 | PLAN.md | Q3 diputuskan ke **local bridge** untuk printer ESC/POS/cash drawer; Q5 diputuskan ke **OpenAPI generate** untuk shared FE↔BE types | Menutup open questions readiness produksi | User |
+| 2026-06-25 | reports.service.ts, accounting.service.ts, products.{controller,service}.ts, background-jobs/* | Ganti service _stub_ dengan implementasi DB nyata: ReportsService (10 metode → agregasi Drizzle), cash-flow (ledger kas), barcode print (data produk nyata), processor job (rename `mock`→`job`, kerja DB nyata). Diverifikasi: typecheck hijau, 15/15 jest, probe live report mengembalikan nilai nyata. | Audit menemukan fitur Fase 3 dirilis sebagai stub; "fix all" diminta user | User |
+| 2026-06-25 | apps/web/src/app.css, routes/+page.svelte, login | Refine design layer "Luminous Industrial" (depth/glass/motion/grain/scrollbar/focus) + polish landing & login. Web typecheck + build hijau; baseline `@visual` perlu regen. | Permintaan user "make more elegant" | User |
+| 2026-06-25 | .gitignore, apps/backend/dist (untrack) | Hentikan tracking output build `dist/` (397 file); tambah `dist/`, `*.tsbuildinfo` ke gitignore | Artefak build mengotori diff/review | User |
+| 2026-06-25 | docs/PLAN.md | Rekonsiliasi: working-tree sempat ter-revert ke status "Fase 1 aktif / backend belum mulai" (−226 baris) yang bertentangan dengan kode (Fase 1–3 ada). Dipulihkan dari HEAD + distempel realita audit. | Anti-drift doc justru drift dari kode | User |
 
 ---
 
