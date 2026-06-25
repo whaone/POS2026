@@ -32,7 +32,7 @@ Item tanpa ID = indikasi scope creep → jangan dikerjakan.
 | Branch kerja | `docs/anti-drift-and-drizzle` (PR #2) |
 | Pemegang tugas terakhir | Agent (audit stub + remediasi + polish FE) |
 | Update terakhir | 2026-06-25 |
-| Hutang teknis diketahui | Cakupan test rendah: 5 file `*.spec.ts` untuk 26 service (~19%). DoD AGENTS §6 menuntut REQ-driven test + 80%. Backfill test untuk jalur kritikal (idempotency, rekonsiliasi kas, tab limit, lock stok, RBAC) belum dikerjakan. |
+| Hutang teknis diketahui | **Sebagian terbayar (2026-06-25):** jalur kritikal kini ter-test — idempotency checkout (FR-SAL-09), rekonsiliasi kas (FR-CSH-03/BR-07), tab limit (FR-SAL-18/E-TAB-409), RBAC (FR-AUT-02/E-PERM-403), plus stok/voucher/purchases yang sudah ada. Suite: 9 file spec / 33 test hijau. **Sisa:** cakupan menyeluruh ke 80% (DoD AGENTS §6) belum tercapai untuk semua 26 service; modul reporting/accounting/booking/business belum punya unit test. |
 
 ---
 
